@@ -189,9 +189,9 @@ const ICON_SHARE= `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 
 // Font-Switcher: Liste + früher Apply (vor Render, kein Flash). Default Inter.
 const FONT_INIT = `
-window.KIT_FONTS=[{n:"Inter",s:"inter",c:"Grotesk"},{n:"Archivo",s:"archivo",c:"Grotesk"},{n:"Archivo Narrow",s:"archivo-narrow",c:"Grotesk"},{n:"Archivo Black",s:"archivo-black",c:"Grotesk",w:"400,700,900"},{n:"Schibsted Grotesk",s:"schibsted-grotesk",c:"Grotesk"},{n:"Bricolage Grotesque",s:"bricolage-grotesque",c:"Grotesk"},{n:"Libre Franklin",s:"libre-franklin",c:"Grotesk"},{n:"Space Grotesk",s:"space-grotesk",c:"Grotesk"},{n:"Work Sans",s:"work-sans",c:"Grotesk"},{n:"Familjen Grotesk",s:"familjen-grotesk",c:"Grotesk"},{n:"Hanken Grotesk",s:"hanken-grotesk",c:"Grotesk"},{n:"Source Sans 3",s:"source-sans-3",c:"Humanistisch"},{n:"Fira Sans",s:"fira-sans",c:"Humanistisch"},{n:"Public Sans",s:"public-sans",c:"Humanistisch"},{n:"Mulish",s:"mulish",c:"Humanistisch"},{n:"Montserrat",s:"montserrat",c:"Geometrisch"},{n:"Poppins",s:"poppins",c:"Geometrisch"},{n:"Sora",s:"sora",c:"Geometrisch"},{n:"Lexend",s:"lexend",c:"Geometrisch"},{n:"Oswald",s:"oswald",c:"Condensed"},{n:"Barlow",s:"barlow",c:"Condensed"},{n:"Barlow Condensed",s:"barlow-condensed",c:"Condensed"},{n:"Barlow Semi Condensed",s:"barlow-semi-condensed",c:"Condensed"},{n:"Saira",s:"saira",c:"Condensed"},{n:"Saira Condensed",s:"saira-condensed",c:"Condensed"},{n:"Saira Semi Condensed",s:"saira-semi-condensed",c:"Condensed"},{n:"Geist",s:"geist",c:"Neuer"},{n:"Geist Mono",s:"geist-mono",g:"monospace",c:"Neuer"},{n:"Instrument Sans",s:"instrument-sans",c:"Neuer"},{n:"Onest",s:"onest",c:"Neuer"},{n:"Figtree",s:"figtree",c:"Neuer"},{n:"Albert Sans",s:"albert-sans",c:"Neuer"}];
-window.KIT_FONT_CATS=["Grotesk","Humanistisch","Geometrisch","Condensed","Neuer"];
-window.KIT_PAIRS=[{n:"Nordisch editorial",h:"schibsted-grotesk",b:"source-sans-3"},{n:"Zeitungsklassiker",h:"libre-franklin",b:"source-sans-3"},{n:"Headline-Werkstatt",h:"archivo",b:"inter"},{n:"Display mit Charakter",h:"bricolage-grotesque",b:"inter"},{n:"Geometrisch & sauber",h:"space-grotesk",b:"work-sans"},{n:"Masthead / Condensed",h:"oswald",b:"public-sans"},{n:"Tech-editorial",h:"geist",b:"inter"},{n:"Eine Familie",h:"archivo-black",b:"archivo"},{n:"Warm & lesbar",h:"familjen-grotesk",b:"mulish"}];
+window.KIT_FONTS=[{n:"Inter",s:"inter",c:"Grotesk"},{n:"Archivo",s:"archivo",c:"Grotesk"},{n:"Archivo Narrow",s:"archivo-narrow",c:"Grotesk"},{n:"Archivo Black",s:"archivo-black",c:"Grotesk",w:"400,700,900"},{n:"Schibsted Grotesk",s:"schibsted-grotesk",c:"Grotesk"},{n:"Bricolage Grotesque",s:"bricolage-grotesque",c:"Grotesk"},{n:"Libre Franklin",s:"libre-franklin",c:"Grotesk"},{n:"Space Grotesk",s:"space-grotesk",c:"Grotesk"},{n:"Work Sans",s:"work-sans",c:"Grotesk"},{n:"Familjen Grotesk",s:"familjen-grotesk",c:"Grotesk"},{n:"Hanken Grotesk",s:"hanken-grotesk",c:"Grotesk"},{n:"Source Sans 3",s:"source-sans-3",c:"Humanistisch"},{n:"Fira Sans",s:"fira-sans",c:"Humanistisch"},{n:"Public Sans",s:"public-sans",c:"Humanistisch"},{n:"Mulish",s:"mulish",c:"Humanistisch"},{n:"Montserrat",s:"montserrat",c:"Geometrisch"},{n:"Poppins",s:"poppins",c:"Geometrisch"},{n:"Sora",s:"sora",c:"Geometrisch"},{n:"Lexend",s:"lexend",c:"Geometrisch"},{n:"Oswald",s:"oswald",c:"Condensed"},{n:"Barlow",s:"barlow",c:"Condensed"},{n:"Barlow Condensed",s:"barlow-condensed",c:"Condensed"},{n:"Barlow Semi Condensed",s:"barlow-semi-condensed",c:"Condensed"},{n:"Saira",s:"saira",c:"Condensed"},{n:"Saira Condensed",s:"saira-condensed",c:"Condensed"},{n:"Saira Semi Condensed",s:"saira-semi-condensed",c:"Condensed"},{n:"Geist",s:"geist",c:"Neuer"},{n:"Geist Mono",s:"geist-mono",g:"monospace",c:"Neuer"},{n:"Instrument Sans",s:"instrument-sans",c:"Neuer"},{n:"Onest",s:"onest",c:"Neuer"},{n:"Figtree",s:"figtree",c:"Neuer"},{n:"Albert Sans",s:"albert-sans",c:"Neuer"},{n:"Playfair Display",s:"playfair-display",g:"serif",c:"Serif Display"},{n:"Fraunces",s:"fraunces",g:"serif",c:"Serif Display"},{n:"DM Serif Display",s:"dm-serif-display",g:"serif",c:"Serif Display",w:"400"},{n:"Cormorant Garamond",s:"cormorant-garamond",g:"serif",c:"Serif Display"},{n:"Instrument Serif",s:"instrument-serif",g:"serif",c:"Serif Display",w:"400"},{n:"Lora",s:"lora",g:"serif",c:"Serif Text"},{n:"Source Serif 4",s:"source-serif-4",g:"serif",c:"Serif Text"},{n:"Newsreader",s:"newsreader",g:"serif",c:"Serif Text"},{n:"Spectral",s:"spectral",g:"serif",c:"Serif Text"},{n:"Libre Baskerville",s:"libre-baskerville",g:"serif",c:"Serif Text",w:"400,700"},{n:"Crimson Pro",s:"crimson-pro",g:"serif",c:"Serif Text"},{n:"Merriweather",s:"merriweather",g:"serif",c:"Serif Text",w:"400,700,900"},{n:"Literata",s:"literata",g:"serif",c:"Serif Text"},{n:"Bitter",s:"bitter",g:"serif",c:"Serif Text"},{n:"PT Serif",s:"pt-serif",g:"serif",c:"Serif Text",w:"400,700"}];
+window.KIT_FONT_CATS=["Grotesk","Humanistisch","Geometrisch","Condensed","Neuer","Serif Display","Serif Text"];
+window.KIT_PAIRS=[{n:"Nordisch editorial",h:"schibsted-grotesk",b:"source-sans-3"},{n:"Zeitungsklassiker",h:"libre-franklin",b:"source-sans-3"},{n:"Headline-Werkstatt",h:"archivo",b:"inter"},{n:"Display mit Charakter",h:"bricolage-grotesque",b:"inter"},{n:"Geometrisch & sauber",h:"space-grotesk",b:"work-sans"},{n:"Masthead / Condensed",h:"oswald",b:"public-sans"},{n:"Tech-editorial",h:"geist",b:"inter"},{n:"Eine Familie",h:"archivo-black",b:"archivo"},{n:"Warm & lesbar",h:"familjen-grotesk",b:"mulish"},{n:"Hochkontrast-Magazin",h:"playfair-display",b:"source-serif-4"},{n:"Serife trifft Grotesk",h:"fraunces",b:"inter"},{n:"Buch / Longform",h:"cormorant-garamond",b:"crimson-pro"},{n:"News-Longform",h:"libre-franklin",b:"newsreader"},{n:"Instrument-Duo",h:"instrument-serif",b:"instrument-sans"},{n:"Redaktion klassisch",h:"dm-serif-display",b:"lora"}];
 window.KIT_DEFAULT_HEAD="inter";window.KIT_DEFAULT_BODY="inter";
 (function(){var loaded={inter:1};function ff(slug){for(var i=0;i<window.KIT_FONTS.length;i++)if(window.KIT_FONTS[i].s===slug)return window.KIT_FONTS[i];return window.KIT_FONTS[0];}function ld(f){if(loaded[f.s])return;var l=document.createElement("link");l.rel="stylesheet";l.href="https://fonts.bunny.net/css?family="+f.s+":"+(f.w||"400,500,600,700")+"&display=swap";document.head.appendChild(l);loaded[f.s]=1;}window.kitApplyFont=function(role,slug,save){var f=ff(slug);ld(f);document.documentElement.style.setProperty(role==="head"?"--font-head":"--font-body",'"'+f.n+'", '+(f.g||"sans-serif"));if(save){try{localStorage.setItem(role==="head"?"kitFontHead":"kitFontBody",f.s);}catch(e){}}};try{var sh=localStorage.getItem("kitFontHead");if(sh&&sh!==window.KIT_DEFAULT_HEAD)window.kitApplyFont("head",sh,false);}catch(e){}try{var sb=localStorage.getItem("kitFontBody");if(sb&&sb!==window.KIT_DEFAULT_BODY)window.kitApplyFont("body",sb,false);}catch(e){}})();
 `;
@@ -209,11 +209,11 @@ function head(title) {
 <script type="text/javascript" src="https://steady.page/widget_loader/${STEADY_PUBLICATION_ID}"></script>
 </head><body>`;
 }
-function header({ tabs = false } = {}) {
+function header({ tabs = false, active = "" } = {}) {
   const nav = tabs ? `
 <nav class="tabs"><div class="container tabs__inner">
-  <a class="tab tab--active" href="/">Ausgaben</a>
-  <a class="tab" href="/memberships">Mitglied werden</a>
+  <a class="tab${active === "posts" ? " tab--active" : ""}" href="/">Ausgaben</a>
+  <a class="tab${active === "memberships" ? " tab--active" : ""}" href="/memberships">Mitglied werden</a>
   <a class="tab" href="https://steady.page/de/sebastian/newsletter/sign_up" target="_blank" rel="noopener">Newsletter anmelden</a>
 </div></nav>` : "";
   return `<header class="site-header"><div class="container site-header__inner">
@@ -280,7 +280,7 @@ export function renderLanding(items, page = 1) {
     ? `<div class="loadmore-wrap"><button class="load-more" id="js-loadmore" data-next="${p + 1}" data-pages="${pages}">Mehr laden</button></div>`
     : "";
 
-  return head(PUBLICATION) + header({ tabs: true }) + `
+  return head(PUBLICATION) + header({ tabs: true, active: "posts" }) + `
 <main>
 <section class="hero"><div class="container hero__grid">
   <div class="hero__body">
@@ -336,13 +336,13 @@ export function renderPost(item) {
 }
 
 export function renderEmpty() {
-  return head(PUBLICATION) + header({ tabs: true }) +
+  return head(PUBLICATION) + header({ tabs: true, active: "posts" }) +
     `<main><div class="container" style="padding:80px 0;color:var(--color-line)">Inhalte laden gerade nicht. Bitte gleich neu laden.</div></main>` +
     footer();
 }
 
 export function renderMemberships() {
-  return head("Mitglied werden — " + PUBLICATION) + header({ tabs: true }) + `
+  return head("Mitglied werden — " + PUBLICATION) + header({ tabs: true, active: "memberships" }) + `
 <main><div class="container" style="padding:48px 0 72px">
   <h1 style="font-family:var(--font-head);font-size:34px;font-weight:var(--weight-heading);text-align:center;letter-spacing:-.01em;margin:0 0 10px">Mitglied werden</h1>
   <p style="text-align:center;color:var(--color-ink-soft);font-size:18px;margin:0 0 40px">Wähle deine Mitgliedschaft — der Checkout läuft direkt hier auf der Seite.</p>
