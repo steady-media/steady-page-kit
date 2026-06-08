@@ -85,8 +85,7 @@ function topCategories(items) {
 
 const CSS = `
 :root{
-  --font-sans:"DM Sans","CircularStd",Arial,sans-serif;
-  --font-serif:"Lora",Georgia,serif;
+  --font-sans:"Inter", system-ui, -apple-system, sans-serif;
   --text-base:18px; --text-h1:50px; --lh-h1:1.12; --text-card-title:18px; --text-nav:16px; --text-pill:12px;
   --weight-heading:700; --weight-body:400;
   --color-ink:#291E38; --color-ink-soft:#6B6577; --color-brand:#137EC0; --color-accent:#FF7264;
@@ -152,7 +151,7 @@ a{color:inherit;text-decoration:none;} img{display:block;max-width:100%;}
 .post__engagement span{display:inline-flex;align-items:center;gap:7px;} .post__engagement svg{width:18px;height:18px;}
 .post__byline{font-size:14px;color:var(--color-line);margin:14px 0 0;padding-bottom:26px;border-bottom:1px solid var(--color-hairline);}
 .post__figure{margin:30px 0;} .post__figure img{width:100%;border-radius:var(--radius-card);background:var(--color-line);}
-.post__body{font-family:var(--font-serif);font-size:22px;line-height:1.45;color:var(--color-ink);}
+.post__body{font-family:var(--font-sans);font-size:22px;line-height:1.45;color:var(--color-ink);}
 .post__body p{margin:0 0 26px;} .post__body p.lede{font-weight:600;}
 .post__readon{margin:14px 0 8px;}
 /* footer */
@@ -162,6 +161,7 @@ a{color:inherit;text-decoration:none;} img{display:block;max-width:100%;}
 .footer__wordmark{height:22px;width:auto;opacity:.9;} .footer__by{font-size:14px;color:var(--color-line);}
 .footer__links{display:flex;flex-wrap:wrap;gap:20px;font-size:14px;color:var(--color-ink-soft);}
 .footer__lang{font-size:14px;color:var(--color-ink-soft);border:1px solid var(--color-hairline);padding:7px 12px;border-radius:2px;}
+.footer__select{font:inherit;font-size:14px;color:var(--color-ink-soft);border:1px solid var(--color-hairline);padding:7px 12px;border-radius:2px;background:#fff;cursor:pointer;}
 @media (max-width:900px){.hero__grid{grid-template-columns:1fr;gap:28px;}.grid{grid-template-columns:repeat(2,1fr);}:root{--text-h1:38px;}}
 @media (max-width:680px){.post__title{font-size:34px;}.post__body{font-size:20px;}}
 @media (max-width:560px){.grid{grid-template-columns:1fr;}.header-actions .btn--outline{display:none;}}
@@ -177,18 +177,22 @@ const ICON_SHARE= `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 
 /* ------------------------------------------------------------------ Chrome */
 
-function head(title, { serif = false } = {}) {
-  const fonts = serif
-    ? "family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Lora:ital,wght@0,400;0,600;1,400"
-    : "family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700";
+// Font-Switcher: Liste + früher Apply (vor Render, kein Flash). Default Inter.
+const FONT_INIT = `
+window.KIT_FONTS=[{n:"Inter",s:"inter",g:"sans-serif"},{n:"DM Sans",s:"dm-sans",g:"sans-serif"},{n:"Roboto",s:"roboto",g:"sans-serif"},{n:"Open Sans",s:"open-sans",g:"sans-serif"},{n:"Poppins",s:"poppins",g:"sans-serif"},{n:"Montserrat",s:"montserrat",g:"sans-serif"},{n:"Work Sans",s:"work-sans",g:"sans-serif"},{n:"Nunito",s:"nunito",g:"sans-serif"},{n:"Figtree",s:"figtree",g:"sans-serif"},{n:"Space Grotesk",s:"space-grotesk",g:"sans-serif"},{n:"IBM Plex Sans",s:"ibm-plex-sans",g:"sans-serif"},{n:"Lora",s:"lora",g:"serif"},{n:"Merriweather",s:"merriweather",g:"serif"},{n:"Playfair Display",s:"playfair-display",g:"serif"}];
+window.KIT_FONT_DEFAULT="inter";
+(function(){var loaded={inter:1};window.kitApplyFont=function(slug,save){var f=null,i;for(i=0;i<window.KIT_FONTS.length;i++){if(window.KIT_FONTS[i].s===slug){f=window.KIT_FONTS[i];break;}}if(!f)f=window.KIT_FONTS[0];if(!loaded[f.s]){var l=document.createElement("link");l.rel="stylesheet";l.href="https://fonts.bunny.net/css?family="+f.s+":400,500,600,700&display=swap";document.head.appendChild(l);loaded[f.s]=1;}document.documentElement.style.setProperty("--font-sans",'"'+f.n+'", '+f.g);if(save){try{localStorage.setItem("kitFont",f.s);}catch(e){}}};try{var sv=localStorage.getItem("kitFont");if(sv&&sv!==window.KIT_FONT_DEFAULT)window.kitApplyFont(sv,false);}catch(e){}})();
+`;
+
+function head(title) {
   return `<!DOCTYPE html><html lang="de"><head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>${esc(title)}</title>
 <link rel="icon" href="/assets/favicon.png"/>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?${fonts}&display=swap" rel="stylesheet"/>
+<link rel="preconnect" href="https://fonts.bunny.net" crossorigin/>
+<link id="kit-font-css" href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet"/>
 <style>${CSS}</style>
+<script>${FONT_INIT}</script>
 <!-- Steady Smart Layers / Checkout / Paywall — der echte Steady-Layer -->
 <script type="text/javascript" src="https://steady.page/widget_loader/${STEADY_PUBLICATION_ID}"></script>
 </head><body>`;
@@ -213,8 +217,18 @@ function footer() {
   <span class="footer__by">by ${esc(AUTHOR)}</span></div>
   <nav class="footer__links"><a href="#">Imprint</a><a href="#">Privacy Policy</a>
   <a href="#">Terms &amp; Conditions</a><a href="#">Help</a><a href="#">Discover Steady</a></nav>
+  <select id="font-picker" class="footer__select" aria-label="Schriftart wählen" title="Schrift ändern (alle Texte)"></select>
   <span class="footer__lang">English ▾</span></div></footer>
-<script>(function(){var a=document.getElementById("js-newsletter");if(!a)return;a.addEventListener("click",function(e){e.preventDefault();var s=window.SteadyWidgetSettings||{};var u=s.newsletterSubscribeUrl;if(!u&&s.newsletterUrl)u=(typeof s.newsletterUrl==="object"&&s.newsletterUrl)?(s.newsletterUrl.href||s.newsletterUrl.url):s.newsletterUrl;if(u)window.open(u,"_blank","noopener");});})();</script>
+<script>(function(){
+  var a=document.getElementById("js-newsletter");
+  if(a)a.addEventListener("click",function(e){e.preventDefault();var s=window.SteadyWidgetSettings||{};var u=s.newsletterSubscribeUrl;if(!u&&s.newsletterUrl)u=(typeof s.newsletterUrl==="object"&&s.newsletterUrl)?(s.newsletterUrl.href||s.newsletterUrl.url):s.newsletterUrl;if(u)window.open(u,"_blank","noopener");});
+  var sel=document.getElementById("font-picker");
+  if(sel&&window.KIT_FONTS){
+    var cur=window.KIT_FONT_DEFAULT;try{cur=localStorage.getItem("kitFont")||cur;}catch(e){}
+    for(var i=0;i<window.KIT_FONTS.length;i++){var f=window.KIT_FONTS[i];var o=document.createElement("option");o.value=f.s;o.textContent=f.n;if(f.s===cur)o.selected=true;sel.appendChild(o);}
+    sel.addEventListener("change",function(){window.kitApplyFont(sel.value,true);});
+  }
+})();</script>
 </body></html>`;
 }
 
@@ -280,7 +294,7 @@ function renderPagination(p, pages) {
 }
 
 export function renderPost(item) {
-  return head(`${item.title} — ${PUBLICATION}`, { serif: true }) + header({ tabs: false }) + `
+  return head(`${item.title} — ${PUBLICATION}`) + header({ tabs: false }) + `
 <main><article class="post container">
   <a class="post__back" href="/">${ICON_BACK} ${esc(PUBLICATION)}</a>
   <h1 class="post__title">${esc(item.title)}</h1>
