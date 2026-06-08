@@ -80,6 +80,12 @@ function topCategories(items) {
   }
   return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, MAX_PILLS).map(e => e[0]);
 }
+// Kategorie → URL-Slug (für /rubrik/:slug)
+export function slugify(s) {
+  return String(s || "").toLowerCase()
+    .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
+    .replace(/&/g, " und ").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
 
 /* ------------------------------------------------------------------ Struktur-Config (Cookie) */
 // Vom Side-Panel gesetzter Cookie kitstruct=shell=portal&auf=gross&stream=rubrik&rails=neueste,meist,themen
@@ -189,7 +195,8 @@ html.nav-figma .tabs__search svg{width:17px;height:17px;}
 /* pills */
 .pills{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;padding:8px 0 40px;}
 .pill{font-size:var(--text-pill);letter-spacing:.04em;text-transform:uppercase;color:var(--color-ink);
-      border:1px solid var(--color-line);border-radius:var(--radius-pill);padding:7px 15px;background:#fff;line-height:1;white-space:nowrap;}
+      border:1px solid var(--color-line);border-radius:var(--radius-pill);padding:7px 15px;background:#fff;line-height:1;white-space:nowrap;transition:border-color .15s,color .15s;}
+.pill:hover{border-color:var(--color-ink);color:var(--color-brand);}
 /* grid */
 .grid{display:grid;grid-template-columns:repeat(var(--grid-cols,3),1fr);gap:36px 30px;padding-bottom:48px;}
 .card__media{width:100%;aspect-ratio:var(--card-ar);background:var(--color-line);border-radius:var(--radius-card);object-fit:cover;}
@@ -290,6 +297,12 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__figure i
 .rubrik__head{display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:2px solid var(--color-ink);padding-top:12px;margin-bottom:22px;}
 .rubrik__chip{font-family:var(--font-head);font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--color-ink);}
 .rubrik__more{font-family:var(--font-head);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-brand);}
+.rubrik__chip{transition:color .15s;} .rubrik__chip:hover{color:var(--color-brand);}
+.rubrik__more:hover{text-decoration:underline;}
+/* Sektionsseite */
+.section-head{padding:42px 0 26px;border-bottom:1px solid var(--color-hairline);margin-bottom:30px;}
+.section-title{font-family:var(--font-head);font-size:calc(40px*var(--fs));line-height:1.1;font-weight:var(--weight-heading);letter-spacing:var(--track-head);text-transform:var(--case-head);margin:10px 0 4px;}
+.section-count{font-size:14px;color:var(--color-line);margin:0;}
 .rubrik__grid{padding-bottom:0;grid-template-rows:max-content;grid-auto-rows:0;row-gap:0;overflow:hidden;}
 /* Feature-Sektion: 1 groß + Liste */
 .rubrik__feature{display:grid;grid-template-columns:1.5fr 1fr;gap:34px;align-items:start;}
@@ -619,6 +632,8 @@ function footer() {
 
 /* ------------------------------------------------------------------ Pages */
 
+// Kategorie-Pill als Link zur Sektionsseite
+function pill(c) { return `<a class="pill" href="/rubrik/${slugify(c)}">${esc(c)}</a>`; }
 // Eine Teaser-Karte (wiederverwendet in flacher Liste + Rubriken)
 function card(it) {
   return `
@@ -669,7 +684,7 @@ function railPopular(items) {
 }
 function railTopics(cats) {
   return `<div class="rail-module"><h2 class="rail-module__title">Meine Themen</h2>
-    <div class="rail-pills">${cats.map(c => `<span class="pill">${esc(c)}</span>`).join("")}</div></div>`;
+    <div class="rail-pills">${cats.map(pill).join("")}</div></div>`;
 }
 // Portal-Band: Leisten flankieren den Aufmacher (Neueste/Themen links, Meistgelesen rechts)
 function portalBand(cfg, centerHtml, items, cats) {
@@ -706,7 +721,7 @@ function rubrikStream(rest, cats) {
   return cats.map((cat, i) => {
     const inCat = rest.filter(it => it.categories.includes(cat));
     if (!inCat.length) return "";
-    const head = `<header class="rubrik__head"><span class="rubrik__chip">${esc(cat)}</span><span class="rubrik__more">Mehr →</span></header>`;
+    const head = `<header class="rubrik__head"><a class="rubrik__chip" href="/rubrik/${slugify(cat)}">${esc(cat)}</a><a class="rubrik__more" href="/rubrik/${slugify(cat)}">Mehr →</a></header>`;
     const mode = MODES[i % 3];
     let body;
     if (mode === "feature") {
@@ -757,7 +772,7 @@ export function renderLanding(items, page = 1, cfg) {
     const pages = Math.max(1, Math.ceil(rest.length / PER_PAGE));
     const p = Math.min(Math.max(1, page), pages);
     const slice = rest.slice((p - 1) * PER_PAGE, p * PER_PAGE);
-    const pills = cats.map(c => `<span class="pill">${esc(c)}</span>`).join("");
+    const pills = cats.map(pill).join("");
     const more = pages > 1
       ? `<div class="loadmore-wrap"><button class="load-more" id="js-loadmore" data-next="${p + 1}" data-pages="${pages}">Mehr laden</button></div>`
       : "";
@@ -774,6 +789,37 @@ export function renderLanding(items, page = 1, cfg) {
 <main>${top}${stream}</main>` + footer();
 }
 
+// Sektionsseite: alle Beiträge einer Kategorie (Titel + Raster + Pagination)
+export function renderSection(category, items, page = 1, cfg) {
+  cfg = cfg || { shell: "single", auf: "klein", stream: "liste", rails: [] };
+  const slug = slugify(category);
+  const display = category.charAt(0).toUpperCase() + category.slice(1);
+  const pages = Math.max(1, Math.ceil(items.length / PER_PAGE));
+  const p = Math.min(Math.max(1, page), pages);
+  const slice = items.slice((p - 1) * PER_PAGE, p * PER_PAGE);
+  return head(display + " — " + PUBLICATION) + header({ tabs: true, activePath: "/rubrik/" + slug }, cfg) + `
+<main><div class="container">
+  <header class="section-head">
+    <a class="post__back" href="/">${ICON_BACK} ${esc(PUBLICATION)}</a>
+    <h1 class="section-title">${esc(display)}</h1>
+    <p class="section-count">${items.length} ${items.length === 1 ? "Beitrag" : "Beiträge"}</p>
+  </header>
+  <div class="grid">${slice.map(card).join("")}</div>
+  ${sectionPagination(p, pages, slug)}
+  <div id="memberships"></div>
+</div></main>` + footer();
+}
+function sectionPagination(p, pages, slug) {
+  if (pages <= 1) return "";
+  const out = [];
+  if (p > 1) out.push(`<a href="/rubrik/${slug}?page=${p - 1}">‹</a>`);
+  const lo = Math.max(1, p - 2), hi = Math.min(pages, lo + 4);
+  for (let i = lo; i <= hi; i++) {
+    out.push(i === p ? `<span class="is-current">${i}</span>` : `<a href="/rubrik/${slug}?page=${i}">${i}</a>`);
+  }
+  if (p < pages) out.push(`<a href="/rubrik/${slug}?page=${p + 1}">›</a>`);
+  return `<nav class="pagination" aria-label="Seiten">${out.join("")}</nav>`;
+}
 function renderPagination(p, pages) {
   if (pages <= 1) return "";
   const out = [];
