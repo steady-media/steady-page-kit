@@ -162,6 +162,12 @@ a{color:inherit;text-decoration:none;} img{display:block;max-width:100%;}
 .footer__links{display:flex;flex-wrap:wrap;gap:20px;font-size:14px;color:var(--color-ink-soft);}
 .footer__lang{font-size:14px;color:var(--color-ink-soft);border:1px solid var(--color-hairline);padding:7px 12px;border-radius:2px;}
 .footer__select{font:inherit;font-size:14px;color:var(--color-ink-soft);border:1px solid var(--color-hairline);padding:7px 12px;border-radius:2px;background:#fff;cursor:pointer;}
+.font-bar{border-top:1px solid var(--color-hairline);margin-top:40px;padding:22px 0;}
+.font-bar__inner{display:flex;justify-content:flex-end;}
+.loadmore-wrap{display:flex;justify-content:center;padding:8px 0 56px;}
+.load-more{font:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--color-ink);background:#fff;border:1px solid var(--color-line);border-radius:var(--radius-pill);padding:13px 30px;cursor:pointer;transition:border-color .15s,color .15s;}
+.load-more:hover{border-color:var(--color-ink);color:var(--color-brand);}
+.load-more:disabled{opacity:.5;cursor:default;}
 @media (max-width:900px){.hero__grid{grid-template-columns:1fr;gap:28px;}.grid{grid-template-columns:repeat(2,1fr);}:root{--text-h1:38px;}}
 @media (max-width:680px){.post__title{font-size:34px;}.post__body{font-size:20px;}}
 @media (max-width:560px){.grid{grid-template-columns:1fr;}.header-actions .btn--outline{display:none;}}
@@ -202,32 +208,37 @@ function header({ tabs = false } = {}) {
 <nav class="tabs"><div class="container tabs__inner">
   <a class="tab tab--active" href="/">Posts</a>
   <a class="tab" href="/memberships">Memberships</a>
+  <a class="tab" href="https://steady.page/de/sebastian/newsletter/sign_up">Newsletter anmelden</a>
 </div></nav>` : "";
   return `<header class="site-header"><div class="container site-header__inner">
   <a class="brand" href="/"><img class="brand__logo" alt="${esc(PUBLICATION)}" src="/assets/logo.png"/>
   <span class="brand__name">${esc(PUBLICATION)}</span></a>
   <div class="header-actions">
-    <a class="nav-action" id="js-newsletter" href="#newsletter">Newsletter</a>
     <a class="steady-login-button" data-size="small" data-language="de" style="display:none;"></a>
   </div></div></header>${nav}`;
 }
 function footer() {
-  return `<footer class="site-footer"><div class="container footer__inner">
-  <div class="footer__brand"><img class="footer__wordmark" alt="Steady" src="/assets/steady-wordmark.svg"/>
-  <span class="footer__by">by ${esc(AUTHOR)}</span></div>
-  <nav class="footer__links"><a href="#">Imprint</a><a href="#">Privacy Policy</a>
-  <a href="#">Terms &amp; Conditions</a><a href="#">Help</a><a href="#">Discover Steady</a></nav>
+  return `<div class="font-bar"><div class="container font-bar__inner">
   <select id="font-picker" class="footer__select" aria-label="Schriftart wählen" title="Schrift ändern (alle Texte)"></select>
-  <span class="footer__lang">English ▾</span></div></footer>
+</div></div>
 <script>(function(){
-  var a=document.getElementById("js-newsletter");
-  if(a)a.addEventListener("click",function(e){e.preventDefault();var s=window.SteadyWidgetSettings||{};var u=s.newsletterSubscribeUrl;if(!u&&s.newsletterUrl)u=(typeof s.newsletterUrl==="object"&&s.newsletterUrl)?(s.newsletterUrl.href||s.newsletterUrl.url):s.newsletterUrl;if(u)window.open(u,"_blank","noopener");});
   var sel=document.getElementById("font-picker");
   if(sel&&window.KIT_FONTS){
     var cur=window.KIT_FONT_DEFAULT;try{cur=localStorage.getItem("kitFont")||cur;}catch(e){}
     for(var i=0;i<window.KIT_FONTS.length;i++){var f=window.KIT_FONTS[i];var o=document.createElement("option");o.value=f.s;o.textContent=f.n;if(f.s===cur)o.selected=true;sel.appendChild(o);}
     sel.addEventListener("change",function(){window.kitApplyFont(sel.value,true);});
   }
+  var btn=document.getElementById("js-loadmore");
+  if(btn)btn.addEventListener("click",function(){
+    var next=parseInt(btn.getAttribute("data-next"),10),pages=parseInt(btn.getAttribute("data-pages"),10);
+    btn.disabled=true;btn.textContent="Lädt …";
+    fetch("/?page="+next).then(function(r){return r.text();}).then(function(html){
+      var doc=new DOMParser().parseFromString(html,"text/html"),grid=document.querySelector(".grid");
+      doc.querySelectorAll(".grid .card").forEach(function(c){grid.appendChild(document.importNode(c,true));});
+      next++;btn.setAttribute("data-next",next);btn.disabled=false;btn.textContent="Mehr laden";
+      if(next>pages)btn.style.display="none";
+    }).catch(function(){btn.disabled=false;btn.textContent="Mehr laden";});
+  });
 })();</script>
 </body></html>`;
 }
@@ -256,7 +267,9 @@ export function renderLanding(items, page = 1) {
       <div class="card__date">${esc(fmtDate(it.pubDate))}</div>
     </a>`).join("");
 
-  const pag = renderPagination(p, pages);
+  const more = pages > 1
+    ? `<div class="loadmore-wrap"><button class="load-more" id="js-loadmore" data-next="${p + 1}" data-pages="${pages}">Mehr laden</button></div>`
+    : "";
 
   return head(PUBLICATION) + header({ tabs: true }) + `
 <main>
@@ -274,7 +287,7 @@ export function renderLanding(items, page = 1) {
 <div class="container">
   <div class="pills">${pills}</div>
   <div class="grid">${cards}</div>
-  ${pag}
+  ${more}
   <div id="memberships"></div>
   <!-- #memberships: Andock-Punkt für das echte Steady-Membership-/Checkout-Widget. -->
 </div>
