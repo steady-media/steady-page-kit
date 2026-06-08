@@ -56,12 +56,12 @@ export function parseFeed(xml) {
 
 /* ------------------------------------------------------------------ Utils */
 
-const MONTHS = ["January","February","March","April","May","June","July","August",
-                "September","October","November","December"];
+const MONTHS = ["Januar","Februar","März","April","Mai","Juni","Juli","August",
+                "September","Oktober","November","Dezember"];
 export function fmtDate(pub) {
   const d = new Date(pub);
   if (isNaN(d.getTime())) return "";
-  return `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
+  return `${d.getUTCDate()}. ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 }
 export function esc(s) {
   return String(s ?? "")
@@ -179,7 +179,7 @@ html.nav-figma .tabs__inner{min-width:0;flex:0 1 auto;display:inline-flex;width:
 html.nav-figma .tabs__inner::-webkit-scrollbar{display:none;}
 html.nav-figma .tab{text-transform:uppercase;font-weight:700;letter-spacing:.5px;font-size:14px;color:var(--color-ink);border-bottom:0;margin-bottom:0;padding:2px 0;white-space:nowrap;flex:none;}
 html.nav-figma .tab--active{text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:2px;}
-html.nav-figma .tabs__search{flex:none;width:44px;height:44px;border:1px solid var(--color-ink);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--color-bg);color:var(--color-ink);}
+html.nav-figma .tabs__search{flex:none;width:44px;height:44px;border:1px solid var(--color-ink);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:var(--color-bg);color:var(--color-ink);}
 html.nav-figma .tabs__search svg{width:17px;height:17px;}
 /* hero */
 .hero{padding:56px 0 44px;}
@@ -269,7 +269,9 @@ html.img-gray .card__media,html.img-gray .hero__media,html.img-gray .post__figur
 html.img-gray .card:hover .card__media{filter:none;}
 html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__figure img{filter:grayscale(1) contrast(1.05) sepia(.5) hue-rotate(165deg) saturate(2.4) brightness(.96);}
 /* Aufmacher (großer Opener) */
-.aufmacher{max-width:760px;margin:0 auto;}
+.aufmacher{max-width:none;}
+.aufmacher--side{display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:center;}
+@media (max-width:760px){.aufmacher--side{grid-template-columns:1fr;}}
 .aufmacher__title{font-family:var(--font-head);font-size:calc(40px*var(--fs));line-height:1.12;font-weight:var(--weight-heading);letter-spacing:var(--track-head);text-transform:var(--case-head);margin:0 0 14px;}
 .aufmacher__title a{transition:color .15s;} .aufmacher__title a:hover{color:var(--color-brand);}
 .aufmacher__excerpt{font-size:19px;line-height:1.55;color:var(--color-ink-soft);margin:0 0 14px;max-width:60ch;}
@@ -277,7 +279,7 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__figure i
 .aufmacher__meta>span+span{margin-left:28px;position:relative;}
 .aufmacher__meta>span+span::before{content:"";position:absolute;left:-14px;top:50%;transform:translateY(-50%);width:1px;height:11px;background:var(--color-line);}
 .aufmacher__pin{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--color-ink);} .aufmacher__pin svg{width:13px;height:13px;}
-.aufmacher__media{width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--color-line);border-radius:var(--radius-card);}
+.aufmacher__media{width:100%;aspect-ratio:16/9;object-fit:cover;background:var(--color-line);border-radius:var(--radius-card);}
 .aufmacher-band{padding:48px 0 8px;}
 /* Portal-Shell (3-spaltig: Leisten + Mitte) */
 .portal-band{padding:40px 0 8px;}
@@ -328,6 +330,7 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__figure i
 .rubrik__compact{display:grid;grid-template-columns:repeat(var(--grid-cols,3),1fr);gap:0 30px;grid-template-rows:max-content;grid-auto-rows:0;overflow:hidden;}
 .teaser-text{display:block;padding:13px 0;border-top:1px solid var(--color-hairline);}
 .teaser-text__title{font-family:var(--font-head);font-size:15px;font-weight:600;line-height:1.3;margin:0 0 4px;text-transform:var(--case-head);transition:color .15s;}
+.teaser-text__excerpt{font-size:14px;color:var(--color-ink-soft);line-height:1.45;margin:0 0 6px;}
 .teaser-text:hover .teaser-text__title{color:var(--color-brand);}
 @media (max-width:760px){.rubrik__feature{grid-template-columns:1fr;}}
 @media (max-width:1100px){
@@ -549,7 +552,9 @@ function footer() {
   var ob=document.getElementById("cz-open"),cb=document.getElementById("cz-close");
   if(ob)ob.addEventListener("click",function(){setOpen(true);});
   if(cb)cb.addEventListener("click",function(){setOpen(false);});
-  [].forEach.call(document.querySelectorAll(".cz-sh[data-acc]"),function(h){h.addEventListener("click",function(){h.parentNode.classList.toggle("cz-open");});});
+  function saveAcc(){var o=[];[].forEach.call(document.querySelectorAll(".cz-sec"),function(s,i){if(s.classList.contains("cz-open"))o.push(i);});try{localStorage.setItem("kitAcc",JSON.stringify(o));}catch(e){}}
+  (function(){var a=null;try{a=JSON.parse(localStorage.getItem("kitAcc")||"null");}catch(e){}if(a&&typeof a.length==="number"){[].forEach.call(document.querySelectorAll(".cz-sec"),function(s,i){s.classList.toggle("cz-open",a.indexOf(i)>=0);});}}());
+  [].forEach.call(document.querySelectorAll(".cz-sh[data-acc]"),function(h){h.addEventListener("click",function(){h.parentNode.classList.toggle("cz-open");saveAcc();});});
   function clearLook(){try{localStorage.removeItem("kitLook");}catch(e){}markLook();}
   /* fonts */
   function buildPicker(el,cur){if(!el||!window.KIT_FONTS)return;var cats=window.KIT_FONT_CATS||[""];for(var ci=0;ci<cats.length;ci++){var grp=document.createElement("optgroup");grp.label=cats[ci];for(var i=0;i<window.KIT_FONTS.length;i++){var f=window.KIT_FONTS[i];if((f.c||"")!==cats[ci])continue;var o=document.createElement("option");o.value=f.s;o.textContent=f.n;if(f.s===cur)o.selected=true;grp.appendChild(o);}if(grp.children.length)el.appendChild(grp);}}
@@ -630,7 +635,7 @@ function footer() {
   if(looksEl&&window.KIT_LOOKS){for(var lo=0;lo<window.KIT_LOOKS.length;lo++){(function(idx){var L=window.KIT_LOOKS[idx];var b=document.createElement("button");b.className="cz-look";var bb=document.createElement("b");bb.textContent=L.n;var sp=document.createElement("span");sp.textContent=L.d||"";b.appendChild(bb);b.appendChild(sp);b.addEventListener("click",function(){window.kitLook(idx,true);syncAll();});looksEl.appendChild(b);})(lo);}}
   function syncAll(){if(headSel)headSel.value=gs("kitFontHead",window.KIT_DEFAULT_HEAD);if(bodySel)bodySel.value=gs("kitFontBody",window.KIT_DEFAULT_BODY);if(pairSel)pairSel.value="";[].forEach.call(document.querySelectorAll(".cz-seg"),markSeg);markPal();markLook();syncColors();}
   markPal();markLook();syncColors();
-  var rb=document.getElementById("cz-reset");if(rb)rb.addEventListener("click",function(){["kitFontHead","kitFontBody","kitColors","kitLayout","kitType","kitCard","kitPalette","kitBase","kitLook","kitPanelOpen","kitStruct","kitChrome","kitLogo"].forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});document.cookie="kitstruct=;path=/;max-age=0";document.cookie="kitchrome=;path=/;max-age=0";location.reload();});
+  var rb=document.getElementById("cz-reset");if(rb)rb.addEventListener("click",function(){["kitFontHead","kitFontBody","kitColors","kitLayout","kitType","kitCard","kitPalette","kitBase","kitLook","kitPanelOpen","kitStruct","kitChrome","kitLogo","kitAcc"].forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});document.cookie="kitstruct=;path=/;max-age=0";document.cookie="kitchrome=;path=/;max-age=0";location.reload();});
   var btn=document.getElementById("js-loadmore");
   if(btn)btn.addEventListener("click",function(){
     var next=parseInt(btn.getAttribute("data-next"),10),pages=parseInt(btn.getAttribute("data-pages"),10);
@@ -682,13 +687,14 @@ function readMin(it) {
   return Math.max(2, Math.round(w / 35));
 }
 // Aufmacher groß = gestapelt: Headline + Excerpt + Meta-Leiste + 4:3-Bild
-function aufmacherArticle(hero, withImage) {
-  return `<article class="aufmacher">
+function aufmacherArticle(hero, withImage, side) {
+  const media = withImage ? `<a class="aufmacher__medialink" href="/posts/${esc(hero.guid)}"><img class="aufmacher__media" alt="" src="${teaser(hero.image, 1120, 630)}"/></a>` : "";
+  const body = `<div class="aufmacher__body">
     <h1 class="aufmacher__title"><a href="/posts/${esc(hero.guid)}">${esc(hero.title)}</a></h1>
     ${hero.description ? `<p class="aufmacher__excerpt">${esc(hero.description)}</p>` : ""}
     <div class="aufmacher__meta"><span>${esc(fmtDate(hero.pubDate))}</span><span>${readMin(hero)} Min Lesezeit</span></div>
-    ${withImage ? `<a class="aufmacher__medialink" href="/posts/${esc(hero.guid)}"><img class="aufmacher__media" alt="" src="${teaser(hero.image, 1100, 825)}"/></a>` : ""}
-  </article>`;
+  </div>`;
+  return `<article class="aufmacher${side ? " aufmacher--side" : ""}">${side ? media + body : body + media}</article>`;
 }
 // Leisten-Module
 function railLatest(items) {
@@ -728,7 +734,9 @@ function teaserRow(it) {
 // Text-Teaser (ohne Bild) für die Kompakt-Sektion
 function teaserText(it) {
   return `<a class="teaser-text" href="/posts/${esc(it.guid)}">
-    <h4 class="teaser-text__title">${esc(it.title)}</h4><div class="card__date">${esc(fmtDate(it.pubDate))}</div>
+    <h4 class="teaser-text__title">${esc(it.title)}</h4>
+    ${it.description ? `<p class="teaser-text__excerpt">${esc(it.description)}</p>` : ""}
+    <div class="card__date">${esc(fmtDate(it.pubDate))}</div>
   </a>`;
 }
 // Stream: nach Rubriken — Layout rotiert je Sektion (Feature / Karten / Kompakt), wie im Figma
@@ -822,7 +830,7 @@ export function renderSection(category, items, allItems, page = 1, cfg) {
   // Aufmacher-Teaser (erster Beitrag der Rubrik) + Raster mit dem Rest
   const aufmacher = featured ? `<section class="aufmacher-band"><div class="container">
     <p class="section-eyebrow"><a class="post__back" href="/">${ICON_BACK} ${esc(PUBLICATION)}</a><span class="section-chip">${esc(display)}</span></p>
-    ${aufmacherArticle(featured, true)}
+    ${aufmacherArticle(featured, true, true)}
   </div></section>` : "";
   return head(display + " — " + PUBLICATION) + header({ tabs: true, activePath: "/rubrik/" + slug }, cfg) + `
 <main>${aufmacher}<div class="container">
