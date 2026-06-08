@@ -636,6 +636,8 @@ function footer() {
   /* Suche → Cloudflare AI Search Modal öffnen */
   var searchBtn=document.querySelector(".tabs__search");
   if(searchBtn){var openSearch=function(){var m=document.querySelector("search-modal-snippet");if(m&&typeof m.open==="function")m.open();};searchBtn.addEventListener("click",openSearch);searchBtn.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();openSearch();}});}
+  var _sms=document.querySelector("search-modal-snippet");
+  if(_sms){var _dc=getComputedStyle(document.documentElement);var _br=(_dc.getPropertyValue("--color-brand")||"#137EC0").trim(),_ik=(_dc.getPropertyValue("--color-ink")||"#291E38").trim();_sms.style.setProperty("--search-snippet-primary-color",_br);_sms.style.setProperty("--search-snippet-primary-hover",_ik);_sms.style.setProperty("--search-snippet-focus-ring",_br);_sms.style.setProperty("--search-snippet-text-color",_ik);}
   /* logo upload (clientseitig als Data-URL, im Browser gespeichert) */
   var logoFile=document.getElementById("cz-logo-file");
   if(logoFile)logoFile.addEventListener("change",function(){var f=logoFile.files&&logoFile.files[0];if(!f)return;if(f.size>2097152){alert("Logo zu groß (max. 2 MB).");logoFile.value="";return;}var rd=new FileReader();rd.onload=function(){var src=rd.result;var im=new Image();im.onload=function(){window.kitLogoApply(src,im.naturalWidth/(im.naturalHeight||1),true);};im.onerror=function(){window.kitLogoApply(src,4,true);};im.src=src;};rd.readAsDataURL(f);});
