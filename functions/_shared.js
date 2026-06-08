@@ -134,7 +134,7 @@ a{color:inherit;text-decoration:none;} img{display:block;max-width:100%;}
 .pill{font-size:var(--text-pill);letter-spacing:.04em;text-transform:uppercase;color:var(--color-ink);
       border:1px solid var(--color-line);border-radius:var(--radius-pill);padding:7px 15px;background:#fff;line-height:1;white-space:nowrap;}
 /* grid */
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:36px 30px;padding-bottom:48px;}
+.grid{display:grid;grid-template-columns:repeat(var(--grid-cols,3),1fr);gap:36px 30px;padding-bottom:48px;}
 .card__media{width:100%;aspect-ratio:16/9;background:var(--color-line);border-radius:var(--radius-card);object-fit:cover;}
 .card__title{font-size:var(--text-card-title);font-weight:700;line-height:1.3;margin:14px 0 0;transition:color .15s;}
 .card:hover .card__title{color:var(--color-brand);}
@@ -172,6 +172,38 @@ a{color:inherit;text-decoration:none;} img{display:block;max-width:100%;}
 /* Headlines/Display nutzen --font-head; alles andere (Body) erbt --font-body */
 .brand__name,.tab,.eyebrow,.hero__title,.pill,.card__title,.load-more,.btn,.nav-action,.post__title,.post__back{font-family:var(--font-head);}
 .font-bar__label{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--color-line);white-space:nowrap;}
+/* layout presets */
+html.dens-compact{--text-base:16px;--text-h1:42px;}
+html.dens-compact .hero{padding:36px 0 30px;} html.dens-compact .grid{gap:24px 22px;} html.dens-compact .container{padding:0 20px;}
+html.hero-center .hero__grid{grid-template-columns:1fr;text-align:center;justify-items:center;}
+html.hero-center .hero__excerpt{margin-left:auto;margin-right:auto;} html.hero-center .hero__medialink{display:none;}
+/* customizer panel */
+.cz-fab{position:fixed;right:20px;bottom:20px;z-index:60;width:50px;height:50px;border-radius:50%;border:0;background:var(--color-brand);color:#fff;font-size:20px;cursor:pointer;box-shadow:0 8px 24px rgba(41,30,56,.25);}
+html.cz-on .cz-fab{display:none;}
+.cz{position:fixed;top:0;right:0;z-index:61;width:340px;max-width:92vw;height:100vh;background:#fff;border-left:1px solid #ECEAEF;box-shadow:-14px 0 44px rgba(41,30,56,.13);transform:translateX(100%);transition:transform .28s ease;display:flex;flex-direction:column;font-family:Inter,system-ui,sans-serif;color:#291E38;}
+html.cz-on .cz{transform:none;}
+.cz-head{display:flex;align-items:center;justify-content:space-between;padding:16px;border-bottom:1px solid #ECEAEF;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;}
+.cz-head>div{display:flex;align-items:center;gap:8px;}
+.cz-reset{font:inherit;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#9A95A6;background:none;border:1px solid #ECEAEF;border-radius:6px;padding:5px 9px;cursor:pointer;}
+.cz-x{width:28px;height:28px;border:1px solid #ECEAEF;border-radius:6px;background:#fff;color:#9A95A6;cursor:pointer;font-size:16px;line-height:1;}
+.cz-body{overflow-y:auto;flex:1;}
+.cz-sec{border-bottom:1px solid #ECEAEF;}
+.cz-sh{width:100%;display:flex;align-items:center;justify-content:space-between;padding:15px 16px;font:inherit;font-size:14px;font-weight:600;background:none;border:0;cursor:pointer;color:#291E38;}
+.cz-cv{color:#9A95A6;transition:transform .2s;} .cz-sec:not(.cz-open) .cz-cv{transform:rotate(-90deg);}
+.cz-sec:not(.cz-open) .cz-sb{display:none;}
+.cz-sb{padding:0 16px 18px;}
+.cz-lbl{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#9A95A6;margin:12px 0 6px;}
+.cz-sel{width:100%;border:1px solid #d7d4dd;border-radius:6px;padding:9px 11px;font:inherit;font-size:13px;color:#291E38;background:#fff;cursor:pointer;}
+.cz-pal{display:flex;gap:10px;flex-wrap:wrap;}
+.cz-pal button{width:34px;height:34px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #ECEAEF;cursor:pointer;padding:0;}
+.cz-pal button.on{box-shadow:0 0 0 2px #137EC0;}
+.cz-colors{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+.cz-color{display:flex;align-items:center;gap:8px;font-size:12px;color:#6B6577;}
+.cz-color input{width:30px;height:30px;border:1px solid #ECEAEF;border-radius:6px;padding:0;background:none;cursor:pointer;}
+.cz-seg{display:flex;gap:6px;}
+.cz-seg button{flex:1;font:inherit;font-size:12px;padding:8px 6px;border:1px solid #d7d4dd;border-radius:6px;background:#fff;color:#291E38;cursor:pointer;}
+.cz-seg button.on{border-color:#137EC0;background:#137EC0;color:#fff;}
+@media (max-width:560px){.cz{width:100%;}}
 @media (max-width:900px){.hero__grid{grid-template-columns:1fr;gap:28px;}.grid{grid-template-columns:repeat(2,1fr);}:root{--text-h1:38px;}}
 @media (max-width:680px){.post__title{font-size:34px;}.post__body{font-size:20px;}}
 @media (max-width:560px){.grid{grid-template-columns:1fr;}.header-actions .btn--outline{display:none;}}
@@ -193,7 +225,8 @@ window.KIT_FONTS=[{n:"Inter",s:"inter",c:"Grotesk"},{n:"Archivo",s:"archivo",c:"
 window.KIT_FONT_CATS=["Grotesk","Humanistisch","Geometrisch","Condensed","Neuer","Serif Display","Serif Text"];
 window.KIT_PAIRS=[{n:"Nordisch editorial",h:"schibsted-grotesk",b:"source-sans-3"},{n:"Zeitungsklassiker",h:"libre-franklin",b:"source-sans-3"},{n:"Headline-Werkstatt",h:"archivo",b:"inter"},{n:"Display mit Charakter",h:"bricolage-grotesque",b:"inter"},{n:"Geometrisch & sauber",h:"space-grotesk",b:"work-sans"},{n:"Masthead / Condensed",h:"oswald",b:"public-sans"},{n:"Tech-editorial",h:"geist",b:"inter"},{n:"Eine Familie",h:"archivo-black",b:"archivo"},{n:"Warm & lesbar",h:"familjen-grotesk",b:"mulish"},{n:"Hochkontrast-Magazin",h:"playfair-display",b:"source-serif-4"},{n:"Serife trifft Grotesk",h:"fraunces",b:"inter"},{n:"Buch / Longform",h:"cormorant-garamond",b:"crimson-pro"},{n:"News-Longform",h:"libre-franklin",b:"newsreader"},{n:"Instrument-Duo",h:"instrument-serif",b:"instrument-sans"},{n:"Redaktion klassisch",h:"dm-serif-display",b:"lora"}];
 window.KIT_DEFAULT_HEAD="inter";window.KIT_DEFAULT_BODY="inter";
-(function(){var loaded={inter:1};function ff(slug){for(var i=0;i<window.KIT_FONTS.length;i++)if(window.KIT_FONTS[i].s===slug)return window.KIT_FONTS[i];return window.KIT_FONTS[0];}function ld(f){if(loaded[f.s])return;var l=document.createElement("link");l.rel="stylesheet";l.href="https://fonts.bunny.net/css?family="+f.s+":"+(f.w||"400,500,600,700")+"&display=swap";document.head.appendChild(l);loaded[f.s]=1;}window.kitApplyFont=function(role,slug,save){var f=ff(slug);ld(f);document.documentElement.style.setProperty(role==="head"?"--font-head":"--font-body",'"'+f.n+'", '+(f.g||"sans-serif"));if(save){try{localStorage.setItem(role==="head"?"kitFontHead":"kitFontBody",f.s);}catch(e){}}};try{var sh=localStorage.getItem("kitFontHead");if(sh&&sh!==window.KIT_DEFAULT_HEAD)window.kitApplyFont("head",sh,false);}catch(e){}try{var sb=localStorage.getItem("kitFontBody");if(sb&&sb!==window.KIT_DEFAULT_BODY)window.kitApplyFont("body",sb,false);}catch(e){}})();
+window.KIT_PALETTES=[{n:"Steady",v:{"--color-brand":"#137EC0","--color-ink":"#291E38","--color-ink-soft":"#6B6577","--color-accent":"#FF7264","--color-line":"#9A95A6","--color-hairline":"#ECEAEF","--color-bg":"#FFFFFF"}},{n:"Nacht",v:{"--color-brand":"#4DA3E0","--color-ink":"#ECEAF2","--color-ink-soft":"#A6A2B5","--color-accent":"#FF7264","--color-line":"#5A5470","--color-hairline":"#2A2636","--color-bg":"#14121A"}},{n:"Wald",v:{"--color-brand":"#1E7A4F","--color-ink":"#1C2B22","--color-ink-soft":"#5C6B62","--color-accent":"#E0823C","--color-line":"#9AA89F","--color-hairline":"#E7EEE9","--color-bg":"#FFFFFF"}},{n:"Bordeaux",v:{"--color-brand":"#8E2B43","--color-ink":"#2B1A20","--color-ink-soft":"#6E5860","--color-accent":"#C99A2E","--color-line":"#B39AA2","--color-hairline":"#F0E8EB","--color-bg":"#FFFFFF"}},{n:"Mono",v:{"--color-brand":"#291E38","--color-ink":"#1A1A1A","--color-ink-soft":"#6B6B6B","--color-accent":"#1A1A1A","--color-line":"#B0B0B0","--color-hairline":"#ECECEC","--color-bg":"#FFFFFF"}}];
+(function(){var D=document.documentElement;var loaded={inter:1};function ff(slug){for(var i=0;i<window.KIT_FONTS.length;i++)if(window.KIT_FONTS[i].s===slug)return window.KIT_FONTS[i];return window.KIT_FONTS[0];}function ld(f){if(loaded[f.s])return;var l=document.createElement("link");l.rel="stylesheet";l.href="https://fonts.bunny.net/css?family="+f.s+":"+(f.w||"400,500,600,700")+"&display=swap";document.head.appendChild(l);loaded[f.s]=1;}function jget(k){try{return JSON.parse(localStorage.getItem(k)||"{}");}catch(e){return {};}}function jset(k,o){try{localStorage.setItem(k,JSON.stringify(o));}catch(e){}}window.kitApplyFont=function(role,slug,save){var f=ff(slug);ld(f);D.style.setProperty(role==="head"?"--font-head":"--font-body",'"'+f.n+'", '+(f.g||"sans-serif"));if(save){try{localStorage.setItem(role==="head"?"kitFontHead":"kitFontBody",f.s);}catch(e){}}};window.kitColor=function(name,val,save){D.style.setProperty(name,val);if(save){var c=jget("kitColors");c[name]=val;jset("kitColors",c);}};window.kitPalette=function(idx,save){var p=window.KIT_PALETTES[idx];if(!p)return;var c=save?jget("kitColors"):null;for(var k in p.v){D.style.setProperty(k,p.v[k]);if(c)c[k]=p.v[k];}if(save){jset("kitColors",c);try{localStorage.setItem("kitPalette",idx);}catch(e){}}};window.kitSetLayout=function(kind,val,save){if(kind==="cols")D.style.setProperty("--grid-cols",val);else if(kind==="corner"){var r=val==="rund";D.style.setProperty("--radius-card",r?"10px":"0");D.style.setProperty("--radius-btn",r?"8px":"1px");}else if(kind==="dens")D.classList.toggle("dens-compact",val==="kompakt");else if(kind==="hero")D.classList.toggle("hero-center",val==="center");if(save){var L=jget("kitLayout");L[kind]=val;jset("kitLayout",L);}};try{var sh=localStorage.getItem("kitFontHead");if(sh&&sh!==window.KIT_DEFAULT_HEAD)window.kitApplyFont("head",sh,false);}catch(e){}try{var sb=localStorage.getItem("kitFontBody");if(sb&&sb!==window.KIT_DEFAULT_BODY)window.kitApplyFont("body",sb,false);}catch(e){}var C=jget("kitColors");for(var ck in C)D.style.setProperty(ck,C[ck]);var L2=jget("kitLayout");for(var lk in L2)window.kitSetLayout(lk,L2[lk],false);try{if(localStorage.getItem("kitPanelOpen")==="1")D.classList.add("cz-on");}catch(e){}})();
 `;
 
 function head(title) {
@@ -224,12 +257,39 @@ function header({ tabs = false, active = "" } = {}) {
   </div></div></header>${nav}`;
 }
 function footer() {
-  return `<div class="font-bar"><div class="container font-bar__inner">
-  <span class="font-bar__label">Pairing</span><select id="pair-picker" class="footer__select" aria-label="Editorial-Pairing"><option value="">– Pairing –</option></select>
-  <span class="font-bar__label">Überschriften</span><select id="head-picker" class="footer__select" aria-label="Font für Überschriften"></select>
-  <span class="font-bar__label">Lauftext</span><select id="body-picker" class="footer__select" aria-label="Font für Lauftext"></select>
-</div></div>
+  return `<button class="cz-fab" id="cz-open" aria-label="Seite anpassen" title="Seite anpassen">✦</button>
+<aside class="cz" id="cz-panel" aria-label="Anpassen">
+  <div class="cz-head"><span>Anpassen</span><div><button class="cz-reset" id="cz-reset" title="Alles zurücksetzen">Reset</button><button class="cz-x" id="cz-close" aria-label="Schließen">›</button></div></div>
+  <div class="cz-body">
+    <section class="cz-sec cz-open"><button class="cz-sh" data-acc>Schriften<span class="cz-cv">▾</span></button><div class="cz-sb">
+      <label class="cz-lbl">Editorial-Pairing</label><select id="pair-picker" class="cz-sel"><option value="">– Pairing –</option></select>
+      <label class="cz-lbl">Überschriften</label><select id="head-picker" class="cz-sel"></select>
+      <label class="cz-lbl">Lauftext</label><select id="body-picker" class="cz-sel"></select>
+    </div></section>
+    <section class="cz-sec"><button class="cz-sh" data-acc>Farben<span class="cz-cv">▾</span></button><div class="cz-sb">
+      <label class="cz-lbl">Palette</label><div class="cz-pal" id="cz-pal"></div>
+      <div class="cz-colors">
+        <label class="cz-color"><input type="color" id="cz-c-brand" value="#137EC0"><span>Marke</span></label>
+        <label class="cz-color"><input type="color" id="cz-c-ink" value="#291E38"><span>Text</span></label>
+        <label class="cz-color"><input type="color" id="cz-c-accent" value="#FF7264"><span>Akzent</span></label>
+        <label class="cz-color"><input type="color" id="cz-c-bg" value="#FFFFFF"><span>Hintergrund</span></label>
+      </div>
+    </div></section>
+    <section class="cz-sec"><button class="cz-sh" data-acc>Layout<span class="cz-cv">▾</span></button><div class="cz-sb">
+      <label class="cz-lbl">Spalten</label><div class="cz-seg" data-layout="cols"><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button></div>
+      <label class="cz-lbl">Dichte</label><div class="cz-seg" data-layout="dens"><button data-v="luftig">Luftig</button><button data-v="kompakt">Kompakt</button></div>
+      <label class="cz-lbl">Ecken</label><div class="cz-seg" data-layout="corner"><button data-v="eckig">Eckig</button><button data-v="rund">Rund</button></div>
+      <label class="cz-lbl">Hero</label><div class="cz-seg" data-layout="hero"><button data-v="split">Geteilt</button><button data-v="center">Zentriert</button></div>
+    </div></section>
+  </div>
+</aside>
 <script>(function(){
+  var D=document.documentElement;
+  function setOpen(o){D.classList.toggle("cz-on",o);try{localStorage.setItem("kitPanelOpen",o?"1":"0");}catch(e){}}
+  var ob=document.getElementById("cz-open"),cb=document.getElementById("cz-close");
+  if(ob)ob.addEventListener("click",function(){setOpen(true);});
+  if(cb)cb.addEventListener("click",function(){setOpen(false);});
+  [].forEach.call(document.querySelectorAll(".cz-sh[data-acc]"),function(h){h.addEventListener("click",function(){h.parentNode.classList.toggle("cz-open");});});
   function buildPicker(el,cur){if(!el||!window.KIT_FONTS)return;var cats=window.KIT_FONT_CATS||[""];for(var ci=0;ci<cats.length;ci++){var grp=document.createElement("optgroup");grp.label=cats[ci];for(var i=0;i<window.KIT_FONTS.length;i++){var f=window.KIT_FONTS[i];if((f.c||"")!==cats[ci])continue;var o=document.createElement("option");o.value=f.s;o.textContent=f.n;if(f.s===cur)o.selected=true;grp.appendChild(o);}if(grp.children.length)el.appendChild(grp);}}
   function gs(k,d){try{return localStorage.getItem(k)||d;}catch(e){return d;}}
   var headSel=document.getElementById("head-picker"),bodySel=document.getElementById("body-picker"),pairSel=document.getElementById("pair-picker");
@@ -237,6 +297,16 @@ function footer() {
   if(headSel)headSel.addEventListener("change",function(){window.kitApplyFont("head",headSel.value,true);if(pairSel)pairSel.value="";});
   if(bodySel)bodySel.addEventListener("change",function(){window.kitApplyFont("body",bodySel.value,true);if(pairSel)pairSel.value="";});
   if(pairSel&&window.KIT_PAIRS){for(var pi=0;pi<window.KIT_PAIRS.length;pi++){var pp=window.KIT_PAIRS[pi];var po=document.createElement("option");po.value=pi;po.textContent=pp.n;pairSel.appendChild(po);}pairSel.addEventListener("change",function(){var pr=window.KIT_PAIRS[parseInt(pairSel.value,10)];if(!pr)return;window.kitApplyFont("head",pr.h,true);window.kitApplyFont("body",pr.b,true);if(headSel)headSel.value=pr.h;if(bodySel)bodySel.value=pr.b;});}
+  function toHex(c){return (c||"").trim();}
+  var cmap={"cz-c-brand":"--color-brand","cz-c-ink":"--color-ink","cz-c-accent":"--color-accent","cz-c-bg":"--color-bg"};
+  function syncColors(){for(var id in cmap){var el=document.getElementById(id);if(el){var h=toHex(getComputedStyle(D).getPropertyValue(cmap[id]));if(h&&h.charAt(0)==="#"&&h.length===7)el.value=h;}}}
+  var pal=document.getElementById("cz-pal");var savedPal=(function(){try{return localStorage.getItem("kitPalette");}catch(e){return null;}})();
+  if(pal&&window.KIT_PALETTES){for(var qi=0;qi<window.KIT_PALETTES.length;qi++){(function(idx){var p=window.KIT_PALETTES[idx];var b=document.createElement("button");b.title=p.n;b.style.background=p.v["--color-brand"];if(String(idx)===savedPal)b.className="on";b.addEventListener("click",function(){window.kitPalette(idx,true);[].forEach.call(pal.children,function(x){x.classList.remove("on");});b.classList.add("on");syncColors();});pal.appendChild(b);})(qi);}}
+  for(var cid in cmap){(function(elid,varn){var el=document.getElementById(elid);if(el)el.addEventListener("input",function(){window.kitColor(varn,el.value,true);});})(cid,cmap[cid]);}
+  syncColors();
+  var Lsaved=(function(){try{return JSON.parse(localStorage.getItem("kitLayout")||"{}");}catch(e){return {};}})();var Ldef={cols:"3",dens:"luftig",corner:"eckig",hero:"split"};
+  [].forEach.call(document.querySelectorAll(".cz-seg"),function(seg){var kind=seg.getAttribute("data-layout");var cur=(Lsaved[kind]!=null)?Lsaved[kind]:Ldef[kind];[].forEach.call(seg.children,function(b){if(b.getAttribute("data-v")===String(cur))b.classList.add("on");b.addEventListener("click",function(){[].forEach.call(seg.children,function(x){x.classList.remove("on");});b.classList.add("on");window.kitSetLayout(kind,b.getAttribute("data-v"),true);});});});
+  var rb=document.getElementById("cz-reset");if(rb)rb.addEventListener("click",function(){["kitFontHead","kitFontBody","kitColors","kitLayout","kitPalette","kitPanelOpen"].forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});location.reload();});
   var btn=document.getElementById("js-loadmore");
   if(btn)btn.addEventListener("click",function(){
     var next=parseInt(btn.getAttribute("data-next"),10),pages=parseInt(btn.getAttribute("data-pages"),10);
