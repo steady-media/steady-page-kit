@@ -151,26 +151,29 @@ html.logo-wide .brand__name{display:none;}
 .brand__name{font-weight:700;font-size:15px;letter-spacing:.13em;text-transform:uppercase;}
 .header-actions{display:flex;align-items:center;gap:12px;}
 .tabs{border-bottom:1px solid var(--color-hairline);background:#fff;}
+.tabs__bar{display:flex;align-items:center;gap:30px;}
 .tabs__inner{display:flex;gap:30px;}
 .tab{display:inline-block;padding:16px 2px;font-size:var(--text-nav);color:var(--color-line);
      border-bottom:2px solid transparent;margin-bottom:-1px;}
 .tab--active{color:var(--color-ink);border-bottom-color:var(--color-accent);font-weight:500;}
 .site-header--center .site-header__inner{justify-content:center;position:relative;}
 .site-header--center .header-actions{position:absolute;right:0;top:50%;transform:translateY(-50%);}
-.tabs--center .tabs__inner{justify-content:center;}
+.tabs--center .tabs__bar{justify-content:center;}
 .tabs__search{display:inline-flex;align-items:center;align-self:center;color:var(--color-line);cursor:pointer;}
 .tabs__search svg{width:16px;height:16px;}
 .header-actions steady-login-button{display:none;}
 .login-link{font:inherit;font-size:13px;font-weight:600;letter-spacing:.02em;color:var(--color-ink);cursor:pointer;text-decoration:none;}
 .login-link:hover{color:var(--color-brand);}
 .site-header--center .login-link{font-size:12px;text-transform:uppercase;letter-spacing:.06em;}
-/* Figma-Nav: abgerundeter Pill-Rahmen statt Linien, sticky beim vertikalen Scrollen, horizontaler Überlauf */
-html.nav-figma .tabs{border-bottom:0;background:transparent;padding:14px 0;text-align:center;position:sticky;top:0;z-index:40;}
-html.nav-figma .tabs__inner{display:inline-flex;width:auto;max-width:min(var(--container),calc(100% - 48px));border:1px solid var(--color-ink);border-radius:26px;padding:9px 24px;gap:26px;align-items:center;background:var(--color-bg);overflow-x:auto;scrollbar-width:none;}
+/* Figma-Nav: abgerundeter Pill-Rahmen statt Linien, sticky, horizontaler Überlauf, separate runde Suche */
+html.nav-figma .tabs{border-bottom:0;background:transparent;padding:14px 0;position:sticky;top:0;z-index:40;}
+html.nav-figma .tabs__bar{justify-content:center;gap:12px;}
+html.nav-figma .tabs__inner{min-width:0;flex:0 1 auto;display:inline-flex;width:auto;border:1px solid var(--color-ink);border-radius:26px;padding:9px 24px;gap:26px;align-items:center;background:var(--color-bg);overflow-x:auto;scrollbar-width:none;}
 html.nav-figma .tabs__inner::-webkit-scrollbar{display:none;}
 html.nav-figma .tab{text-transform:uppercase;font-weight:700;letter-spacing:.05em;font-size:13px;color:var(--color-ink);border-bottom:0;margin-bottom:0;padding:2px 0;white-space:nowrap;flex:none;}
 html.nav-figma .tab--active{text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:2px;}
-html.nav-figma .tabs__search{flex:none;margin-left:2px;}
+html.nav-figma .tabs__search{flex:none;width:44px;height:44px;border:1px solid var(--color-ink);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--color-bg);color:var(--color-ink);}
+html.nav-figma .tabs__search svg{width:17px;height:17px;}
 /* hero */
 .hero{padding:56px 0 44px;}
 .hero__grid{display:grid;grid-template-columns:1.25fr 1fr;gap:48px;align-items:center;}
@@ -445,7 +448,7 @@ function header({ tabs = false, activePath = "" } = {}, cfg = {}) {
   const brandHtml = `<a class="brand" href="/" aria-label="${esc(brand)}"><span class="brand__logo" role="img" aria-label="${esc(brand)}"></span><span class="brand__name">${esc(brand)}</span></a>`;
   const login = `<div class="header-actions"><a class="login-link" id="js-login" href="#" role="button">Login</a><a class="steady-login-button" data-size="small" data-language="de"></a></div>`;
   const navBar = tabs
-    ? `<nav class="tabs${center ? " tabs--center" : ""}"><div class="container tabs__inner">${navLinksHtml(nav, activePath)}${search}</div></nav>`
+    ? `<nav class="tabs${center ? " tabs--center" : ""}"><div class="container tabs__bar"><div class="tabs__inner">${navLinksHtml(nav, activePath)}</div>${search}</div></nav>`
     : "";
   return `<header class="site-header${center ? " site-header--center" : ""}"><div class="container site-header__inner">
   ${brandHtml}
