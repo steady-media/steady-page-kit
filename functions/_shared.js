@@ -164,9 +164,13 @@ html.logo-wide .brand__name{display:none;}
 .login-link{font:inherit;font-size:13px;font-weight:600;letter-spacing:.02em;color:var(--color-ink);cursor:pointer;text-decoration:none;}
 .login-link:hover{color:var(--color-brand);}
 .site-header--center .login-link{font-size:12px;text-transform:uppercase;letter-spacing:.06em;}
-html.nav-figma .tab{text-transform:uppercase;font-weight:700;letter-spacing:.05em;font-size:13px;color:var(--color-ink);}
-html.nav-figma .tabs__inner{gap:26px;}
-html.nav-figma .tab--active{border-bottom-color:var(--color-ink);}
+/* Figma-Nav: abgerundeter Pill-Rahmen statt Linien, sticky beim vertikalen Scrollen, horizontaler Überlauf */
+html.nav-figma .tabs{border-bottom:0;background:transparent;padding:14px 0;text-align:center;position:sticky;top:0;z-index:40;}
+html.nav-figma .tabs__inner{display:inline-flex;width:auto;max-width:calc(100% - 48px);border:1px solid var(--color-ink);border-radius:26px;padding:9px 24px;gap:26px;align-items:center;background:var(--color-bg);overflow-x:auto;scrollbar-width:none;}
+html.nav-figma .tabs__inner::-webkit-scrollbar{display:none;}
+html.nav-figma .tab{text-transform:uppercase;font-weight:700;letter-spacing:.05em;font-size:13px;color:var(--color-ink);border-bottom:0;margin-bottom:0;padding:2px 0;white-space:nowrap;flex:none;}
+html.nav-figma .tab--active{text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:2px;}
+html.nav-figma .tabs__search{flex:none;margin-left:2px;}
 /* hero */
 .hero{padding:56px 0 44px;}
 .hero__grid{display:grid;grid-template-columns:1.25fr 1fr;gap:48px;align-items:center;}
@@ -467,7 +471,7 @@ function footer() {
     <section class="cz-sec"><button class="cz-sh" data-acc>Header<span class="cz-cv">▾</span></button><div class="cz-sb">
       <label class="cz-lbl">Stil</label><div class="cz-seg" data-fn="struct" data-kind="header"><button data-v="links">Links</button><button data-v="zentriert">Zentriert</button></div>
       <label class="cz-lbl">Suche</label><div class="cz-seg" data-fn="struct" data-kind="search"><button data-v="0">Aus</button><button data-v="1">An</button></div>
-      <label class="cz-lbl">Nav-Stil</label><div class="cz-seg" data-fn="layout" data-kind="nav"><button data-v="standard">Standard</button><button data-v="figma">Versal</button></div>
+      <label class="cz-lbl">Nav-Stil</label><div class="cz-seg" data-fn="layout" data-kind="nav"><button data-v="standard">Standard</button><button data-v="figma">Figma</button></div>
       <label class="cz-lbl">Titel</label><input class="cz-inp" id="cz-brand" type="text" placeholder="Blaupause" maxlength="60"/>
       <label class="cz-lbl">Logo (breit)</label><div class="cz-logo"><label class="cz-logo-up">Bild wählen<input type="file" id="cz-logo-file" accept="image/*" hidden/></label><button class="cz-logo-rm" id="cz-logo-rm" type="button">Entfernen</button></div>
       <label class="cz-lbl">Navigation</label><div class="cz-nav" id="cz-nav"></div>
