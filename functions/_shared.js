@@ -202,7 +202,7 @@ function header({ tabs = false } = {}) {
   <span class="brand__name">${esc(PUBLICATION)}</span></a>
   <div class="header-actions">
     <a class="btn btn--primary" href="/#memberships">Subscribe</a>
-    <a class="btn btn--outline" href="#">Log in</a>
+    <a class="steady-login-button" data-size="small" data-language="de" style="display:none;"></a>
   </div></div></header>${nav}`;
 }
 function footer() {
