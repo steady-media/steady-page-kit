@@ -167,6 +167,7 @@ html.logo-wide .brand__name{display:none;}
 .tabs--center .tabs__bar{justify-content:center;}
 .tabs__search{display:inline-flex;align-items:center;align-self:center;color:var(--color-line);cursor:pointer;}
 .tabs__search svg{width:16px;height:16px;}
+search-modal-snippet:not(:defined){display:none;}
 .header-actions steady-login-button{display:none;}
 .login-link{font:inherit;font-size:13px;font-weight:600;letter-spacing:.02em;color:var(--color-ink);cursor:pointer;text-decoration:none;}
 .login-link:hover{color:var(--color-brand);}
@@ -463,10 +464,14 @@ function header({ tabs = false, activePath = "" } = {}, cfg = {}) {
   const navBar = tabs
     ? `<nav class="tabs${center ? " tabs--center" : ""}"><div class="container tabs__bar"><div class="tabs__inner">${navLinksHtml(nav, activePath)}</div>${search}</div></nav>`
     : "";
+  // Cloudflare AI Search: Snippet + Modal nur laden, wenn Suche aktiv ist
+  const searchAssets = (tabs && cfg.search)
+    ? `<script type="module" src="https://2c903ea2-1298-4781-b3e0-91cec257854a.search.ai.cloudflare.com/assets/v0.0.39/search-snippet.es.js"></script><search-modal-snippet api-url="https://2c903ea2-1298-4781-b3e0-91cec257854a.search.ai.cloudflare.com/"></search-modal-snippet>`
+    : "";
   return `<header class="site-header${center ? " site-header--center" : ""}"><div class="container site-header__inner">
   ${brandHtml}
   ${login}
-</div></header>${navBar}`;
+</div></header>${navBar}${searchAssets}`;
 }
 function footer() {
   return `<button class="cz-fab" id="cz-open" aria-label="Seite anpassen" title="Seite anpassen">✦</button>
@@ -604,6 +609,9 @@ function footer() {
   /* login: Textlink → Steady-Button (Shadow-DOM) proxy-klicken (gleiche OAuth-Funktion) */
   var loginLink=document.getElementById("js-login");
   if(loginLink)loginLink.addEventListener("click",function(e){e.preventDefault();var el=document.querySelector("steady-login-button");var b=el&&el.shadowRoot&&el.shadowRoot.querySelector("button,a");if(b)b.click();else if(el&&el.click)el.click();});
+  /* Suche → Cloudflare AI Search Modal öffnen */
+  var searchBtn=document.querySelector(".tabs__search");
+  if(searchBtn){var openSearch=function(){var m=document.querySelector("search-modal-snippet");if(m&&typeof m.open==="function")m.open();};searchBtn.addEventListener("click",openSearch);searchBtn.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();openSearch();}});}
   /* logo upload (clientseitig als Data-URL, im Browser gespeichert) */
   var logoFile=document.getElementById("cz-logo-file");
   if(logoFile)logoFile.addEventListener("change",function(){var f=logoFile.files&&logoFile.files[0];if(!f)return;if(f.size>2097152){alert("Logo zu groß (max. 2 MB).");logoFile.value="";return;}var rd=new FileReader();rd.onload=function(){var src=rd.result;var im=new Image();im.onload=function(){window.kitLogoApply(src,im.naturalWidth/(im.naturalHeight||1),true);};im.onerror=function(){window.kitLogoApply(src,4,true);};im.src=src;};rd.readAsDataURL(f);});
