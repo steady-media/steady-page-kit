@@ -440,7 +440,6 @@ export function renderLanding(items, page = 1) {
 <main>
 <section class="hero"><div class="container hero__grid">
   <div class="hero__body">
-    <span class="eyebrow">${ICON_PIN} Pinned post</span>
     <h1 class="hero__title"><a href="/posts/${esc(hero.guid)}">${esc(hero.title)}</a></h1>
     ${hero.description ? `<p class="hero__excerpt">${esc(hero.description)}</p>` : ""}
     <div class="hero__date">${esc(fmtDate(hero.pubDate))}</div>
