@@ -199,12 +199,13 @@ html.nav-figma .tabs__search svg{width:17px;height:17px;}
 .hero__excerpt{font-size:19px;line-height:1.55;color:var(--color-ink-soft);margin:0 0 20px;max-width:46ch;}
 .hero__date{font-size:14px;color:var(--color-ink-soft);}
 .hero__medialink{display:block;}
-.hero__media{width:100%;aspect-ratio:4/3;background:var(--color-line);border-radius:var(--radius-card);object-fit:cover;}
+.hero__media{width:100%;aspect-ratio:var(--card-ar);background:var(--color-line);border-radius:var(--radius-card);object-fit:cover;}
 /* pills */
 .pills{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;padding:8px 0 40px;}
-.pill{font-size:var(--text-pill);letter-spacing:.04em;text-transform:uppercase;color:var(--color-ink);
-      border:1px solid var(--color-line);border-radius:var(--radius-pill);padding:7px 15px;background:#fff;line-height:1;white-space:nowrap;transition:border-color .15s,color .15s;}
-.pill:hover{border-color:var(--color-ink);color:var(--color-brand);}
+/* Chip (Figma Badge node 74:693 / 17304:15522): outlined pill in the accent colour */
+.pill{display:inline-flex;align-items:center;font-family:var(--font-head);font-size:13px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;color:var(--color-brand);
+      border:1px solid var(--color-brand);border-radius:100px;padding:3px 10px;background:transparent;line-height:1.25;white-space:nowrap;transition:background-color .15s,color .15s;}
+.pill:hover{background:var(--color-brand);color:var(--btn-fg,#fff);}
 /* grid */
 .grid{display:grid;grid-template-columns:repeat(var(--grid-cols,3),1fr);gap:36px 30px;padding-bottom:48px;}
 .card__media{width:100%;aspect-ratio:var(--card-ar);background:var(--color-line);border-radius:var(--radius-card);object-fit:cover;}
@@ -216,14 +217,23 @@ html.nav-figma .tabs__search svg{width:17px;height:17px;}
 .pagination a,.pagination span{min-width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;}
 .pagination .is-current{color:var(--color-ink);font-weight:700;}
 /* single post */
-.post{max-width:var(--reading);margin:0 auto;padding:46px 0 16px;}
+.post{max-width:984px;margin:0 auto;padding:46px 24px 24px;}
+.post__col{max-width:600px;margin-left:auto;margin-right:auto;}
 .post__back{display:inline-flex;align-items:center;gap:7px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-ink-soft);margin-bottom:30px;}
 .post__back svg{width:13px;height:13px;}
-.post__title{font-size:calc(48px*var(--fs));line-height:1.12;font-weight:var(--weight-heading);letter-spacing:var(--track-head);text-transform:var(--case-head);margin:0 0 20px;}
-.post__engagement{display:flex;align-items:center;gap:24px;color:var(--color-ink-soft);font-size:14px;}
-.post__engagement span{display:inline-flex;align-items:center;gap:7px;} .post__engagement svg{width:18px;height:18px;}
-.post__byline{font-size:14px;color:var(--color-ink-soft);margin:14px 0 0;padding-bottom:26px;border-bottom:1px solid var(--color-hairline);}
-.post__figure{margin:30px 0;} .post__figure img{width:100%;border-radius:var(--radius-card);background:var(--color-line);}
+.post__eyebrow{margin:0 0 18px;}
+.post__title{font-size:calc(48px*var(--fs));line-height:1.06;font-weight:var(--weight-heading);letter-spacing:var(--track-head);text-transform:var(--case-head);color:var(--color-ink);margin:0;}
+.post__lede{font-family:var(--font-body);font-size:calc(22px*var(--fs));line-height:1.45;color:var(--color-ink);margin:30px 0 0;}
+.post__meta{font-family:var(--font-head);font-size:15px;line-height:20px;color:var(--color-ink-soft);margin:30px 0 0;}
+.post__hero{margin:40px 0 0;}
+.post__hero img{width:100%;aspect-ratio:var(--card-ar);object-fit:cover;border-radius:var(--radius-card);background:var(--color-line);}
+.post__cap{font-family:var(--font-head);font-size:15px;line-height:20px;color:#6a6a6a;margin:8px 0 0;}
+.post__cap .credit{color:#bfbfbf;}
+.post__bodywrap{margin:40px auto 0;}
+.post__foot{margin:40px auto 0;padding-top:22px;border-top:1px solid var(--rule);}
+.post__react{display:flex;align-items:center;gap:22px;font-family:var(--font-head);font-size:14px;color:var(--color-ink-soft);}
+.post__live{width:14px;height:14px;border-radius:50%;background:#e5484d;flex:none;}
+.post__react .ri{display:inline-flex;align-items:center;gap:7px;} .post__react svg{width:18px;height:18px;}
 .post__body{font-family:var(--font-body);font-size:calc(22px*var(--fs));line-height:var(--lh-body);color:var(--color-ink);}
 .post__body p{margin:0 0 26px;} .post__body p.lede{font-weight:600;}
 .post__body--full img{display:block;width:100%;height:auto;border-radius:var(--radius-card);margin:24px 0;}
@@ -301,7 +311,7 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__figure i
 .aufmacher__meta>span+span{margin-left:28px;position:relative;}
 .aufmacher__meta>span+span::before{content:"";position:absolute;left:-14px;top:50%;transform:translateY(-50%);width:1px;height:11px;background:var(--color-line);}
 .aufmacher__pin{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--color-ink);} .aufmacher__pin svg{width:13px;height:13px;}
-.aufmacher__media{width:100%;aspect-ratio:16/9;object-fit:cover;background:var(--color-line);border-radius:var(--radius-card);}
+.aufmacher__media{width:100%;aspect-ratio:var(--card-ar);object-fit:cover;background:var(--color-line);border-radius:var(--radius-card);}
 .aufmacher-band{padding:44px 0 34px;}
 .section-body{border-top:1px solid var(--rule);padding-top:34px;}
 /* Portal-Shell (3-spaltig: Leisten + Mitte) */
@@ -345,7 +355,7 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__figure i
 .rubrik__grid{padding-bottom:0;grid-template-rows:max-content;grid-auto-rows:0;row-gap:0;overflow:hidden;}
 /* Feature-Sektion: 1 groß + Liste */
 .rubrik__feature{display:grid;grid-template-columns:1.5fr 1fr;gap:34px;align-items:start;}
-.feat-main__media{width:100%;aspect-ratio:16/10;object-fit:cover;background:var(--color-line);border-radius:var(--radius-card);}
+.feat-main__media{width:100%;aspect-ratio:var(--card-ar);object-fit:cover;background:var(--color-line);border-radius:var(--radius-card);}
 .feat-main__title{font-family:var(--font-head);font-size:calc(26px*var(--fs));font-weight:700;line-height:1.2;margin:14px 0 0;letter-spacing:var(--track-head);text-transform:var(--case-head);transition:color .15s;}
 .feat-main:hover .feat-main__title{color:var(--color-brand);}
 .feat-main__excerpt{font-size:15px;color:var(--color-ink-soft);line-height:1.5;margin:8px 0 0;max-width:52ch;}
@@ -886,29 +896,51 @@ function renderPagination(p, pages) {
 }
 
 export function renderPost(item, cfg = {}, full = "") {
-  // full = Volltext-HTML (content:encoded aus dem authentifizierten Steady-Feed), per Titel gejoint.
-  // Steady stellt dem Text ein führendes <h1> mit dem Titel voran — den rendern wir bereits selbst,
-  // also entfernen, damit der Titel nicht doppelt erscheint.
-  const fullClean = full ? full.replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>\s*/i, "") : "";
-  const body = full
-    ? `<div class="post__body post__body--full">${fullClean}</div>
-       <p class="post__readon"><a class="btn btn--primary" href="${esc(item.link)}">Auf Steady öffnen</a></p>`
-    : `<div class="post__body">
-    ${item.description ? `<p class="lede">${esc(item.description)}</p>` : ""}
-    <p>Dieser Beitrag erscheint im Original auf Steady. Den vollständigen Text liest du dort —
-       inklusive Mitglieder-Inhalten.</p>
-    <p class="post__readon"><a class="btn btn--primary" href="${esc(item.link)}">Ganzen Beitrag auf Steady lesen</a></p>
-  </div>`;
-  return head(`${item.title} — ${PUBLICATION}`) + header({ tabs: false }, cfg) + `
-<main><article class="post container">
-  <a class="post__back" href="/">${ICON_BACK} ${esc(PUBLICATION)}</a>
-  <h1 class="post__title">${esc(item.title)}</h1>
-  <div class="post__engagement">
-    <span>${ICON_CLAP}0</span><span>${ICON_EYE}0</span><span>${ICON_SHARE}Share</span>
+  // Volltext aufbereiten: Steady stellt den Titel als führendes <h1> und die Lede als erstes <p>
+  // voran. Beides zeigen wir bereits im Kopf (Titel + Lede); aus dem Body entfernen, damit nichts
+  // doppelt erscheint.
+  let fullClean = "";
+  if (full) {
+    fullClean = full.replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>\s*/i, "");
+    if (item.description) {
+      const fp = fullClean.match(/^\s*<p\b[^>]*>([\s\S]*?)<\/p>\s*/i);
+      if (fp) {
+        const pt = normTitle(fp[1].replace(/<[^>]+>/g, " "));
+        const dt = normTitle(item.description);
+        if (pt && dt && (pt.indexOf(dt.slice(0, 36)) === 0 || dt.indexOf(pt.slice(0, 36)) === 0))
+          fullClean = fullClean.slice(fp[0].length);
+      }
+    }
+  }
+  const cat = (item.categories && item.categories.find(c => c && c.trim())) || "Newsletter";
+  const heroImg = item.image
+    ? `<figure class="post__hero"><img alt="" src="${teaser(item.image, 1600, 1200)}"/></figure>` : "";
+  const bodyInner = full
+    ? `<div class="post__body post__body--full">${fullClean}</div>`
+    : `<div class="post__body"><p>Dieser Beitrag erscheint im Original auf Steady. Den vollständigen Text
+         liest du dort — inklusive Mitglieder-Inhalten.</p></div>`;
+  const cta = full ? "Auf Steady öffnen" : "Ganzen Beitrag auf Steady lesen";
+  return head(`${item.title} — ${PUBLICATION}`) + header({ tabs: true, activePath: "" }, cfg) + `
+<main><article class="post">
+  <div class="post__col">
+    <a class="pill post__eyebrow" href="/rubrik/${slugify(cat)}">${esc(cat)}</a>
+    <h1 class="post__title">${esc(item.title)}</h1>
+    ${item.description ? `<p class="post__lede">${esc(item.description)}</p>` : ""}
+    <div class="post__meta">${esc(fmtDate(item.pubDate))}</div>
   </div>
-  <div class="post__byline">by ${esc(AUTHOR)} · ${esc(fmtDate(item.pubDate))}</div>
-  ${item.image ? `<figure class="post__figure"><img alt="" src="${teaser(item.image, 1200, 675)}"/></figure>` : ""}
-  ${body}
+  ${heroImg}
+  <div class="post__col post__bodywrap">
+    ${bodyInner}
+    <p class="post__readon"><a class="btn btn--primary" href="${esc(item.link)}">${cta}</a></p>
+  </div>
+  <div class="post__col post__foot">
+    <div class="post__react">
+      <span class="post__live" aria-hidden="true"></span>
+      <span class="ri">${ICON_CLAP}0</span>
+      <span class="ri">${ICON_EYE}0</span>
+      <span class="ri">${ICON_SHARE}Share</span>
+    </div>
+  </div>
 </article></main>` + footer();
 }
 
