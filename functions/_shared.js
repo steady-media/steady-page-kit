@@ -175,9 +175,9 @@ search-modal-snippet:not(:defined){display:none;}
 /* Figma-Nav: abgerundeter Pill-Rahmen statt Linien, sticky, horizontaler Überlauf, separate runde Suche */
 html.nav-figma .tabs{border-bottom:0;background:transparent;padding:14px 0;position:sticky;top:0;z-index:40;}
 html.nav-figma .tabs__bar{justify-content:center;gap:12px;}
-html.nav-figma .tabs__inner{min-width:0;flex:0 1 auto;display:inline-flex;width:auto;border:1px solid var(--color-ink);border-radius:26px;padding:9px 24px;gap:26px;align-items:center;background:var(--color-bg);overflow-x:auto;scrollbar-width:none;}
+html.nav-figma .tabs__inner{min-width:0;flex:0 1 auto;display:inline-flex;width:auto;border:1px solid var(--color-ink);border-radius:12px;padding:12px 34px;gap:26px;align-items:center;background:var(--color-bg);overflow-x:auto;scrollbar-width:none;}
 html.nav-figma .tabs__inner::-webkit-scrollbar{display:none;}
-html.nav-figma .tab{text-transform:uppercase;font-weight:700;letter-spacing:.05em;font-size:13px;color:var(--color-ink);border-bottom:0;margin-bottom:0;padding:2px 0;white-space:nowrap;flex:none;}
+html.nav-figma .tab{text-transform:uppercase;font-weight:700;letter-spacing:.5px;font-size:14px;color:var(--color-ink);border-bottom:0;margin-bottom:0;padding:2px 0;white-space:nowrap;flex:none;}
 html.nav-figma .tab--active{text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:2px;}
 html.nav-figma .tabs__search{flex:none;width:44px;height:44px;border:1px solid var(--color-ink);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--color-bg);color:var(--color-ink);}
 html.nav-figma .tabs__search svg{width:17px;height:17px;}
@@ -231,9 +231,9 @@ html.nav-figma .tabs__search svg{width:17px;height:17px;}
 .font-bar{border-top:1px solid var(--color-hairline);margin-top:40px;padding:22px 0;}
 .font-bar__inner{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:6px 8px;}
 .loadmore-wrap{display:flex;justify-content:center;padding:8px 0 56px;}
-.load-more{font:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--color-ink);background:#fff;border:1px solid var(--color-line);border-radius:var(--radius-pill);padding:13px 30px;cursor:pointer;transition:border-color .15s,color .15s;}
-.load-more:hover{border-color:var(--color-ink);color:var(--color-brand);}
-.load-more:disabled{opacity:.5;cursor:default;}
+.load-more{font:inherit;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-brand);background:none;border:0;padding:8px 4px;cursor:pointer;transition:opacity .15s;}
+.load-more:hover{text-decoration:underline;text-underline-offset:4px;}
+.load-more:disabled{opacity:.5;cursor:default;text-decoration:none;}
 /* Headlines/Display nutzen --font-head; alles andere (Body) erbt --font-body */
 .brand__name,.tab,.eyebrow,.hero__title,.pill,.card__title,.load-more,.btn,.nav-action,.post__title,.post__back{font-family:var(--font-head);}
 .font-bar__label{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--color-line);white-space:nowrap;}
@@ -279,21 +279,23 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__figure i
 .aufmacher-band{padding:48px 0 8px;}
 /* Portal-Shell (3-spaltig: Leisten + Mitte) */
 .portal-band{padding:40px 0 8px;}
-.portal-grid{max-width:var(--container);margin:0 auto;padding:0 24px;display:grid;gap:40px;align-items:start;}
+.portal-grid{max-width:var(--container);margin:0 auto;padding:0 24px;display:grid;gap:28px;align-items:start;}
+.portal-center{padding:0 28px;border-left:1px solid var(--color-hairline);border-right:1px solid var(--color-hairline);}
 .portal-center .aufmacher{max-width:none;margin:0;}
 .portal-center .grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));padding-bottom:0;}
 .portal-center .section-head{padding-top:0;}
 .rail{display:flex;flex-direction:column;gap:30px;min-width:0;}
-.rail-module__title{font-family:var(--font-head);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-ink);margin:0 0 14px;padding-bottom:8px;border-bottom:2px solid var(--color-ink);}
+.rail-module__title{font-family:var(--font-head);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-ink);margin:0 0 14px;padding-top:10px;border-top:1px solid var(--color-ink);}
 .rail-list,.rail-num{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;}
 .rail-list a{display:block;}
 .rail-list__t{display:block;font-family:var(--font-head);font-size:15px;font-weight:600;line-height:1.3;color:var(--color-ink);}
 .rail-list a:hover .rail-list__t{color:var(--color-brand);}
 .rail-list__d{display:block;font-size:12px;color:var(--color-line);margin-top:3px;}
-.rail-num li{display:flex;gap:12px;align-items:baseline;}
-.rail-num__n{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--color-accent);min-width:22px;line-height:1;}
+.rail-num li{margin:0;}
+.rail-num a{display:flex;gap:12px;align-items:center;}
+.rail-num__n{flex:none;width:32px;height:32px;border:1px solid var(--color-ink);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--color-ink);line-height:1;}
 .rail-num__t{font-size:14px;font-weight:600;line-height:1.3;color:var(--color-ink);}
-.rail-num a{display:flex;gap:12px;align-items:baseline;} .rail-num a:hover .rail-num__t{color:var(--color-brand);}
+.rail-num a:hover .rail-num__t{color:var(--color-brand);}
 .rail-pills{display:flex;flex-wrap:wrap;gap:8px;}
 /* Rubriken-Sektionen */
 .rubrik{padding:14px 0 30px;}
@@ -306,6 +308,8 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__figure i
 .section-head{padding:42px 0 26px;border-bottom:1px solid var(--color-hairline);margin-bottom:30px;}
 .section-title{font-family:var(--font-head);font-size:calc(40px*var(--fs));line-height:1.1;font-weight:var(--weight-heading);letter-spacing:var(--track-head);text-transform:var(--case-head);margin:10px 0 4px;}
 .section-count{font-size:14px;color:var(--color-line);margin:0;}
+.section-eyebrow{display:flex;align-items:center;gap:16px;margin:0 0 18px;}
+.section-chip{font-family:var(--font-head);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--color-brand);}
 .rubrik__grid{padding-bottom:0;grid-template-rows:max-content;grid-auto-rows:0;row-gap:0;overflow:hidden;}
 /* Feature-Sektion: 1 groß + Liste */
 .rubrik__feature{display:grid;grid-template-columns:1.5fr 1fr;gap:34px;align-items:start;}
@@ -326,7 +330,7 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__figure i
 @media (max-width:760px){.rubrik__feature{grid-template-columns:1fr;}}
 @media (max-width:1100px){
   .portal-grid{grid-template-columns:1fr!important;gap:32px;}
-  .portal-center{order:-1;}
+  .portal-center{order:-1;border:0;padding:0;}
   .rail{flex-direction:row;flex-wrap:wrap;gap:32px;}
   .rail .rail-module{flex:1 1 240px;}
 }
@@ -805,27 +809,25 @@ export function renderSection(category, items, allItems, page = 1, cfg) {
   cfg = cfg || { shell: "single", auf: "klein", stream: "liste", rails: [] };
   const slug = slugify(category);
   const display = category.charAt(0).toUpperCase() + category.slice(1);
-  const railItems = (allItems && allItems.length) ? allItems : items;
-  const cats = topCategories(railItems);
-  const pages = Math.max(1, Math.ceil(items.length / PER_PAGE));
+  const featured = items[0];
+  const rest = items.slice(1);
+  const pages = Math.max(1, Math.ceil(rest.length / PER_PAGE));
   const p = Math.min(Math.max(1, page), pages);
-  const slice = items.slice((p - 1) * PER_PAGE, p * PER_PAGE);
+  const slice = rest.slice((p - 1) * PER_PAGE, p * PER_PAGE);
   const more = p < pages
     ? `<div class="loadmore-wrap"><button class="load-more" id="js-loadmore" data-next="${p + 1}" data-pages="${pages}" data-url="/rubrik/${slug}">Mehr laden</button></div>`
     : "";
-  const center = `<header class="section-head">
-    <a class="post__back" href="/">${ICON_BACK} ${esc(PUBLICATION)}</a>
-    <h1 class="section-title">${esc(display)}</h1>
-    <p class="section-count">${items.length} ${items.length === 1 ? "Beitrag" : "Beiträge"}</p>
-  </header>
+  // Aufmacher-Teaser (erster Beitrag der Rubrik) + Raster mit dem Rest
+  const aufmacher = featured ? `<section class="aufmacher-band"><div class="container">
+    <p class="section-eyebrow"><a class="post__back" href="/">${ICON_BACK} ${esc(PUBLICATION)}</a><span class="section-chip">${esc(display)}</span></p>
+    ${aufmacherArticle(featured, true)}
+  </div></section>` : "";
+  return head(display + " — " + PUBLICATION) + header({ tabs: true, activePath: "/rubrik/" + slug }, cfg) + `
+<main>${aufmacher}<div class="container">
   <div class="grid">${slice.map(card).join("")}</div>
-  ${more}`;
-  // Portal-Stil: Leisten flankieren das Raster; sonst schlichter Container
-  const body = cfg.shell === "portal"
-    ? `${portalBand(cfg, center, railItems, cats)}<div class="container"><div id="memberships"></div></div>`
-    : `<div class="container">${center}<div id="memberships"></div></div>`;
-  return head(display + " — " + PUBLICATION) + header({ tabs: true, activePath: "/rubrik/" + slug }, cfg) +
-    `<main>${body}</main>` + footer();
+  ${more}
+  <div id="memberships"></div>
+</div></main>` + footer();
 }
 function renderPagination(p, pages) {
   if (pages <= 1) return "";
