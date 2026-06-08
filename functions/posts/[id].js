@@ -1,5 +1,9 @@
 // Route: GET /posts/:id  → Einzelpost-Ansicht aus dem Feed-Item (guid == :id)
-import { getItems, renderPost, render404, parseStruct } from "../_shared.js";
+// Volltext: der öffentliche Feed liefert nur Teaser. Wenn FULLTEXT_FEED_URL gesetzt ist
+// (authentifizierter Steady-Feed, ~6 jüngste Beiträge mit content:encoded), joinen wir den
+// Volltext per normalisiertem Titel an den passenden Beitrag — die Guids beider Feeds
+// unterscheiden sich, die Titel stimmen überein.
+import { getItems, renderPost, render404, parseStruct, normTitle } from "../_shared.js";
 
 export async function onRequestGet(context) {
   const id = context.params.id;
@@ -23,7 +27,22 @@ export async function onRequestGet(context) {
     });
   }
 
-  return new Response(renderPost(item, cfg), {
+  // Volltext aus dem authentifizierten Feed dazuholen (best effort — Fehler/Token-Ablauf
+  // degradiert sauber auf den Teaser-Stub).
+  let full = "";
+  const ftUrl = context.env && context.env.FULLTEXT_FEED_URL;
+  if (ftUrl) {
+    try {
+      const ft = await getItems(ftUrl);
+      const want = normTitle(item.title);
+      const match = ft.find(i => normTitle(i.title) === want);
+      if (match && match.content) full = match.content;
+    } catch (err) {
+      full = "";
+    }
+  }
+
+  return new Response(renderPost(item, cfg, full), {
     headers: { "content-type": "text/html; charset=utf-8", "cache-control": cache },
   });
 }

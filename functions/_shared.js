@@ -11,13 +11,17 @@ export const MAX_PILLS   = 8;
 
 /* ------------------------------------------------------------------ Feed */
 
-export async function getItems() {
-  const res = await fetch(FEED_URL, {
+export async function getItems(feedUrl) {
+  const res = await fetch(feedUrl || FEED_URL, {
     headers: { "user-agent": "BlaupauseKit/1.0 (+cloudflare-pages)" },
     cf: { cacheTtl: 600, cacheEverything: true },   // Edge-Cache 10 Min (Produktion)
   });
   if (!res.ok) throw new Error("feed HTTP " + res.status);
   return parseFeed(await res.text());
+}
+// Titel normalisieren (Join Public-Feed ↔ Volltext-Feed; Guids unterscheiden sich)
+export function normTitle(s) {
+  return String(s || "").toLowerCase().replace(/&[a-z]+;/g, " ").replace(/[^a-z0-9äöüß]+/g, " ").trim();
 }
 
 function stripCdata(s) {
@@ -41,6 +45,7 @@ export function parseFeed(xml) {
   while ((m = re.exec(xml))) {
     const b = m[1];
     const media = b.match(/<media:content\b[^>]*\burl="([^"]+)"/);
+    const ce = b.match(/<content:encoded\b[^>]*>([\s\S]*?)<\/content:encoded>/);
     items.push({
       title:       tag(b, "title"),
       description: tag(b, "description"),
@@ -49,6 +54,7 @@ export function parseFeed(xml) {
       link:        tag(b, "link"),
       guid:        tag(b, "guid"),
       pubDate:     tag(b, "pubDate"),
+      content:     ce ? stripCdata(ce[1]) : "",
     });
   }
   return items;
@@ -220,6 +226,17 @@ html.nav-figma .tabs__search svg{width:17px;height:17px;}
 .post__figure{margin:30px 0;} .post__figure img{width:100%;border-radius:var(--radius-card);background:var(--color-line);}
 .post__body{font-family:var(--font-body);font-size:calc(22px*var(--fs));line-height:var(--lh-body);color:var(--color-ink);}
 .post__body p{margin:0 0 26px;} .post__body p.lede{font-weight:600;}
+.post__body--full img{display:block;width:100%;height:auto;border-radius:var(--radius-card);margin:24px 0;}
+.post__body--full figure{margin:24px 0;} .post__body--full figcaption{font-size:calc(15px*var(--fs));color:var(--color-ink-soft);margin-top:8px;text-align:center;}
+.post__body--full h2{font-family:var(--font-head);font-weight:var(--weight-heading);font-size:calc(30px*var(--fs));line-height:1.18;letter-spacing:-.01em;margin:38px 0 14px;}
+.post__body--full h3{font-family:var(--font-head);font-weight:var(--weight-heading);font-size:calc(23px*var(--fs));line-height:1.2;margin:30px 0 12px;}
+.post__body--full h4{font-family:var(--font-head);font-weight:600;font-size:calc(19px*var(--fs));margin:26px 0 10px;}
+.post__body--full a{color:var(--color-brand);text-decoration:underline;text-underline-offset:2px;}
+.post__body--full ul,.post__body--full ol{margin:0 0 26px;padding-left:26px;} .post__body--full li{margin:0 0 10px;}
+.post__body--full blockquote{margin:28px 0;padding:6px 0 6px 22px;border-left:3px solid var(--color-ink);font-style:italic;color:var(--color-ink-soft);}
+.post__body--full hr{border:0;border-top:1px solid var(--rule);margin:34px 0;}
+.post__body--full iframe,.post__body--full video{display:block;width:100%;aspect-ratio:16/9;height:auto;border:0;border-radius:var(--radius-card);margin:24px 0;}
+.post__body--full strong,.post__body--full b{font-weight:700;}
 .post__readon{margin:14px 0 8px;}
 /* footer */
 .site-footer{border-top:1px solid var(--color-hairline);padding:40px 0 56px;margin-top:40px;}
@@ -868,7 +885,20 @@ function renderPagination(p, pages) {
   return `<nav class="pagination" aria-label="Pagination">${out.join("")}</nav>`;
 }
 
-export function renderPost(item, cfg = {}) {
+export function renderPost(item, cfg = {}, full = "") {
+  // full = Volltext-HTML (content:encoded aus dem authentifizierten Steady-Feed), per Titel gejoint.
+  // Steady stellt dem Text ein führendes <h1> mit dem Titel voran — den rendern wir bereits selbst,
+  // also entfernen, damit der Titel nicht doppelt erscheint.
+  const fullClean = full ? full.replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>\s*/i, "") : "";
+  const body = full
+    ? `<div class="post__body post__body--full">${fullClean}</div>
+       <p class="post__readon"><a class="btn btn--primary" href="${esc(item.link)}">Auf Steady öffnen</a></p>`
+    : `<div class="post__body">
+    ${item.description ? `<p class="lede">${esc(item.description)}</p>` : ""}
+    <p>Dieser Beitrag erscheint im Original auf Steady. Den vollständigen Text liest du dort —
+       inklusive Mitglieder-Inhalten.</p>
+    <p class="post__readon"><a class="btn btn--primary" href="${esc(item.link)}">Ganzen Beitrag auf Steady lesen</a></p>
+  </div>`;
   return head(`${item.title} — ${PUBLICATION}`) + header({ tabs: false }, cfg) + `
 <main><article class="post container">
   <a class="post__back" href="/">${ICON_BACK} ${esc(PUBLICATION)}</a>
@@ -878,13 +908,7 @@ export function renderPost(item, cfg = {}) {
   </div>
   <div class="post__byline">by ${esc(AUTHOR)} · ${esc(fmtDate(item.pubDate))}</div>
   ${item.image ? `<figure class="post__figure"><img alt="" src="${teaser(item.image, 1200, 675)}"/></figure>` : ""}
-  <div class="post__body">
-    ${item.description ? `<p class="lede">${esc(item.description)}</p>` : ""}
-    <p>Dieser Beitrag erscheint im Original auf Steady. Den vollständigen Text liest du dort —
-       inklusive Mitglieder-Inhalten.</p>
-    <!-- PAYWALL-ANDOCKZONE: hier kommt später das echte Steady-Paywall-/Post-Embed-Widget rein. -->
-    <p class="post__readon"><a class="btn btn--primary" href="${esc(item.link)}">Ganzen Beitrag auf Steady lesen</a></p>
-  </div>
+  ${body}
 </article></main>` + footer();
 }
 
