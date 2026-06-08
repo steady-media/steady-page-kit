@@ -4,6 +4,7 @@
 export const FEED_URL    = "https://steady.page/sebastian/rss";
 export const PUBLICATION = "Blaupause";
 export const AUTHOR      = "Sebastian Esser";
+export const STEADY_PUBLICATION_ID = "ab2d81e4-59a5-4097-a668-110ad2cd3256"; // Steady widget_loader (Smart Layers/Checkout/Paywall)
 export const PER_PAGE    = 12;
 export const PINNED_GUID = null;   // optional: eine Post-GUID als Hero pinnen; null = neuester Post
 export const MAX_PILLS   = 8;
@@ -185,7 +186,10 @@ function head(title, { serif = false } = {}) {
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?${fonts}&display=swap" rel="stylesheet"/>
-<style>${CSS}</style></head><body>`;
+<style>${CSS}</style>
+<!-- Steady Smart Layers / Checkout / Paywall — der echte Steady-Layer -->
+<script type="text/javascript" src="https://steady.page/widget_loader/${STEADY_PUBLICATION_ID}"></script>
+</head><body>`;
 }
 function header({ tabs = false } = {}) {
   const nav = tabs ? `
