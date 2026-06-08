@@ -264,7 +264,7 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__figure i
 .aufmacher-band{padding:48px 0 8px;}
 /* Portal-Shell (3-spaltig: Leisten + Mitte) */
 .portal-band{padding:40px 0 8px;}
-.portal-grid{max-width:1256px;margin:0 auto;padding:0 24px;display:grid;gap:40px;align-items:start;}
+.portal-grid{max-width:var(--container);margin:0 auto;padding:0 24px;display:grid;gap:40px;align-items:start;}
 .portal-center .aufmacher{max-width:none;margin:0;}
 .rail{display:flex;flex-direction:column;gap:30px;min-width:0;}
 .rail-module__title{font-family:var(--font-head);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-ink);margin:0 0 14px;padding-bottom:8px;border-bottom:2px solid var(--color-ink);}
@@ -284,6 +284,23 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__figure i
 .rubrik__chip{font-family:var(--font-head);font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--color-ink);}
 .rubrik__more{font-family:var(--font-head);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-brand);}
 .rubrik__grid{padding-bottom:0;}
+/* Feature-Sektion: 1 groß + Liste */
+.rubrik__feature{display:grid;grid-template-columns:1.5fr 1fr;gap:34px;align-items:start;}
+.feat-main__media{width:100%;aspect-ratio:16/10;object-fit:cover;background:var(--color-line);border-radius:var(--radius-card);}
+.feat-main__title{font-family:var(--font-head);font-size:calc(26px*var(--fs));font-weight:700;line-height:1.2;margin:14px 0 0;letter-spacing:var(--track-head);text-transform:var(--case-head);transition:color .15s;}
+.feat-main:hover .feat-main__title{color:var(--color-brand);}
+.feat-main__excerpt{font-size:15px;color:var(--color-ink-soft);line-height:1.5;margin:8px 0 0;max-width:52ch;}
+.feat-list{display:flex;flex-direction:column;gap:18px;}
+.teaser-row{display:grid;grid-template-columns:84px 1fr;gap:14px;align-items:start;}
+.teaser-row__media{width:84px;height:84px;object-fit:cover;background:var(--color-line);border-radius:var(--radius-card);}
+.teaser-row__title{font-family:var(--font-head);font-size:15px;font-weight:600;line-height:1.3;margin:0;text-transform:var(--case-head);transition:color .15s;}
+.teaser-row:hover .teaser-row__title{color:var(--color-brand);}
+/* Kompakt-Sektion: Textteaser in Spalten */
+.rubrik__compact{display:grid;grid-template-columns:repeat(var(--grid-cols,3),1fr);gap:0 30px;}
+.teaser-text{display:block;padding:13px 0;border-top:1px solid var(--color-hairline);}
+.teaser-text__title{font-family:var(--font-head);font-size:15px;font-weight:600;line-height:1.3;margin:0 0 4px;text-transform:var(--case-head);transition:color .15s;}
+.teaser-text:hover .teaser-text__title{color:var(--color-brand);}
+@media (max-width:760px){.rubrik__feature{grid-template-columns:1fr;}}
 @media (max-width:1100px){
   .portal-grid{grid-template-columns:1fr!important;gap:32px;}
   .portal-center{order:-1;}
@@ -630,7 +647,7 @@ function aufmacherArticle(hero, withImage) {
   return `<article class="aufmacher">
     <h1 class="aufmacher__title"><a href="/posts/${esc(hero.guid)}">${esc(hero.title)}</a></h1>
     ${hero.description ? `<p class="aufmacher__excerpt">${esc(hero.description)}</p>` : ""}
-    <div class="aufmacher__meta"><span class="aufmacher__pin">${ICON_PIN} Pinned</span><span>${esc(fmtDate(hero.pubDate))}</span><span>${readMin(hero)} Min</span></div>
+    <div class="aufmacher__meta"><span>${esc(fmtDate(hero.pubDate))}</span><span>${readMin(hero)} Min Lesezeit</span></div>
     ${withImage ? `<a class="aufmacher__medialink" href="/posts/${esc(hero.guid)}"><img class="aufmacher__media" alt="" src="${teaser(hero.image, 1100, 825)}"/></a>` : ""}
   </article>`;
 }
@@ -662,14 +679,47 @@ function portalBand(cfg, centerHtml, items, cats) {
     ${hasR ? `<aside class="rail rail--r">${railR.join("")}</aside>` : ""}
   </div></section>`;
 }
-// Stream: nach Rubriken (eine Sektion je Feed-Kategorie, Chip-Titel + „Mehr")
+// Horizontaler Mini-Teaser (Bild links) für die Feature-Liste
+function teaserRow(it) {
+  return `<a class="teaser-row" href="/posts/${esc(it.guid)}">
+    <img class="teaser-row__media" loading="lazy" alt="" src="${teaser(it.image, 200, 200)}"/>
+    <div><h4 class="teaser-row__title">${esc(it.title)}</h4><div class="card__date">${esc(fmtDate(it.pubDate))}</div></div>
+  </a>`;
+}
+// Text-Teaser (ohne Bild) für die Kompakt-Sektion
+function teaserText(it) {
+  return `<a class="teaser-text" href="/posts/${esc(it.guid)}">
+    <h4 class="teaser-text__title">${esc(it.title)}</h4><div class="card__date">${esc(fmtDate(it.pubDate))}</div>
+  </a>`;
+}
+// Stream: nach Rubriken — Layout rotiert je Sektion (Feature / Karten / Kompakt), wie im Figma
 function rubrikStream(rest, cats) {
   if (!cats.length) return `<div class="grid">${rest.slice(0, PER_PAGE).map(card).join("")}</div>`;
-  return cats.map(cat => {
-    const inCat = rest.filter(it => it.categories.includes(cat)).slice(0, 8);
+  const MODES = ["feature", "cards", "compact"];
+  return cats.map((cat, i) => {
+    const inCat = rest.filter(it => it.categories.includes(cat));
     if (!inCat.length) return "";
-    return `<section class="rubrik"><header class="rubrik__head"><span class="rubrik__chip">${esc(cat)}</span><span class="rubrik__more">Mehr →</span></header>
-    <div class="grid rubrik__grid">${inCat.map(card).join("")}</div></section>`;
+    const head = `<header class="rubrik__head"><span class="rubrik__chip">${esc(cat)}</span><span class="rubrik__more">Mehr →</span></header>`;
+    const mode = MODES[i % 3];
+    let body;
+    if (mode === "feature") {
+      const main = inCat[0];
+      const list = inCat.slice(1, 5);
+      body = `<div class="rubrik__feature">
+        <a class="feat-main" href="/posts/${esc(main.guid)}">
+          <img class="feat-main__media" loading="lazy" alt="" src="${teaser(main.image, 820, 540)}"/>
+          <h3 class="feat-main__title">${esc(main.title)}</h3>
+          ${main.description ? `<p class="feat-main__excerpt">${esc(main.description)}</p>` : ""}
+          <div class="card__date">${esc(fmtDate(main.pubDate))}</div>
+        </a>
+        <div class="feat-list">${list.map(teaserRow).join("")}</div>
+      </div>`;
+    } else if (mode === "compact") {
+      body = `<div class="rubrik__compact">${inCat.slice(0, 8).map(teaserText).join("")}</div>`;
+    } else {
+      body = `<div class="grid rubrik__grid">${inCat.slice(0, 8).map(card).join("")}</div>`;
+    }
+    return `<section class="rubrik rubrik--${mode}">${head}${body}</section>`;
   }).join("");
 }
 
