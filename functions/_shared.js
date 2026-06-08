@@ -207,9 +207,9 @@ function head(title) {
 function header({ tabs = false } = {}) {
   const nav = tabs ? `
 <nav class="tabs"><div class="container tabs__inner">
-  <a class="tab tab--active" href="/">Posts</a>
-  <a class="tab" href="/memberships">Memberships</a>
-  <a class="tab" href="https://steady.page/de/sebastian/newsletter/sign_up">Newsletter anmelden</a>
+  <a class="tab tab--active" href="/">Ausgaben</a>
+  <a class="tab" href="/memberships">Mitglied werden</a>
+  <a class="tab" href="https://steady.page/de/sebastian/newsletter/sign_up" target="_blank" rel="noopener">Newsletter anmelden</a>
 </div></nav>` : "";
   return `<header class="site-header"><div class="container site-header__inner">
   <a class="brand" href="/"><img class="brand__logo" alt="${esc(PUBLICATION)}" src="/assets/logo.png"/>
