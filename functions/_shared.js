@@ -103,6 +103,8 @@ a{color:inherit;text-decoration:none;} img{display:block;max-width:100%;}
      text-transform:uppercase;padding:11px 20px;border:1px solid transparent;cursor:pointer;border-radius:var(--radius-btn);}
 .btn--primary{background:var(--color-brand);color:#fff;}
 .btn--outline{background:#fff;color:var(--color-ink);border-color:#d7d4dd;}
+.nav-action{font:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--color-ink);cursor:pointer;background:none;border:0;transition:color .15s;}
+.nav-action:hover{color:var(--color-brand);}
 /* header */
 .site-header{border-bottom:1px solid var(--color-hairline);background:#fff;}
 .site-header__inner{display:flex;align-items:center;justify-content:space-between;height:74px;}
@@ -195,13 +197,13 @@ function header({ tabs = false } = {}) {
   const nav = tabs ? `
 <nav class="tabs"><div class="container tabs__inner">
   <a class="tab tab--active" href="/">Posts</a>
-  <a class="tab" href="/#memberships">Memberships</a>
+  <a class="tab" href="/memberships">Memberships</a>
 </div></nav>` : "";
   return `<header class="site-header"><div class="container site-header__inner">
   <a class="brand" href="/"><img class="brand__logo" alt="${esc(PUBLICATION)}" src="/assets/logo.png"/>
   <span class="brand__name">${esc(PUBLICATION)}</span></a>
   <div class="header-actions">
-    <a class="btn btn--primary" href="/#memberships">Subscribe</a>
+    <a class="nav-action" id="js-newsletter" href="#newsletter">Newsletter</a>
     <a class="steady-login-button" data-size="small" data-language="de" style="display:none;"></a>
   </div></div></header>${nav}`;
 }
@@ -211,7 +213,9 @@ function footer() {
   <span class="footer__by">by ${esc(AUTHOR)}</span></div>
   <nav class="footer__links"><a href="#">Imprint</a><a href="#">Privacy Policy</a>
   <a href="#">Terms &amp; Conditions</a><a href="#">Help</a><a href="#">Discover Steady</a></nav>
-  <span class="footer__lang">English ▾</span></div></footer></body></html>`;
+  <span class="footer__lang">English ▾</span></div></footer>
+<script>(function(){var a=document.getElementById("js-newsletter");if(!a)return;a.addEventListener("click",function(e){e.preventDefault();var s=window.SteadyWidgetSettings||{};var u=s.newsletterSubscribeUrl;if(!u&&s.newsletterUrl)u=(typeof s.newsletterUrl==="object"&&s.newsletterUrl)?(s.newsletterUrl.href||s.newsletterUrl.url):s.newsletterUrl;if(u)window.open(u,"_blank","noopener");});})();</script>
+</body></html>`;
 }
 
 /* ------------------------------------------------------------------ Pages */
@@ -299,6 +303,16 @@ export function renderEmpty() {
   return head(PUBLICATION) + header({ tabs: true }) +
     `<main><div class="container" style="padding:80px 0;color:var(--color-line)">Inhalte laden gerade nicht. Bitte gleich neu laden.</div></main>` +
     footer();
+}
+
+export function renderMemberships() {
+  return head("Mitglied werden — " + PUBLICATION) + header({ tabs: true }) + `
+<main><div class="container" style="padding:48px 0 72px">
+  <h1 style="font-size:34px;font-weight:var(--weight-heading);text-align:center;letter-spacing:-.01em;margin:0 0 10px">Mitglied werden</h1>
+  <p style="text-align:center;color:var(--color-ink-soft);font-size:18px;margin:0 0 40px">Wähle deine Mitgliedschaft — der Checkout läuft direkt hier auf der Seite.</p>
+  <!-- Steady rendert den Checkout in diesen Container (Backend Checkout-URL = /memberships) -->
+  <div id="insert_steady_checkout_here" style="display:none;"></div>
+</div></main>` + footer();
 }
 
 export function render404() {
