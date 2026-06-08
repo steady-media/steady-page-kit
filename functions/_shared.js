@@ -81,6 +81,26 @@ function topCategories(items) {
   return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, MAX_PILLS).map(e => e[0]);
 }
 
+/* ------------------------------------------------------------------ Struktur-Config (Cookie) */
+// Vom Side-Panel gesetzter Cookie kitstruct=shell=portal&auf=gross&stream=rubrik&rails=neueste,meist,themen
+// Default (kein Cookie) = heutige Seite: einspaltig / Split-Hero / flache Liste.
+export function parseStruct(cookie) {
+  const def = { shell: "single", auf: "klein", stream: "liste", rails: [] };
+  if (!cookie) return def;
+  const m = cookie.match(/(?:^|;\s*)kitstruct=([^;]*)/);
+  if (!m) return def;
+  let q;
+  try { q = new URLSearchParams(decodeURIComponent(m[1])); } catch (e) { return def; }
+  const shell  = q.get("shell")  === "portal" ? "portal" : "single";
+  const auf    = q.get("auf")    === "gross"  ? "gross"  : "klein";
+  const stream = q.get("stream") === "rubrik" ? "rubrik" : "liste";
+  const allow = ["neueste", "meist", "themen"];
+  let rails;
+  if (q.has("rails")) rails = (q.get("rails") || "").split(",").filter(r => allow.includes(r));
+  else rails = shell === "portal" ? allow.slice() : [];
+  return { shell, auf, stream, rails };
+}
+
 /* ------------------------------------------------------------------ CSS (Kit-Tokens) */
 
 const CSS = `
@@ -205,6 +225,43 @@ html.surf-soft.card-overlay .card__body,html.surf-outline.card-overlay .card__bo
 html.img-gray .card__media,html.img-gray .hero__media,html.img-gray .post__figure img{filter:grayscale(1);transition:filter .35s;}
 html.img-gray .card:hover .card__media{filter:none;}
 html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__figure img{filter:grayscale(1) contrast(1.05) sepia(.5) hue-rotate(165deg) saturate(2.4) brightness(.96);}
+/* Aufmacher (großer Opener) */
+.aufmacher{max-width:760px;margin:0 auto;}
+.aufmacher__title{font-family:var(--font-head);font-size:calc(40px*var(--fs));line-height:1.12;font-weight:var(--weight-heading);letter-spacing:var(--track-head);text-transform:var(--case-head);margin:0 0 14px;}
+.aufmacher__title a{transition:color .15s;} .aufmacher__title a:hover{color:var(--color-brand);}
+.aufmacher__excerpt{font-size:19px;line-height:1.55;color:var(--color-ink-soft);margin:0 0 14px;max-width:60ch;}
+.aufmacher__meta{display:flex;flex-wrap:wrap;align-items:center;gap:14px;font-size:13px;color:var(--color-line);margin:0 0 22px;}
+.aufmacher__pin{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--color-ink);} .aufmacher__pin svg{width:13px;height:13px;}
+.aufmacher__media{width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--color-line);border-radius:var(--radius-card);}
+.aufmacher-band{padding:48px 0 8px;}
+/* Portal-Shell (3-spaltig: Leisten + Mitte) */
+.portal-band{padding:40px 0 8px;}
+.portal-grid{max-width:1256px;margin:0 auto;padding:0 24px;display:grid;gap:40px;align-items:start;}
+.portal-center .aufmacher{max-width:none;margin:0;}
+.rail{display:flex;flex-direction:column;gap:30px;min-width:0;}
+.rail-module__title{font-family:var(--font-head);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-ink);margin:0 0 14px;padding-bottom:8px;border-bottom:2px solid var(--color-ink);}
+.rail-list,.rail-num{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;}
+.rail-list a{display:block;}
+.rail-list__t{display:block;font-family:var(--font-head);font-size:15px;font-weight:600;line-height:1.3;color:var(--color-ink);}
+.rail-list a:hover .rail-list__t{color:var(--color-brand);}
+.rail-list__d{display:block;font-size:12px;color:var(--color-line);margin-top:3px;}
+.rail-num li{display:flex;gap:12px;align-items:baseline;}
+.rail-num__n{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--color-accent);min-width:22px;line-height:1;}
+.rail-num__t{font-size:14px;font-weight:600;line-height:1.3;color:var(--color-ink);}
+.rail-num a{display:flex;gap:12px;align-items:baseline;} .rail-num a:hover .rail-num__t{color:var(--color-brand);}
+.rail-pills{display:flex;flex-wrap:wrap;gap:8px;}
+/* Rubriken-Sektionen */
+.rubrik{padding:14px 0 30px;}
+.rubrik__head{display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:2px solid var(--color-ink);padding-top:12px;margin-bottom:22px;}
+.rubrik__chip{font-family:var(--font-head);font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--color-ink);}
+.rubrik__more{font-family:var(--font-head);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-brand);}
+.rubrik__grid{padding-bottom:0;}
+@media (max-width:1100px){
+  .portal-grid{grid-template-columns:1fr!important;gap:32px;}
+  .portal-center{order:-1;}
+  .rail{flex-direction:row;flex-wrap:wrap;gap:32px;}
+  .rail .rail-module{flex:1 1 240px;}
+}
 /* customizer panel */
 .cz-fab{position:fixed;right:20px;bottom:20px;z-index:60;width:50px;height:50px;border-radius:50%;border:0;background:var(--color-brand);color:#fff;font-size:20px;cursor:pointer;box-shadow:0 8px 24px rgba(41,30,56,.25);}
 html.cz-on .cz-fab{display:none;}
@@ -241,6 +298,10 @@ html.cz-on .cz{transform:none;}
 .cz-seg--wrap{flex-wrap:wrap;} .cz-seg--wrap button{flex:1 0 28%;}
 .cz-warn{display:none;font-size:11px;color:#C0392B;margin:10px 0 0;line-height:1.4;}
 .cz-warn.show{display:block;}
+.cz-rails{display:flex;flex-wrap:wrap;gap:6px;}
+.cz-rails button{flex:1 1 30%;font:inherit;font-size:12px;padding:8px 6px;border:1px solid #d7d4dd;border-radius:6px;background:#fff;color:#291E38;cursor:pointer;}
+.cz-rails button.on{border-color:#137EC0;background:#137EC0;color:#fff;}
+.cz-rails--off{opacity:.45;pointer-events:none;}
 @media (max-width:560px){.cz{width:100%;}}
 @media (max-width:900px){.hero__grid{grid-template-columns:1fr;gap:28px;}.grid{grid-template-columns:repeat(2,1fr);}:root{--text-h1:calc(38px*var(--fs));}}
 @media (max-width:680px){.post__title{font-size:calc(34px*var(--fs));}.post__body{font-size:calc(20px*var(--fs));}}
@@ -277,8 +338,11 @@ window.KIT_BASES={light:{"--color-bg":"#FFFFFF","--color-ink":"#291E38","--color
 window.kitBase=function(mode,save){var b=window.KIT_BASES[mode];if(!b)return;var c=save?jget("kitColors"):null;for(var k in b){D.style.setProperty(k,b[k]);if(c)c[k]=b[k];}if(save){jset("kitColors",c);ssave("kitBase",mode);}};
 window.kitType=function(kind,val,save){if(kind==="size")D.style.setProperty("--fs",val==="klein"?"0.92":val==="gross"?"1.12":"1");else if(kind==="lead")D.style.setProperty("--lh-body",val==="eng"?"1.4":val==="luftig"?"1.75":"1.55");else if(kind==="track")D.style.setProperty("--track-head",val==="eng"?"-.03em":val==="weit"?".02em":"-.01em");else if(kind==="case")D.style.setProperty("--case-head",val==="gross"?"uppercase":val==="title"?"capitalize":"none");else if(kind==="align")D.style.setProperty("--align-head",val==="zentriert"?"center":"left");if(save)setObj("kitType",kind,val);};
 window.kitCard=function(kind,val,save){if(kind==="style"){D.classList.remove("card-side","card-text","card-overlay","card-list");if(val!=="classic")D.classList.add("card-"+val);}else if(kind==="aspect")D.style.setProperty("--card-ar",val==="4:3"?"4/3":val==="1:1"?"1/1":"16/9");else if(kind==="surface"){D.classList.remove("surf-soft","surf-outline");if(val!=="flat")D.classList.add("surf-"+val);}else if(kind==="image"){D.classList.remove("img-gray","img-duo");if(val==="graustufen")D.classList.add("img-gray");else if(val==="duotone")D.classList.add("img-duo");}if(save)setObj("kitCard",kind,val);};
-window.KIT_LOOKS=[{n:"Steady",d:"Klar & journalistisch",head:"inter",body:"inter",base:"light",palette:0,type:{size:"standard",lead:"normal",track:"normal",case:"normal",align:"links"},layout:{corner:"eckig",dens:"komfortabel",hero:"split",width:"standard"},card:{style:"classic",surface:"flat",image:"farbe",aspect:"16:9"}},{n:"Magazin",d:"Serifen & Kontrast",head:"playfair-display",body:"source-serif-4",base:"light",type:{size:"gross",lead:"normal",track:"eng",case:"normal",align:"links"},layout:{corner:"eckig",dens:"komfortabel",hero:"split",width:"standard"},card:{style:"classic",surface:"flat",image:"farbe",aspect:"4:3"}},{n:"Minimal",d:"Ruhig, viel Weissraum",head:"inter",body:"inter",base:"light",palette:4,type:{size:"standard",lead:"luftig",track:"normal",case:"normal",align:"links"},layout:{corner:"eckig",dens:"grosszuegig",hero:"split",width:"schmal"},card:{style:"text",surface:"flat",image:"farbe",aspect:"16:9"}},{n:"Bold",d:"Laut & Grossbuchstaben",head:"archivo-black",body:"archivo",base:"light",palette:0,type:{size:"gross",lead:"normal",track:"eng",case:"gross",align:"links"},layout:{corner:"eckig",dens:"komfortabel",hero:"split",width:"standard"},card:{style:"overlay",surface:"flat",image:"farbe",aspect:"16:9"}},{n:"Klassik",d:"Elegant & zentriert",head:"fraunces",body:"lora",base:"light",palette:3,type:{size:"standard",lead:"normal",track:"normal",case:"normal",align:"zentriert"},layout:{corner:"rund",dens:"komfortabel",hero:"center",width:"standard"},card:{style:"classic",surface:"soft",image:"graustufen",aspect:"4:3"}},{n:"Nacht",d:"Dark Mode",head:"inter",body:"inter",base:"dark",palette:1,type:{size:"standard",lead:"normal",track:"normal",case:"normal",align:"links"},layout:{corner:"rund",dens:"komfortabel",hero:"split",width:"standard"},card:{style:"classic",surface:"outline",image:"farbe",aspect:"16:9"}}];
-window.kitLook=function(idx,save){var L=window.KIT_LOOKS[idx];if(!L)return;window.kitApplyFont("head",L.head,save);window.kitApplyFont("body",L.body,save);if(L.palette!=null)window.kitPalette(L.palette,save);if(L.base)window.kitBase(L.base,save);var k;for(k in L.type)window.kitType(k,L.type[k],save);for(k in L.layout)window.kitSetLayout(k,L.layout[k],save);for(k in L.card)window.kitCard(k,L.card[k],save);if(save)ssave("kitLook",idx);};try{var sh=localStorage.getItem("kitFontHead");if(sh&&sh!==window.KIT_DEFAULT_HEAD)window.kitApplyFont("head",sh,false);}catch(e){}try{var sb=localStorage.getItem("kitFontBody");if(sb&&sb!==window.KIT_DEFAULT_BODY)window.kitApplyFont("body",sb,false);}catch(e){}var C=jget("kitColors");for(var ck in C)D.style.setProperty(ck,C[ck]);if(C["--color-brand"])D.style.setProperty("--btn-fg",btnFg(C["--color-brand"]));var L2=jget("kitLayout");for(var lk in L2)window.kitSetLayout(lk,L2[lk],false);var T2=jget("kitType");for(var tk in T2)window.kitType(tk,T2[tk],false);var K2=jget("kitCard");for(var kk in K2)window.kitCard(kk,K2[kk],false);try{if(localStorage.getItem("kitPanelOpen")==="1")D.classList.add("cz-on");}catch(e){}})();
+window.KIT_LOOKS=[{n:"Steady",d:"Klar & journalistisch",head:"inter",body:"inter",base:"light",palette:0,type:{size:"standard",lead:"normal",track:"normal",case:"normal",align:"links"},layout:{corner:"eckig",dens:"komfortabel",hero:"split",width:"standard"},card:{style:"classic",surface:"flat",image:"farbe",aspect:"16:9"}},{n:"Magazin",d:"Serifen & Kontrast",head:"playfair-display",body:"source-serif-4",base:"light",type:{size:"gross",lead:"normal",track:"eng",case:"normal",align:"links"},layout:{corner:"eckig",dens:"komfortabel",hero:"split",width:"standard"},card:{style:"classic",surface:"flat",image:"farbe",aspect:"4:3"}},{n:"Minimal",d:"Ruhig, viel Weissraum",head:"inter",body:"inter",base:"light",palette:4,type:{size:"standard",lead:"luftig",track:"normal",case:"normal",align:"links"},layout:{corner:"eckig",dens:"grosszuegig",hero:"split",width:"schmal"},card:{style:"text",surface:"flat",image:"farbe",aspect:"16:9"}},{n:"Bold",d:"Laut & Grossbuchstaben",head:"archivo-black",body:"archivo",base:"light",palette:0,type:{size:"gross",lead:"normal",track:"eng",case:"gross",align:"links"},layout:{corner:"eckig",dens:"komfortabel",hero:"split",width:"standard"},card:{style:"overlay",surface:"flat",image:"farbe",aspect:"16:9"}},{n:"Klassik",d:"Elegant & zentriert",head:"fraunces",body:"lora",base:"light",palette:3,type:{size:"standard",lead:"normal",track:"normal",case:"normal",align:"zentriert"},layout:{corner:"rund",dens:"komfortabel",hero:"center",width:"standard"},card:{style:"classic",surface:"soft",image:"graustufen",aspect:"4:3"}},{n:"Nacht",d:"Dark Mode",head:"inter",body:"inter",base:"dark",palette:1,type:{size:"standard",lead:"normal",track:"normal",case:"normal",align:"links"},layout:{corner:"rund",dens:"komfortabel",hero:"split",width:"standard"},card:{style:"classic",surface:"outline",image:"farbe",aspect:"16:9"}},{n:"Magazin-Portal",d:"3-spaltig, rubriziert",head:"mulish",body:"mulish",base:"light",type:{size:"standard",lead:"normal",track:"normal",case:"normal",align:"links"},layout:{corner:"eckig",dens:"komfortabel",hero:"split",width:"breit",cols:"4"},card:{style:"classic",surface:"flat",image:"farbe",aspect:"16:9"},colors:{"--color-brand":"#954FCF","--color-accent":"#954FCF"},struct:{shell:"portal",auf:"gross",stream:"rubrik",rails:["neueste","meist","themen"]}}];
+function readStruct(){try{return JSON.parse(localStorage.getItem("kitStruct")||"{}");}catch(e){return {};}}
+function structSer(s){var p=[];if(s.shell)p.push("shell="+s.shell);if(s.auf)p.push("auf="+s.auf);if(s.stream)p.push("stream="+s.stream);if(s.rails)p.push("rails="+s.rails.join(","));return p.join("&");}
+window.kitStructSet=function(obj,reload){var s=readStruct();for(var sk in obj)s[sk]=obj[sk];try{localStorage.setItem("kitStruct",JSON.stringify(s));}catch(e){}document.cookie="kitstruct="+encodeURIComponent(structSer(s))+";path=/;max-age=31536000";if(reload)location.reload();};
+window.kitLook=function(idx,save){var L=window.KIT_LOOKS[idx];if(!L)return;window.kitApplyFont("head",L.head,save);window.kitApplyFont("body",L.body,save);if(L.palette!=null)window.kitPalette(L.palette,save);if(L.base)window.kitBase(L.base,save);var k;for(k in L.type)window.kitType(k,L.type[k],save);for(k in L.layout)window.kitSetLayout(k,L.layout[k],save);for(k in L.card)window.kitCard(k,L.card[k],save);if(L.colors)for(k in L.colors)window.kitColor(k,L.colors[k],save);if(save)ssave("kitLook",idx);if(L.struct)window.kitStructSet(L.struct,true);};try{var sh=localStorage.getItem("kitFontHead");if(sh&&sh!==window.KIT_DEFAULT_HEAD)window.kitApplyFont("head",sh,false);}catch(e){}try{var sb=localStorage.getItem("kitFontBody");if(sb&&sb!==window.KIT_DEFAULT_BODY)window.kitApplyFont("body",sb,false);}catch(e){}var C=jget("kitColors");for(var ck in C)D.style.setProperty(ck,C[ck]);if(C["--color-brand"])D.style.setProperty("--btn-fg",btnFg(C["--color-brand"]));var L2=jget("kitLayout");for(var lk in L2)window.kitSetLayout(lk,L2[lk],false);var T2=jget("kitType");for(var tk in T2)window.kitType(tk,T2[tk],false);var K2=jget("kitCard");for(var kk in K2)window.kitCard(kk,K2[kk],false);try{if(localStorage.getItem("kitPanelOpen")==="1")D.classList.add("cz-on");}catch(e){}})();
 `;
 
 function head(title) {
@@ -316,6 +380,13 @@ function footer() {
     <section class="cz-sec cz-open"><button class="cz-sh" data-acc>Looks<span class="cz-cv">▾</span></button><div class="cz-sb">
       <p class="cz-hint">Ein Klick = ein geprüfter Gesamtstil. Danach feinjustieren.</p>
       <div class="cz-looks" id="cz-looks"></div>
+    </div></section>
+    <section class="cz-sec"><button class="cz-sh" data-acc>Aufbau<span class="cz-cv">▾</span></button><div class="cz-sb">
+      <label class="cz-lbl">Seitenlayout</label><div class="cz-seg" data-fn="struct" data-kind="shell"><button data-v="single">Einspaltig</button><button data-v="portal">Portal</button></div>
+      <label class="cz-lbl">Aufmacher</label><div class="cz-seg" data-fn="struct" data-kind="auf"><button data-v="klein">Klein</button><button data-v="gross">Groß</button></div>
+      <label class="cz-lbl">Inhalt</label><div class="cz-seg" data-fn="struct" data-kind="stream"><button data-v="liste">Eine Liste</button><button data-v="rubrik">Nach Rubriken</button></div>
+      <label class="cz-lbl">Seitenleisten</label><div class="cz-rails" id="cz-rails"><button data-rail="neueste">Neueste</button><button data-rail="meist">Meistgelesen</button><button data-rail="themen">Themen</button></div>
+      <p class="cz-hint">Struktur lädt die Seite kurz neu. Skin bleibt live.</p>
     </div></section>
     <section class="cz-sec"><button class="cz-sh" data-acc>Schriften<span class="cz-cv">▾</span></button><div class="cz-sb">
       <label class="cz-lbl">Editorial-Pairing</label><select id="pair-picker" class="cz-sel"><option value="">– Pairing –</option></select>
@@ -378,12 +449,28 @@ function footer() {
   if(pal&&window.KIT_PALETTES){for(var qi=0;qi<window.KIT_PALETTES.length;qi++){(function(idx){var p=window.KIT_PALETTES[idx];var b=document.createElement("button");b.title=p.n;b.style.background=p.v["--color-brand"];b.addEventListener("click",function(){window.kitPalette(idx,true);markPal();syncColors();clearLook();});pal.appendChild(b);})(qi);}}
   for(var cid in cmap){(function(elid,varn){var el=document.getElementById(elid);if(el)el.addEventListener("input",function(){window.kitColor(varn,el.value,true);checkWarn();clearLook();});})(cid,cmap[cid]);}
   /* generic segments (layout / type / card / base) */
-  var DEF={layout:{cols:"3",width:"standard",dens:"komfortabel",corner:"eckig",hero:"split"},type:{size:"standard",lead:"normal",track:"normal",case:"normal",align:"links"},card:{style:"classic",aspect:"16:9",surface:"flat",image:"farbe"}};
-  var STORE={layout:"kitLayout",type:"kitType",card:"kitCard"};
+  var DEF={layout:{cols:"3",width:"standard",dens:"komfortabel",corner:"eckig",hero:"split"},type:{size:"standard",lead:"normal",track:"normal",case:"normal",align:"links"},card:{style:"classic",aspect:"16:9",surface:"flat",image:"farbe"},struct:{shell:"single",auf:"klein",stream:"liste"}};
+  var STORE={layout:"kitLayout",type:"kitType",card:"kitCard",struct:"kitStruct"};
   function curOf(fn,kind){if(fn==="base")return gs("kitBase","light");var o=jget(STORE[fn]);return (o[kind]!=null)?o[kind]:DEF[fn][kind];}
-  function callFn(fn,kind,val){if(fn==="layout")window.kitSetLayout(kind,val,true);else if(fn==="type")window.kitType(kind,val,true);else if(fn==="card")window.kitCard(kind,val,true);else if(fn==="base")window.kitBase(val,true);}
+  function callFn(fn,kind,val){if(fn==="layout")window.kitSetLayout(kind,val,true);else if(fn==="type")window.kitType(kind,val,true);else if(fn==="card")window.kitCard(kind,val,true);else if(fn==="base")window.kitBase(val,true);else if(fn==="struct"){var o={};o[kind]=val;window.kitStructSet(o,true);}}
   function markSeg(seg){var fn=seg.getAttribute("data-fn"),kind=seg.getAttribute("data-kind")||"mode",cur=curOf(fn,kind);[].forEach.call(seg.children,function(b){b.classList.toggle("on",b.getAttribute("data-v")===String(cur));});}
   [].forEach.call(document.querySelectorAll(".cz-seg"),function(seg){var fn=seg.getAttribute("data-fn"),kind=seg.getAttribute("data-kind")||"mode";markSeg(seg);[].forEach.call(seg.children,function(b){b.addEventListener("click",function(){callFn(fn,kind,b.getAttribute("data-v"));markSeg(seg);if(fn==="base")syncColors();clearLook();});});});
+  /* struct: Seitenleisten-Mehrfachtoggle (nur bei Portal aktiv) */
+  var railsEl=document.getElementById("cz-rails");
+  if(railsEl){
+    var st0=jget("kitStruct"),shell0=st0.shell||"single";
+    var rails0=st0.rails||(shell0==="portal"?["neueste","meist","themen"]:[]);
+    railsEl.classList.toggle("cz-rails--off",shell0!=="portal");
+    [].forEach.call(railsEl.children,function(b){
+      var r=b.getAttribute("data-rail");
+      if(rails0.indexOf(r)>=0)b.classList.add("on");
+      b.addEventListener("click",function(){
+        var s=jget("kitStruct"),cur=s.rails||(((s.shell||"single")==="portal")?["neueste","meist","themen"]:[]);
+        var i=cur.indexOf(r);if(i>=0)cur.splice(i,1);else cur.push(r);
+        window.kitStructSet({rails:cur},true);
+      });
+    });
+  }
   /* looks */
   var looksEl=document.getElementById("cz-looks");
   function markLook(){var sv=gs("kitLook",null);if(looksEl)[].forEach.call(looksEl.children,function(x,i){x.classList.toggle("on",String(i)===sv);});}
@@ -408,21 +495,9 @@ function footer() {
 
 /* ------------------------------------------------------------------ Pages */
 
-export function renderLanding(items, page = 1) {
-  if (!items.length) return renderEmpty();
-
-  const heroIdx = PINNED_GUID ? Math.max(0, items.findIndex(i => i.guid === PINNED_GUID)) : 0;
-  const hero = items[heroIdx];
-  const rest = items.filter((_, i) => i !== heroIdx);
-
-  const pills = topCategories(items)
-    .map(c => `<span class="pill">${esc(c)}</span>`).join("");
-
-  const pages = Math.max(1, Math.ceil(rest.length / PER_PAGE));
-  const p = Math.min(Math.max(1, page), pages);
-  const slice = rest.slice((p - 1) * PER_PAGE, p * PER_PAGE);
-
-  const cards = slice.map(it => `
+// Eine Teaser-Karte (wiederverwendet in flacher Liste + Rubriken)
+function card(it) {
+  return `
     <a class="card" href="/posts/${esc(it.guid)}">
       <img class="card__media" loading="lazy" alt="" src="${teaser(it.image, 800, 450)}"/>
       <div class="card__body">
@@ -430,15 +505,11 @@ export function renderLanding(items, page = 1) {
         ${it.description ? `<p class="card__excerpt">${esc(it.description)}</p>` : ""}
         <div class="card__date">${esc(fmtDate(it.pubDate))}</div>
       </div>
-    </a>`).join("");
-
-  const more = pages > 1
-    ? `<div class="loadmore-wrap"><button class="load-more" id="js-loadmore" data-next="${p + 1}" data-pages="${pages}">Mehr laden</button></div>`
-    : "";
-
-  return head(PUBLICATION) + header({ tabs: true, active: "posts" }) + `
-<main>
-<section class="hero"><div class="container hero__grid">
+    </a>`;
+}
+// Aufmacher klein = heutiger Split-Hero (Text links, Bild rechts)
+function heroSplit(hero) {
+  return `<section class="hero"><div class="container hero__grid">
   <div class="hero__body">
     <h1 class="hero__title"><a href="/posts/${esc(hero.guid)}">${esc(hero.title)}</a></h1>
     ${hero.description ? `<p class="hero__excerpt">${esc(hero.description)}</p>` : ""}
@@ -447,15 +518,103 @@ export function renderLanding(items, page = 1) {
   <a class="hero__medialink" href="/posts/${esc(hero.guid)}">
     <img class="hero__media" alt="" src="${teaser(hero.image, 760, 570)}"/>
   </a>
-</div></section>
-<div class="container">
+</div></section>`;
+}
+// grobe Lesezeit-Schätzung aus dem Teasertext (Feed liefert keinen Volltext)
+function readMin(it) {
+  const w = (it.description || "").trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(2, Math.round(w / 35));
+}
+// Aufmacher groß = gestapelt: Headline + Excerpt + Meta-Leiste + 4:3-Bild
+function aufmacherArticle(hero, withImage) {
+  return `<article class="aufmacher">
+    <h1 class="aufmacher__title"><a href="/posts/${esc(hero.guid)}">${esc(hero.title)}</a></h1>
+    ${hero.description ? `<p class="aufmacher__excerpt">${esc(hero.description)}</p>` : ""}
+    <div class="aufmacher__meta"><span class="aufmacher__pin">${ICON_PIN} Pinned</span><span>${esc(fmtDate(hero.pubDate))}</span><span>${readMin(hero)} Min</span></div>
+    ${withImage ? `<a class="aufmacher__medialink" href="/posts/${esc(hero.guid)}"><img class="aufmacher__media" alt="" src="${teaser(hero.image, 1100, 825)}"/></a>` : ""}
+  </article>`;
+}
+// Leisten-Module
+function railLatest(items) {
+  return `<div class="rail-module"><h2 class="rail-module__title">Neueste Inhalte</h2>
+    <ul class="rail-list">${items.slice(0, 5).map(it => `<li><a href="/posts/${esc(it.guid)}"><span class="rail-list__t">${esc(it.title)}</span><span class="rail-list__d">${esc(fmtDate(it.pubDate))}</span></a></li>`).join("")}</ul></div>`;
+}
+function railPopular(items) {
+  return `<div class="rail-module"><h2 class="rail-module__title">Meistgelesen</h2>
+    <ol class="rail-num">${items.slice(0, 5).map((it, i) => `<li><a href="/posts/${esc(it.guid)}"><span class="rail-num__n">${i + 1}</span><span class="rail-num__t">${esc(it.title)}</span></a></li>`).join("")}</ol></div>`;
+}
+function railTopics(cats) {
+  return `<div class="rail-module"><h2 class="rail-module__title">Meine Themen</h2>
+    <div class="rail-pills">${cats.map(c => `<span class="pill">${esc(c)}</span>`).join("")}</div></div>`;
+}
+// Portal-Band: Leisten flankieren den Aufmacher (Neueste/Themen links, Meistgelesen rechts)
+function portalBand(cfg, centerHtml, items, cats) {
+  const railL = [];
+  if (cfg.rails.includes("neueste")) railL.push(railLatest(items));
+  if (cfg.rails.includes("themen")) railL.push(railTopics(cats));
+  const railR = [];
+  if (cfg.rails.includes("meist")) railR.push(railPopular(items));
+  const hasL = railL.length, hasR = railR.length;
+  const cols = `${hasL ? "216px " : ""}minmax(0,1fr)${hasR ? " 216px" : ""}`;
+  return `<section class="portal-band"><div class="portal-grid" style="grid-template-columns:${cols}">
+    ${hasL ? `<aside class="rail rail--l">${railL.join("")}</aside>` : ""}
+    <div class="portal-center">${centerHtml}</div>
+    ${hasR ? `<aside class="rail rail--r">${railR.join("")}</aside>` : ""}
+  </div></section>`;
+}
+// Stream: nach Rubriken (eine Sektion je Feed-Kategorie, Chip-Titel + „Mehr")
+function rubrikStream(rest, cats) {
+  if (!cats.length) return `<div class="grid">${rest.slice(0, PER_PAGE).map(card).join("")}</div>`;
+  return cats.map(cat => {
+    const inCat = rest.filter(it => it.categories.includes(cat)).slice(0, 8);
+    if (!inCat.length) return "";
+    return `<section class="rubrik"><header class="rubrik__head"><span class="rubrik__chip">${esc(cat)}</span><span class="rubrik__more">Mehr →</span></header>
+    <div class="grid rubrik__grid">${inCat.map(card).join("")}</div></section>`;
+  }).join("");
+}
+
+export function renderLanding(items, page = 1, cfg) {
+  if (!items.length) return renderEmpty();
+  cfg = cfg || { shell: "single", auf: "klein", stream: "liste", rails: [] };
+
+  const heroIdx = PINNED_GUID ? Math.max(0, items.findIndex(i => i.guid === PINNED_GUID)) : 0;
+  const hero = items[heroIdx];
+  const rest = items.filter((_, i) => i !== heroIdx);
+  const cats = topCategories(items);
+
+  // 1) Kopf: Portal-Band (mit Leisten) oder einspaltiger Aufmacher/Hero
+  let top;
+  if (cfg.shell === "portal") {
+    top = portalBand(cfg, aufmacherArticle(hero, cfg.auf === "gross"), rest, cats);
+  } else if (cfg.auf === "gross") {
+    top = `<section class="aufmacher-band"><div class="container">${aufmacherArticle(hero, true)}</div></section>`;
+  } else {
+    top = heroSplit(hero);
+  }
+
+  // 2) Stream: Rubriken-Sektionen oder flache Liste mit Pills + „Mehr laden"
+  let stream;
+  if (cfg.stream === "rubrik") {
+    stream = `<div class="container">${rubrikStream(rest, cats)}<div id="memberships"></div></div>`;
+  } else {
+    const pages = Math.max(1, Math.ceil(rest.length / PER_PAGE));
+    const p = Math.min(Math.max(1, page), pages);
+    const slice = rest.slice((p - 1) * PER_PAGE, p * PER_PAGE);
+    const pills = cats.map(c => `<span class="pill">${esc(c)}</span>`).join("");
+    const more = pages > 1
+      ? `<div class="loadmore-wrap"><button class="load-more" id="js-loadmore" data-next="${p + 1}" data-pages="${pages}">Mehr laden</button></div>`
+      : "";
+    stream = `<div class="container">
   <div class="pills">${pills}</div>
-  <div class="grid">${cards}</div>
+  <div class="grid">${slice.map(card).join("")}</div>
   ${more}
   <div id="memberships"></div>
   <!-- #memberships: Andock-Punkt für das echte Steady-Membership-/Checkout-Widget. -->
-</div>
-</main>` + footer();
+</div>`;
+  }
+
+  return head(PUBLICATION) + header({ tabs: true, active: "posts" }) + `
+<main>${top}${stream}</main>` + footer();
 }
 
 function renderPagination(p, pages) {
