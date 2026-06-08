@@ -85,7 +85,8 @@ function topCategories(items) {
 
 const CSS = `
 :root{
-  --font-sans:"Inter", system-ui, -apple-system, sans-serif;
+  --font-head:"Inter", system-ui, -apple-system, sans-serif;
+  --font-body:"Inter", system-ui, -apple-system, sans-serif;
   --text-base:18px; --text-h1:50px; --lh-h1:1.12; --text-card-title:18px; --text-nav:16px; --text-pill:12px;
   --weight-heading:700; --weight-body:400;
   --color-ink:#291E38; --color-ink-soft:#6B6577; --color-brand:#137EC0; --color-accent:#FF7264;
@@ -94,7 +95,7 @@ const CSS = `
 }
 *,*::before,*::after{box-sizing:border-box;}
 html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
-body{margin:0;background:var(--color-bg);color:var(--color-ink);font-family:var(--font-sans);
+body{margin:0;background:var(--color-bg);color:var(--color-ink);font-family:var(--font-body);
      font-size:var(--text-base);font-weight:var(--weight-body);line-height:1.5;}
 a{color:inherit;text-decoration:none;} img{display:block;max-width:100%;}
 .container{max-width:var(--container);margin:0 auto;padding:0 24px;}
@@ -163,11 +164,14 @@ a{color:inherit;text-decoration:none;} img{display:block;max-width:100%;}
 .footer__lang{font-size:14px;color:var(--color-ink-soft);border:1px solid var(--color-hairline);padding:7px 12px;border-radius:2px;}
 .footer__select{font:inherit;font-size:14px;color:var(--color-ink-soft);border:1px solid var(--color-hairline);padding:7px 12px;border-radius:2px;background:#fff;cursor:pointer;}
 .font-bar{border-top:1px solid var(--color-hairline);margin-top:40px;padding:22px 0;}
-.font-bar__inner{display:flex;justify-content:flex-end;}
+.font-bar__inner{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:6px 8px;}
 .loadmore-wrap{display:flex;justify-content:center;padding:8px 0 56px;}
 .load-more{font:inherit;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--color-ink);background:#fff;border:1px solid var(--color-line);border-radius:var(--radius-pill);padding:13px 30px;cursor:pointer;transition:border-color .15s,color .15s;}
 .load-more:hover{border-color:var(--color-ink);color:var(--color-brand);}
 .load-more:disabled{opacity:.5;cursor:default;}
+/* Headlines/Display nutzen --font-head; alles andere (Body) erbt --font-body */
+.brand__name,.tab,.eyebrow,.hero__title,.pill,.card__title,.load-more,.btn,.nav-action,.post__title,.post__back{font-family:var(--font-head);}
+.font-bar__label{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--color-line);white-space:nowrap;}
 @media (max-width:900px){.hero__grid{grid-template-columns:1fr;gap:28px;}.grid{grid-template-columns:repeat(2,1fr);}:root{--text-h1:38px;}}
 @media (max-width:680px){.post__title{font-size:34px;}.post__body{font-size:20px;}}
 @media (max-width:560px){.grid{grid-template-columns:1fr;}.header-actions .btn--outline{display:none;}}
@@ -187,8 +191,9 @@ const ICON_SHARE= `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 const FONT_INIT = `
 window.KIT_FONTS=[{n:"Inter",s:"inter",c:"Grotesk"},{n:"Archivo",s:"archivo",c:"Grotesk"},{n:"Archivo Narrow",s:"archivo-narrow",c:"Grotesk"},{n:"Archivo Black",s:"archivo-black",c:"Grotesk",w:"400,700,900"},{n:"Schibsted Grotesk",s:"schibsted-grotesk",c:"Grotesk"},{n:"Bricolage Grotesque",s:"bricolage-grotesque",c:"Grotesk"},{n:"Libre Franklin",s:"libre-franklin",c:"Grotesk"},{n:"Space Grotesk",s:"space-grotesk",c:"Grotesk"},{n:"Work Sans",s:"work-sans",c:"Grotesk"},{n:"Familjen Grotesk",s:"familjen-grotesk",c:"Grotesk"},{n:"Hanken Grotesk",s:"hanken-grotesk",c:"Grotesk"},{n:"Source Sans 3",s:"source-sans-3",c:"Humanistisch"},{n:"Fira Sans",s:"fira-sans",c:"Humanistisch"},{n:"Public Sans",s:"public-sans",c:"Humanistisch"},{n:"Mulish",s:"mulish",c:"Humanistisch"},{n:"Montserrat",s:"montserrat",c:"Geometrisch"},{n:"Poppins",s:"poppins",c:"Geometrisch"},{n:"Sora",s:"sora",c:"Geometrisch"},{n:"Lexend",s:"lexend",c:"Geometrisch"},{n:"Oswald",s:"oswald",c:"Condensed"},{n:"Barlow",s:"barlow",c:"Condensed"},{n:"Barlow Condensed",s:"barlow-condensed",c:"Condensed"},{n:"Barlow Semi Condensed",s:"barlow-semi-condensed",c:"Condensed"},{n:"Saira",s:"saira",c:"Condensed"},{n:"Saira Condensed",s:"saira-condensed",c:"Condensed"},{n:"Saira Semi Condensed",s:"saira-semi-condensed",c:"Condensed"},{n:"Geist",s:"geist",c:"Neuer"},{n:"Geist Mono",s:"geist-mono",g:"monospace",c:"Neuer"},{n:"Instrument Sans",s:"instrument-sans",c:"Neuer"},{n:"Onest",s:"onest",c:"Neuer"},{n:"Figtree",s:"figtree",c:"Neuer"},{n:"Albert Sans",s:"albert-sans",c:"Neuer"}];
 window.KIT_FONT_CATS=["Grotesk","Humanistisch","Geometrisch","Condensed","Neuer"];
-window.KIT_FONT_DEFAULT="inter";
-(function(){var loaded={inter:1};window.kitApplyFont=function(slug,save){var f=null,i;for(i=0;i<window.KIT_FONTS.length;i++){if(window.KIT_FONTS[i].s===slug){f=window.KIT_FONTS[i];break;}}if(!f)f=window.KIT_FONTS[0];if(!loaded[f.s]){var l=document.createElement("link");l.rel="stylesheet";l.href="https://fonts.bunny.net/css?family="+f.s+":"+(f.w||"400,500,600,700")+"&display=swap";document.head.appendChild(l);loaded[f.s]=1;}document.documentElement.style.setProperty("--font-sans",'"'+f.n+'", '+(f.g||"sans-serif"));if(save){try{localStorage.setItem("kitFont",f.s);}catch(e){}}};try{var sv=localStorage.getItem("kitFont");if(sv&&sv!==window.KIT_FONT_DEFAULT)window.kitApplyFont(sv,false);}catch(e){}})();
+window.KIT_PAIRS=[{n:"Nordisch editorial",h:"schibsted-grotesk",b:"source-sans-3"},{n:"Zeitungsklassiker",h:"libre-franklin",b:"source-sans-3"},{n:"Headline-Werkstatt",h:"archivo",b:"inter"},{n:"Display mit Charakter",h:"bricolage-grotesque",b:"inter"},{n:"Geometrisch & sauber",h:"space-grotesk",b:"work-sans"},{n:"Masthead / Condensed",h:"oswald",b:"public-sans"},{n:"Tech-editorial",h:"geist",b:"inter"},{n:"Eine Familie",h:"archivo-black",b:"archivo"},{n:"Warm & lesbar",h:"familjen-grotesk",b:"mulish"}];
+window.KIT_DEFAULT_HEAD="inter";window.KIT_DEFAULT_BODY="inter";
+(function(){var loaded={inter:1};function ff(slug){for(var i=0;i<window.KIT_FONTS.length;i++)if(window.KIT_FONTS[i].s===slug)return window.KIT_FONTS[i];return window.KIT_FONTS[0];}function ld(f){if(loaded[f.s])return;var l=document.createElement("link");l.rel="stylesheet";l.href="https://fonts.bunny.net/css?family="+f.s+":"+(f.w||"400,500,600,700")+"&display=swap";document.head.appendChild(l);loaded[f.s]=1;}window.kitApplyFont=function(role,slug,save){var f=ff(slug);ld(f);document.documentElement.style.setProperty(role==="head"?"--font-head":"--font-body",'"'+f.n+'", '+(f.g||"sans-serif"));if(save){try{localStorage.setItem(role==="head"?"kitFontHead":"kitFontBody",f.s);}catch(e){}}};try{var sh=localStorage.getItem("kitFontHead");if(sh&&sh!==window.KIT_DEFAULT_HEAD)window.kitApplyFont("head",sh,false);}catch(e){}try{var sb=localStorage.getItem("kitFontBody");if(sb&&sb!==window.KIT_DEFAULT_BODY)window.kitApplyFont("body",sb,false);}catch(e){}})();
 `;
 
 function head(title) {
@@ -220,15 +225,18 @@ function header({ tabs = false } = {}) {
 }
 function footer() {
   return `<div class="font-bar"><div class="container font-bar__inner">
-  <select id="font-picker" class="footer__select" aria-label="Schriftart wählen" title="Schrift ändern (alle Texte)"></select>
+  <span class="font-bar__label">Pairing</span><select id="pair-picker" class="footer__select" aria-label="Editorial-Pairing"><option value="">– Pairing –</option></select>
+  <span class="font-bar__label">Überschriften</span><select id="head-picker" class="footer__select" aria-label="Font für Überschriften"></select>
+  <span class="font-bar__label">Lauftext</span><select id="body-picker" class="footer__select" aria-label="Font für Lauftext"></select>
 </div></div>
 <script>(function(){
-  var sel=document.getElementById("font-picker");
-  if(sel&&window.KIT_FONTS){
-    var cur=window.KIT_FONT_DEFAULT;try{cur=localStorage.getItem("kitFont")||cur;}catch(e){}
-    var cats=window.KIT_FONT_CATS||[""];for(var ci=0;ci<cats.length;ci++){var grp=document.createElement("optgroup");grp.label=cats[ci];for(var i=0;i<window.KIT_FONTS.length;i++){var f=window.KIT_FONTS[i];if((f.c||"")!==cats[ci])continue;var o=document.createElement("option");o.value=f.s;o.textContent=f.n;if(f.s===cur)o.selected=true;grp.appendChild(o);}if(grp.children.length)sel.appendChild(grp);}
-    sel.addEventListener("change",function(){window.kitApplyFont(sel.value,true);});
-  }
+  function buildPicker(el,cur){if(!el||!window.KIT_FONTS)return;var cats=window.KIT_FONT_CATS||[""];for(var ci=0;ci<cats.length;ci++){var grp=document.createElement("optgroup");grp.label=cats[ci];for(var i=0;i<window.KIT_FONTS.length;i++){var f=window.KIT_FONTS[i];if((f.c||"")!==cats[ci])continue;var o=document.createElement("option");o.value=f.s;o.textContent=f.n;if(f.s===cur)o.selected=true;grp.appendChild(o);}if(grp.children.length)el.appendChild(grp);}}
+  function gs(k,d){try{return localStorage.getItem(k)||d;}catch(e){return d;}}
+  var headSel=document.getElementById("head-picker"),bodySel=document.getElementById("body-picker"),pairSel=document.getElementById("pair-picker");
+  buildPicker(headSel,gs("kitFontHead",window.KIT_DEFAULT_HEAD));buildPicker(bodySel,gs("kitFontBody",window.KIT_DEFAULT_BODY));
+  if(headSel)headSel.addEventListener("change",function(){window.kitApplyFont("head",headSel.value,true);if(pairSel)pairSel.value="";});
+  if(bodySel)bodySel.addEventListener("change",function(){window.kitApplyFont("body",bodySel.value,true);if(pairSel)pairSel.value="";});
+  if(pairSel&&window.KIT_PAIRS){for(var pi=0;pi<window.KIT_PAIRS.length;pi++){var pp=window.KIT_PAIRS[pi];var po=document.createElement("option");po.value=pi;po.textContent=pp.n;pairSel.appendChild(po);}pairSel.addEventListener("change",function(){var pr=window.KIT_PAIRS[parseInt(pairSel.value,10)];if(!pr)return;window.kitApplyFont("head",pr.h,true);window.kitApplyFont("body",pr.b,true);if(headSel)headSel.value=pr.h;if(bodySel)bodySel.value=pr.b;});}
   var btn=document.getElementById("js-loadmore");
   if(btn)btn.addEventListener("click",function(){
     var next=parseInt(btn.getAttribute("data-next"),10),pages=parseInt(btn.getAttribute("data-pages"),10);
@@ -336,7 +344,7 @@ export function renderEmpty() {
 export function renderMemberships() {
   return head("Mitglied werden — " + PUBLICATION) + header({ tabs: true }) + `
 <main><div class="container" style="padding:48px 0 72px">
-  <h1 style="font-size:34px;font-weight:var(--weight-heading);text-align:center;letter-spacing:-.01em;margin:0 0 10px">Mitglied werden</h1>
+  <h1 style="font-family:var(--font-head);font-size:34px;font-weight:var(--weight-heading);text-align:center;letter-spacing:-.01em;margin:0 0 10px">Mitglied werden</h1>
   <p style="text-align:center;color:var(--color-ink-soft);font-size:18px;margin:0 0 40px">Wähle deine Mitgliedschaft — der Checkout läuft direkt hier auf der Seite.</p>
   <!-- Steady rendert den Checkout in diesen Container (Backend Checkout-URL = /memberships) -->
   <div id="insert_steady_checkout_here" style="display:none;"></div>
