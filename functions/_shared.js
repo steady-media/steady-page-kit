@@ -166,7 +166,7 @@ html.logo-wide .brand__name{display:none;}
 .site-header--center .login-link{font-size:12px;text-transform:uppercase;letter-spacing:.06em;}
 /* Figma-Nav: abgerundeter Pill-Rahmen statt Linien, sticky beim vertikalen Scrollen, horizontaler Überlauf */
 html.nav-figma .tabs{border-bottom:0;background:transparent;padding:14px 0;text-align:center;position:sticky;top:0;z-index:40;}
-html.nav-figma .tabs__inner{display:inline-flex;width:auto;max-width:calc(100% - 48px);border:1px solid var(--color-ink);border-radius:26px;padding:9px 24px;gap:26px;align-items:center;background:var(--color-bg);overflow-x:auto;scrollbar-width:none;}
+html.nav-figma .tabs__inner{display:inline-flex;width:auto;max-width:min(var(--container),calc(100% - 48px));border:1px solid var(--color-ink);border-radius:26px;padding:9px 24px;gap:26px;align-items:center;background:var(--color-bg);overflow-x:auto;scrollbar-width:none;}
 html.nav-figma .tabs__inner::-webkit-scrollbar{display:none;}
 html.nav-figma .tab{text-transform:uppercase;font-weight:700;letter-spacing:.05em;font-size:13px;color:var(--color-ink);border-bottom:0;margin-bottom:0;padding:2px 0;white-space:nowrap;flex:none;}
 html.nav-figma .tab--active{text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:2px;}
@@ -287,7 +287,7 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__figure i
 .rubrik__head{display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:2px solid var(--color-ink);padding-top:12px;margin-bottom:22px;}
 .rubrik__chip{font-family:var(--font-head);font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--color-ink);}
 .rubrik__more{font-family:var(--font-head);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-brand);}
-.rubrik__grid{padding-bottom:0;}
+.rubrik__grid{padding-bottom:0;grid-template-rows:max-content;grid-auto-rows:0;row-gap:0;overflow:hidden;}
 /* Feature-Sektion: 1 groß + Liste */
 .rubrik__feature{display:grid;grid-template-columns:1.5fr 1fr;gap:34px;align-items:start;}
 .feat-main__media{width:100%;aspect-ratio:16/10;object-fit:cover;background:var(--color-line);border-radius:var(--radius-card);}
@@ -300,7 +300,7 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__figure i
 .teaser-row__title{font-family:var(--font-head);font-size:15px;font-weight:600;line-height:1.3;margin:0;text-transform:var(--case-head);transition:color .15s;}
 .teaser-row:hover .teaser-row__title{color:var(--color-brand);}
 /* Kompakt-Sektion: Textteaser in Spalten */
-.rubrik__compact{display:grid;grid-template-columns:repeat(var(--grid-cols,3),1fr);gap:0 30px;}
+.rubrik__compact{display:grid;grid-template-columns:repeat(var(--grid-cols,3),1fr);gap:0 30px;grid-template-rows:max-content;grid-auto-rows:0;overflow:hidden;}
 .teaser-text{display:block;padding:13px 0;border-top:1px solid var(--color-hairline);}
 .teaser-text__title{font-family:var(--font-head);font-size:15px;font-weight:600;line-height:1.3;margin:0 0 4px;text-transform:var(--case-head);transition:color .15s;}
 .teaser-text:hover .teaser-text__title{color:var(--color-brand);}
@@ -719,9 +719,9 @@ function rubrikStream(rest, cats) {
         <div class="feat-list">${list.map(teaserRow).join("")}</div>
       </div>`;
     } else if (mode === "compact") {
-      body = `<div class="rubrik__compact">${inCat.slice(0, 8).map(teaserText).join("")}</div>`;
+      body = `<div class="rubrik__compact">${inCat.slice(0, 4).map(teaserText).join("")}</div>`;
     } else {
-      body = `<div class="grid rubrik__grid">${inCat.slice(0, 8).map(card).join("")}</div>`;
+      body = `<div class="grid rubrik__grid">${inCat.slice(0, 4).map(card).join("")}</div>`;
     }
     return `<section class="rubrik rubrik--${mode}">${head}${body}</section>`;
   }).join("");
