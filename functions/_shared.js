@@ -85,20 +85,34 @@ function topCategories(items) {
 // Vom Side-Panel gesetzter Cookie kitstruct=shell=portal&auf=gross&stream=rubrik&rails=neueste,meist,themen
 // Default (kein Cookie) = heutige Seite: einspaltig / Split-Hero / flache Liste.
 export function parseStruct(cookie) {
-  const def = { shell: "single", auf: "klein", stream: "liste", rails: [] };
+  const def = { shell: "single", auf: "klein", stream: "liste", rails: [],
+                headerStyle: "links", search: false, brand: "", nav: null };
   if (!cookie) return def;
   const m = cookie.match(/(?:^|;\s*)kitstruct=([^;]*)/);
-  if (!m) return def;
-  let q;
-  try { q = new URLSearchParams(decodeURIComponent(m[1])); } catch (e) { return def; }
-  const shell  = q.get("shell")  === "portal" ? "portal" : "single";
-  const auf    = q.get("auf")    === "gross"  ? "gross"  : "klein";
-  const stream = q.get("stream") === "rubrik" ? "rubrik" : "liste";
-  const allow = ["neueste", "meist", "themen"];
-  let rails;
-  if (q.has("rails")) rails = (q.get("rails") || "").split(",").filter(r => allow.includes(r));
-  else rails = shell === "portal" ? allow.slice() : [];
-  return { shell, auf, stream, rails };
+  if (m) {
+    try {
+      const q = new URLSearchParams(decodeURIComponent(m[1]));
+      def.shell  = q.get("shell")  === "portal" ? "portal" : "single";
+      def.auf    = q.get("auf")    === "gross"  ? "gross"  : "klein";
+      def.stream = q.get("stream") === "rubrik" ? "rubrik" : "liste";
+      def.headerStyle = q.get("header") === "zentriert" ? "zentriert" : "links";
+      def.search = q.get("search") === "1";
+      const allow = ["neueste", "meist", "themen"];
+      if (q.has("rails")) def.rails = (q.get("rails") || "").split(",").filter(r => allow.includes(r));
+      else def.rails = def.shell === "portal" ? allow.slice() : [];
+    } catch (e) {}
+  }
+  // Titel + Navigation (reicher JSON-Cookie)
+  const cm = cookie.match(/(?:^|;\s*)kitchrome=([^;]*)/);
+  if (cm) {
+    try {
+      const o = JSON.parse(decodeURIComponent(cm[1]));
+      if (typeof o.brand === "string") def.brand = o.brand.slice(0, 60);
+      if (Array.isArray(o.nav)) def.nav = o.nav.filter(n => n && n.l).slice(0, 8)
+        .map(n => ({ l: String(n.l).slice(0, 40), h: String(n.h || "#").slice(0, 300), x: !!n.x }));
+    } catch (e) {}
+  }
+  return def;
 }
 
 /* ------------------------------------------------------------------ CSS (Kit-Tokens) */
@@ -139,6 +153,11 @@ a{color:inherit;text-decoration:none;} img{display:block;max-width:100%;}
 .tab{display:inline-block;padding:16px 2px;font-size:var(--text-nav);color:var(--color-line);
      border-bottom:2px solid transparent;margin-bottom:-1px;}
 .tab--active{color:var(--color-ink);border-bottom-color:var(--color-accent);font-weight:500;}
+.site-header--center .site-header__inner{justify-content:center;position:relative;}
+.site-header--center .header-actions{position:absolute;right:0;top:50%;transform:translateY(-50%);}
+.tabs--center .tabs__inner{justify-content:center;}
+.tabs__search{display:inline-flex;align-items:center;align-self:center;color:var(--color-line);cursor:pointer;}
+.tabs__search svg{width:16px;height:16px;}
 /* hero */
 .hero{padding:56px 0 44px;}
 .hero__grid{display:grid;grid-template-columns:1.25fr 1fr;gap:48px;align-items:center;}
@@ -302,6 +321,14 @@ html.cz-on .cz{transform:none;}
 .cz-rails button{flex:1 1 30%;font:inherit;font-size:12px;padding:8px 6px;border:1px solid #d7d4dd;border-radius:6px;background:#fff;color:#291E38;cursor:pointer;}
 .cz-rails button.on{border-color:#137EC0;background:#137EC0;color:#fff;}
 .cz-rails--off{opacity:.45;pointer-events:none;}
+.cz-inp{width:100%;border:1px solid #d7d4dd;border-radius:6px;padding:9px 11px;font:inherit;font-size:13px;color:#291E38;background:#fff;}
+.cz-nav{display:flex;flex-direction:column;gap:6px;}
+.cz-nav-row{display:flex;gap:5px;align-items:center;}
+.cz-nav-row input{min-width:0;border:1px solid #d7d4dd;border-radius:6px;padding:7px 8px;font:inherit;font-size:12px;color:#291E38;background:#fff;}
+.cz-nav-l{flex:0 0 38%;} .cz-nav-h{flex:1;}
+.cz-nav-x{flex:0 0 26px;height:30px;border:1px solid #ECEAEF;border-radius:6px;background:#fff;color:#9A95A6;cursor:pointer;font-size:15px;line-height:1;}
+.cz-nav-add{margin-top:8px;font:inherit;font-size:12px;color:#137EC0;background:none;border:0;cursor:pointer;padding:2px 0;text-align:left;}
+.cz-apply{margin-top:12px;width:100%;font:inherit;font-size:13px;font-weight:600;color:#fff;background:#137EC0;border:0;border-radius:6px;padding:10px;cursor:pointer;}
 @media (max-width:560px){.cz{width:100%;}}
 @media (max-width:900px){.hero__grid{grid-template-columns:1fr;gap:28px;}.grid{grid-template-columns:repeat(2,1fr);}:root{--text-h1:calc(38px*var(--fs));}}
 @media (max-width:680px){.post__title{font-size:calc(34px*var(--fs));}.post__body{font-size:calc(20px*var(--fs));}}
@@ -315,6 +342,14 @@ const ICON_BACK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 const ICON_CLAP = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 11V6a2 2 0 1 1 4 0v4m0 0V4a2 2 0 1 1 4 0v6m0 0V6a2 2 0 1 1 4 0v8a6 6 0 0 1-6 6h-1a7 7 0 0 1-6-3.5L3 16a2 2 0 0 1 3-2.6L9 15"/></svg>`;
 const ICON_EYE  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
 const ICON_SHARE= `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>`;
+const ICON_SEARCH= `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>`;
+
+// Editierbare Standard-Navigation (überschreibbar via kitchrome-Cookie)
+const DEFAULT_NAV = [
+  { l: "Ausgaben", h: "/" },
+  { l: "Mitglied werden", h: "/memberships" },
+  { l: "Newsletter anmelden", h: "https://steady.page/de/sebastian/newsletter/sign_up", x: true },
+];
 
 /* ------------------------------------------------------------------ Chrome */
 
@@ -340,8 +375,9 @@ window.kitType=function(kind,val,save){if(kind==="size")D.style.setProperty("--f
 window.kitCard=function(kind,val,save){if(kind==="style"){D.classList.remove("card-side","card-text","card-overlay","card-list");if(val!=="classic")D.classList.add("card-"+val);}else if(kind==="aspect")D.style.setProperty("--card-ar",val==="4:3"?"4/3":val==="1:1"?"1/1":"16/9");else if(kind==="surface"){D.classList.remove("surf-soft","surf-outline");if(val!=="flat")D.classList.add("surf-"+val);}else if(kind==="image"){D.classList.remove("img-gray","img-duo");if(val==="graustufen")D.classList.add("img-gray");else if(val==="duotone")D.classList.add("img-duo");}if(save)setObj("kitCard",kind,val);};
 window.KIT_LOOKS=[{n:"Steady",d:"Klar & journalistisch",head:"inter",body:"inter",base:"light",palette:0,type:{size:"standard",lead:"normal",track:"normal",case:"normal",align:"links"},layout:{corner:"eckig",dens:"komfortabel",hero:"split",width:"standard"},card:{style:"classic",surface:"flat",image:"farbe",aspect:"16:9"}},{n:"Magazin",d:"Serifen & Kontrast",head:"playfair-display",body:"source-serif-4",base:"light",type:{size:"gross",lead:"normal",track:"eng",case:"normal",align:"links"},layout:{corner:"eckig",dens:"komfortabel",hero:"split",width:"standard"},card:{style:"classic",surface:"flat",image:"farbe",aspect:"4:3"}},{n:"Minimal",d:"Ruhig, viel Weissraum",head:"inter",body:"inter",base:"light",palette:4,type:{size:"standard",lead:"luftig",track:"normal",case:"normal",align:"links"},layout:{corner:"eckig",dens:"grosszuegig",hero:"split",width:"schmal"},card:{style:"text",surface:"flat",image:"farbe",aspect:"16:9"}},{n:"Bold",d:"Laut & Grossbuchstaben",head:"archivo-black",body:"archivo",base:"light",palette:0,type:{size:"gross",lead:"normal",track:"eng",case:"gross",align:"links"},layout:{corner:"eckig",dens:"komfortabel",hero:"split",width:"standard"},card:{style:"overlay",surface:"flat",image:"farbe",aspect:"16:9"}},{n:"Klassik",d:"Elegant & zentriert",head:"fraunces",body:"lora",base:"light",palette:3,type:{size:"standard",lead:"normal",track:"normal",case:"normal",align:"zentriert"},layout:{corner:"rund",dens:"komfortabel",hero:"center",width:"standard"},card:{style:"classic",surface:"soft",image:"graustufen",aspect:"4:3"}},{n:"Nacht",d:"Dark Mode",head:"inter",body:"inter",base:"dark",palette:1,type:{size:"standard",lead:"normal",track:"normal",case:"normal",align:"links"},layout:{corner:"rund",dens:"komfortabel",hero:"split",width:"standard"},card:{style:"classic",surface:"outline",image:"farbe",aspect:"16:9"}},{n:"Magazin-Portal",d:"3-spaltig, rubriziert",head:"mulish",body:"mulish",base:"light",type:{size:"standard",lead:"normal",track:"normal",case:"normal",align:"links"},layout:{corner:"eckig",dens:"komfortabel",hero:"split",width:"breit",cols:"4"},card:{style:"classic",surface:"flat",image:"farbe",aspect:"16:9"},colors:{"--color-brand":"#954FCF","--color-accent":"#954FCF"},struct:{shell:"portal",auf:"gross",stream:"rubrik",rails:["neueste","meist","themen"]}}];
 function readStruct(){try{return JSON.parse(localStorage.getItem("kitStruct")||"{}");}catch(e){return {};}}
-function structSer(s){var p=[];if(s.shell)p.push("shell="+s.shell);if(s.auf)p.push("auf="+s.auf);if(s.stream)p.push("stream="+s.stream);if(s.rails)p.push("rails="+s.rails.join(","));return p.join("&");}
+function structSer(s){var p=[];if(s.shell)p.push("shell="+s.shell);if(s.auf)p.push("auf="+s.auf);if(s.stream)p.push("stream="+s.stream);if(s.header)p.push("header="+s.header);if(s.search)p.push("search="+s.search);if(s.rails)p.push("rails="+s.rails.join(","));return p.join("&");}
 window.kitStructSet=function(obj,reload){var s=readStruct();for(var sk in obj)s[sk]=obj[sk];try{localStorage.setItem("kitStruct",JSON.stringify(s));}catch(e){}document.cookie="kitstruct="+encodeURIComponent(structSer(s))+";path=/;max-age=31536000";if(reload)location.reload();};
+window.kitChromeSet=function(o){try{localStorage.setItem("kitChrome",JSON.stringify(o));}catch(e){}document.cookie="kitchrome="+encodeURIComponent(JSON.stringify(o))+";path=/;max-age=31536000";location.reload();};
 window.kitLook=function(idx,save){var L=window.KIT_LOOKS[idx];if(!L)return;window.kitApplyFont("head",L.head,save);window.kitApplyFont("body",L.body,save);if(L.palette!=null)window.kitPalette(L.palette,save);if(L.base)window.kitBase(L.base,save);var k;for(k in L.type)window.kitType(k,L.type[k],save);for(k in L.layout)window.kitSetLayout(k,L.layout[k],save);for(k in L.card)window.kitCard(k,L.card[k],save);if(L.colors)for(k in L.colors)window.kitColor(k,L.colors[k],save);if(save)ssave("kitLook",idx);if(L.struct)window.kitStructSet(L.struct,true);};try{var sh=localStorage.getItem("kitFontHead");if(sh&&sh!==window.KIT_DEFAULT_HEAD)window.kitApplyFont("head",sh,false);}catch(e){}try{var sb=localStorage.getItem("kitFontBody");if(sb&&sb!==window.KIT_DEFAULT_BODY)window.kitApplyFont("body",sb,false);}catch(e){}var C=jget("kitColors");for(var ck in C)D.style.setProperty(ck,C[ck]);if(C["--color-brand"])D.style.setProperty("--btn-fg",btnFg(C["--color-brand"]));var L2=jget("kitLayout");for(var lk in L2)window.kitSetLayout(lk,L2[lk],false);var T2=jget("kitType");for(var tk in T2)window.kitType(tk,T2[tk],false);var K2=jget("kitCard");for(var kk in K2)window.kitCard(kk,K2[kk],false);try{if(localStorage.getItem("kitPanelOpen")==="1")D.classList.add("cz-on");}catch(e){}})();
 `;
 
@@ -354,23 +390,33 @@ function head(title) {
 <link id="kit-font-css" href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet"/>
 <style>${CSS}</style>
 <script>${FONT_INIT}</script>
+<script>window.KIT_DEFAULT_BRAND=${JSON.stringify(PUBLICATION)};window.KIT_DEFAULT_NAV=${JSON.stringify(DEFAULT_NAV)};</script>
 <!-- Steady Smart Layers / Checkout / Paywall — der echte Steady-Layer -->
 <script type="text/javascript" src="https://steady.page/widget_loader/${STEADY_PUBLICATION_ID}"></script>
 </head><body>`;
 }
-function header({ tabs = false, active = "" } = {}) {
-  const nav = tabs ? `
-<nav class="tabs"><div class="container tabs__inner">
-  <a class="tab${active === "posts" ? " tab--active" : ""}" href="/">Ausgaben</a>
-  <a class="tab${active === "memberships" ? " tab--active" : ""}" href="/memberships">Mitglied werden</a>
-  <a class="tab" href="https://steady.page/de/sebastian/newsletter/sign_up" target="_blank" rel="noopener">Newsletter anmelden</a>
-</div></nav>` : "";
-  return `<header class="site-header"><div class="container site-header__inner">
-  <a class="brand" href="/"><img class="brand__logo" alt="${esc(PUBLICATION)}" src="/assets/logo.png"/>
-  <span class="brand__name">${esc(PUBLICATION)}</span></a>
-  <div class="header-actions">
-    <a class="steady-login-button" data-size="small" data-language="de" style="display:none;"></a>
-  </div></div></header>${nav}`;
+function navLinksHtml(nav, activePath) {
+  return nav.map(n => {
+    const ext = n.x ? ` target="_blank" rel="noopener"` : "";
+    const act = (!n.x && n.h === activePath) ? " tab--active" : "";
+    return `<a class="tab${act}" href="${esc(n.h)}"${ext}>${esc(n.l)}</a>`;
+  }).join("");
+}
+function header({ tabs = false, activePath = "" } = {}, cfg = {}) {
+  const center = cfg.headerStyle === "zentriert";
+  const brand  = (cfg.brand && cfg.brand.trim()) ? cfg.brand : PUBLICATION;
+  const nav    = (cfg.nav && cfg.nav.length) ? cfg.nav : DEFAULT_NAV;
+  const search = cfg.search
+    ? `<span class="tabs__search" role="button" tabindex="0" aria-label="Suche">${ICON_SEARCH}</span>` : "";
+  const brandHtml = `<a class="brand" href="/"><img class="brand__logo" alt="${esc(brand)}" src="/assets/logo.png"/><span class="brand__name">${esc(brand)}</span></a>`;
+  const login = `<div class="header-actions"><a class="steady-login-button" data-size="small" data-language="de" style="display:none;"></a></div>`;
+  const navBar = tabs
+    ? `<nav class="tabs${center ? " tabs--center" : ""}"><div class="container tabs__inner">${navLinksHtml(nav, activePath)}${search}</div></nav>`
+    : "";
+  return `<header class="site-header${center ? " site-header--center" : ""}"><div class="container site-header__inner">
+  ${brandHtml}
+  ${login}
+</div></header>${navBar}`;
 }
 function footer() {
   return `<button class="cz-fab" id="cz-open" aria-label="Seite anpassen" title="Seite anpassen">✦</button>
@@ -387,6 +433,14 @@ function footer() {
       <label class="cz-lbl">Inhalt</label><div class="cz-seg" data-fn="struct" data-kind="stream"><button data-v="liste">Eine Liste</button><button data-v="rubrik">Nach Rubriken</button></div>
       <label class="cz-lbl">Seitenleisten</label><div class="cz-rails" id="cz-rails"><button data-rail="neueste">Neueste</button><button data-rail="meist">Meistgelesen</button><button data-rail="themen">Themen</button></div>
       <p class="cz-hint">Struktur lädt die Seite kurz neu. Skin bleibt live.</p>
+    </div></section>
+    <section class="cz-sec"><button class="cz-sh" data-acc>Header<span class="cz-cv">▾</span></button><div class="cz-sb">
+      <label class="cz-lbl">Stil</label><div class="cz-seg" data-fn="struct" data-kind="header"><button data-v="links">Links</button><button data-v="zentriert">Zentriert</button></div>
+      <label class="cz-lbl">Suche</label><div class="cz-seg" data-fn="struct" data-kind="search"><button data-v="0">Aus</button><button data-v="1">An</button></div>
+      <label class="cz-lbl">Titel</label><input class="cz-inp" id="cz-brand" type="text" placeholder="Blaupause" maxlength="60"/>
+      <label class="cz-lbl">Navigation</label><div class="cz-nav" id="cz-nav"></div>
+      <button class="cz-nav-add" id="cz-nav-add" type="button">+ Link hinzufügen</button>
+      <button class="cz-apply" id="cz-chrome-apply" type="button">Übernehmen</button>
     </div></section>
     <section class="cz-sec"><button class="cz-sh" data-acc>Schriften<span class="cz-cv">▾</span></button><div class="cz-sb">
       <label class="cz-lbl">Editorial-Pairing</label><select id="pair-picker" class="cz-sel"><option value="">– Pairing –</option></select>
@@ -449,7 +503,7 @@ function footer() {
   if(pal&&window.KIT_PALETTES){for(var qi=0;qi<window.KIT_PALETTES.length;qi++){(function(idx){var p=window.KIT_PALETTES[idx];var b=document.createElement("button");b.title=p.n;b.style.background=p.v["--color-brand"];b.addEventListener("click",function(){window.kitPalette(idx,true);markPal();syncColors();clearLook();});pal.appendChild(b);})(qi);}}
   for(var cid in cmap){(function(elid,varn){var el=document.getElementById(elid);if(el)el.addEventListener("input",function(){window.kitColor(varn,el.value,true);checkWarn();clearLook();});})(cid,cmap[cid]);}
   /* generic segments (layout / type / card / base) */
-  var DEF={layout:{cols:"3",width:"standard",dens:"komfortabel",corner:"eckig",hero:"split"},type:{size:"standard",lead:"normal",track:"normal",case:"normal",align:"links"},card:{style:"classic",aspect:"16:9",surface:"flat",image:"farbe"},struct:{shell:"single",auf:"klein",stream:"liste"}};
+  var DEF={layout:{cols:"3",width:"standard",dens:"komfortabel",corner:"eckig",hero:"split"},type:{size:"standard",lead:"normal",track:"normal",case:"normal",align:"links"},card:{style:"classic",aspect:"16:9",surface:"flat",image:"farbe"},struct:{shell:"single",auf:"klein",stream:"liste",header:"links",search:"0"}};
   var STORE={layout:"kitLayout",type:"kitType",card:"kitCard",struct:"kitStruct"};
   function curOf(fn,kind){if(fn==="base")return gs("kitBase","light");var o=jget(STORE[fn]);return (o[kind]!=null)?o[kind]:DEF[fn][kind];}
   function callFn(fn,kind,val){if(fn==="layout")window.kitSetLayout(kind,val,true);else if(fn==="type")window.kitType(kind,val,true);else if(fn==="card")window.kitCard(kind,val,true);else if(fn==="base")window.kitBase(val,true);else if(fn==="struct"){var o={};o[kind]=val;window.kitStructSet(o,true);}}
@@ -469,6 +523,30 @@ function footer() {
         var i=cur.indexOf(r);if(i>=0)cur.splice(i,1);else cur.push(r);
         window.kitStructSet({rails:cur},true);
       });
+    });
+  }
+  /* header: Titel + Navigation editierbar (Übernehmen → Cookie + Reload) */
+  var navEd=document.getElementById("cz-nav"),brandInp=document.getElementById("cz-brand");
+  if(navEd){
+    var sc={};try{sc=JSON.parse(localStorage.getItem("kitChrome")||"{}");}catch(e){}
+    if(brandInp)brandInp.value=sc.brand||window.KIT_DEFAULT_BRAND||"";
+    var navInit=sc.nav;
+    if(!navInit){var dom=document.querySelectorAll(".tabs__inner .tab");if(dom.length)navInit=[].map.call(dom,function(a){return {l:a.textContent.trim(),h:a.getAttribute("href"),x:a.target==="_blank"};});}
+    if(!navInit)navInit=window.KIT_DEFAULT_NAV||[];
+    function navRow(n){var row=document.createElement("div");row.className="cz-nav-row";
+      var li=document.createElement("input");li.className="cz-nav-l";li.placeholder="Label";li.value=(n&&n.l)||"";
+      var hi=document.createElement("input");hi.className="cz-nav-h";hi.placeholder="URL";hi.value=(n&&n.h)||"";
+      var xb=document.createElement("button");xb.type="button";xb.className="cz-nav-x";xb.textContent="×";xb.title="Entfernen";
+      xb.addEventListener("click",function(){if(row.parentNode)row.parentNode.removeChild(row);});
+      row.appendChild(li);row.appendChild(hi);row.appendChild(xb);navEd.appendChild(row);}
+    navInit.forEach(navRow);
+    var addB=document.getElementById("cz-nav-add");if(addB)addB.addEventListener("click",function(){navRow({l:"",h:""});});
+    var apB=document.getElementById("cz-chrome-apply");
+    if(apB)apB.addEventListener("click",function(){
+      var out=[];[].forEach.call(navEd.querySelectorAll(".cz-nav-row"),function(r){
+        var l=r.querySelector(".cz-nav-l").value.trim(),h=r.querySelector(".cz-nav-h").value.trim();
+        if(l)out.push({l:l,h:h||"#",x:(h.indexOf("http")===0&&h.indexOf(location.host)<0)});});
+      window.kitChromeSet({brand:(brandInp?brandInp.value.trim():""),nav:out});
     });
   }
   /* looks */
@@ -613,7 +691,7 @@ export function renderLanding(items, page = 1, cfg) {
 </div>`;
   }
 
-  return head(PUBLICATION) + header({ tabs: true, active: "posts" }) + `
+  return head(PUBLICATION) + header({ tabs: true, activePath: "/" }, cfg) + `
 <main>${top}${stream}</main>` + footer();
 }
 
@@ -629,8 +707,8 @@ function renderPagination(p, pages) {
   return `<nav class="pagination" aria-label="Pagination">${out.join("")}</nav>`;
 }
 
-export function renderPost(item) {
-  return head(`${item.title} — ${PUBLICATION}`) + header({ tabs: false }) + `
+export function renderPost(item, cfg = {}) {
+  return head(`${item.title} — ${PUBLICATION}`) + header({ tabs: false }, cfg) + `
 <main><article class="post container">
   <a class="post__back" href="/">${ICON_BACK} ${esc(PUBLICATION)}</a>
   <h1 class="post__title">${esc(item.title)}</h1>
@@ -649,14 +727,14 @@ export function renderPost(item) {
 </article></main>` + footer();
 }
 
-export function renderEmpty() {
-  return head(PUBLICATION) + header({ tabs: true, active: "posts" }) +
+export function renderEmpty(cfg = {}) {
+  return head(PUBLICATION) + header({ tabs: true, activePath: "/" }, cfg) +
     `<main><div class="container" style="padding:80px 0;color:var(--color-line)">Inhalte laden gerade nicht. Bitte gleich neu laden.</div></main>` +
     footer();
 }
 
-export function renderMemberships() {
-  return head("Mitglied werden — " + PUBLICATION) + header({ tabs: true, active: "memberships" }) + `
+export function renderMemberships(cfg = {}) {
+  return head("Mitglied werden — " + PUBLICATION) + header({ tabs: true, activePath: "/memberships" }, cfg) + `
 <main><div class="container" style="padding:48px 0 72px">
   <h1 style="font-family:var(--font-head);font-size:34px;font-weight:var(--weight-heading);text-align:center;letter-spacing:-.01em;margin:0 0 10px">Mitglied werden</h1>
   <p style="text-align:center;color:var(--color-ink-soft);font-size:18px;margin:0 0 40px">Wähle deine Mitgliedschaft — der Checkout läuft direkt hier auf der Seite.</p>
@@ -665,8 +743,8 @@ export function renderMemberships() {
 </div></main>` + footer();
 }
 
-export function render404() {
-  return head("Nicht gefunden — " + PUBLICATION) + header({ tabs: false }) +
+export function render404(cfg = {}) {
+  return head("Nicht gefunden — " + PUBLICATION) + header({ tabs: false }, cfg) +
     `<main><div class="container" style="padding:80px 0"><h1 style="font-size:32px">Beitrag nicht gefunden</h1>
      <p style="color:var(--color-ink-soft)"><a class="btn btn--primary" href="/" style="margin-top:12px">Zur Startseite</a></p></div></main>` +
     footer();

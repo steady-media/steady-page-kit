@@ -14,15 +14,15 @@ export async function onRequestGet(context) {
     html = renderLanding(items, page, cfg);
   } catch (err) {
     // Feed nicht erreichbar → freundlicher Fallback statt harter Fehler
-    html = renderEmpty();
+    html = renderEmpty(cfg);
   }
 
-  const hasStruct = /(?:^|;\s*)kitstruct=/.test(cookie);
+  const hasCfg = /(?:^|;\s*)kit(?:struct|chrome)=/.test(cookie);
   return new Response(html, {
     headers: {
       "content-type": "text/html; charset=utf-8",
-      // Struktur variiert pro Cookie → dann nicht cachen; sonst Edge/Browser 5 Min
-      "cache-control": hasStruct ? "no-store" : "public, max-age=300",
+      // Struktur/Header variieren pro Cookie → dann nicht cachen; sonst Edge/Browser 5 Min
+      "cache-control": hasCfg ? "no-store" : "public, max-age=300",
     },
   });
 }
