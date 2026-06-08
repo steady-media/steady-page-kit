@@ -10,9 +10,9 @@ export async function onRequestGet(context) {
   const hasCfg = /(?:^|;\s*)kit(?:struct|chrome)=/.test(cookie);
   const cache = hasCfg ? "no-store" : "public, max-age=300";
 
-  let category = null, items = [];
+  let category = null, items = [], all = [];
   try {
-    const all = await getItems();
+    all = await getItems();
     const cats = new Set();
     all.forEach(it => it.categories.forEach(c => { if (c) cats.add(c); }));
     category = [...cats].find(c => slugify(c) === slug) || null;
@@ -28,7 +28,7 @@ export async function onRequestGet(context) {
     });
   }
 
-  return new Response(renderSection(category, items, page, cfg), {
+  return new Response(renderSection(category, items, all, page, cfg), {
     headers: { "content-type": "text/html; charset=utf-8", "cache-control": cache },
   });
 }

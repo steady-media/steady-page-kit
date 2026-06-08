@@ -281,6 +281,8 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__figure i
 .portal-band{padding:40px 0 8px;}
 .portal-grid{max-width:var(--container);margin:0 auto;padding:0 24px;display:grid;gap:40px;align-items:start;}
 .portal-center .aufmacher{max-width:none;margin:0;}
+.portal-center .grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));padding-bottom:0;}
+.portal-center .section-head{padding-top:0;}
 .rail{display:flex;flex-direction:column;gap:30px;min-width:0;}
 .rail-module__title{font-family:var(--font-head);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-ink);margin:0 0 14px;padding-bottom:8px;border-bottom:2px solid var(--color-ink);}
 .rail-list,.rail-num{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;}
@@ -627,7 +629,8 @@ function footer() {
   if(btn)btn.addEventListener("click",function(){
     var next=parseInt(btn.getAttribute("data-next"),10),pages=parseInt(btn.getAttribute("data-pages"),10);
     btn.disabled=true;btn.textContent="Lädt …";
-    fetch("/?page="+next).then(function(r){return r.text();}).then(function(html){
+    var base=btn.getAttribute("data-url")||"/";var sep=base.indexOf("?")>=0?"&":"?";
+    fetch(base+sep+"page="+next).then(function(r){return r.text();}).then(function(html){
       var doc=new DOMParser().parseFromString(html,"text/html"),grid=document.querySelector(".grid");
       doc.querySelectorAll(".grid .card").forEach(function(c){grid.appendChild(document.importNode(c,true));});
       next++;btn.setAttribute("data-next",next);btn.disabled=false;btn.textContent="Mehr laden";
@@ -782,7 +785,7 @@ export function renderLanding(items, page = 1, cfg) {
     const slice = rest.slice((p - 1) * PER_PAGE, p * PER_PAGE);
     const pills = cats.map(pill).join("");
     const more = pages > 1
-      ? `<div class="loadmore-wrap"><button class="load-more" id="js-loadmore" data-next="${p + 1}" data-pages="${pages}">Mehr laden</button></div>`
+      ? `<div class="loadmore-wrap"><button class="load-more" id="js-loadmore" data-next="${p + 1}" data-pages="${pages}" data-url="/">Mehr laden</button></div>`
       : "";
     stream = `<div class="container">
   <div class="pills">${pills}</div>
@@ -798,35 +801,31 @@ export function renderLanding(items, page = 1, cfg) {
 }
 
 // Sektionsseite: alle Beiträge einer Kategorie (Titel + Raster + Pagination)
-export function renderSection(category, items, page = 1, cfg) {
+export function renderSection(category, items, allItems, page = 1, cfg) {
   cfg = cfg || { shell: "single", auf: "klein", stream: "liste", rails: [] };
   const slug = slugify(category);
   const display = category.charAt(0).toUpperCase() + category.slice(1);
+  const railItems = (allItems && allItems.length) ? allItems : items;
+  const cats = topCategories(railItems);
   const pages = Math.max(1, Math.ceil(items.length / PER_PAGE));
   const p = Math.min(Math.max(1, page), pages);
   const slice = items.slice((p - 1) * PER_PAGE, p * PER_PAGE);
-  return head(display + " — " + PUBLICATION) + header({ tabs: true, activePath: "/rubrik/" + slug }, cfg) + `
-<main><div class="container">
-  <header class="section-head">
+  const more = p < pages
+    ? `<div class="loadmore-wrap"><button class="load-more" id="js-loadmore" data-next="${p + 1}" data-pages="${pages}" data-url="/rubrik/${slug}">Mehr laden</button></div>`
+    : "";
+  const center = `<header class="section-head">
     <a class="post__back" href="/">${ICON_BACK} ${esc(PUBLICATION)}</a>
     <h1 class="section-title">${esc(display)}</h1>
     <p class="section-count">${items.length} ${items.length === 1 ? "Beitrag" : "Beiträge"}</p>
   </header>
   <div class="grid">${slice.map(card).join("")}</div>
-  ${sectionPagination(p, pages, slug)}
-  <div id="memberships"></div>
-</div></main>` + footer();
-}
-function sectionPagination(p, pages, slug) {
-  if (pages <= 1) return "";
-  const out = [];
-  if (p > 1) out.push(`<a href="/rubrik/${slug}?page=${p - 1}">‹</a>`);
-  const lo = Math.max(1, p - 2), hi = Math.min(pages, lo + 4);
-  for (let i = lo; i <= hi; i++) {
-    out.push(i === p ? `<span class="is-current">${i}</span>` : `<a href="/rubrik/${slug}?page=${i}">${i}</a>`);
-  }
-  if (p < pages) out.push(`<a href="/rubrik/${slug}?page=${p + 1}">›</a>`);
-  return `<nav class="pagination" aria-label="Seiten">${out.join("")}</nav>`;
+  ${more}`;
+  // Portal-Stil: Leisten flankieren das Raster; sonst schlichter Container
+  const body = cfg.shell === "portal"
+    ? `${portalBand(cfg, center, railItems, cats)}<div class="container"><div id="memberships"></div></div>`
+    : `<div class="container">${center}<div id="memberships"></div></div>`;
+  return head(display + " — " + PUBLICATION) + header({ tabs: true, activePath: "/rubrik/" + slug }, cfg) +
+    `<main>${body}</main>` + footer();
 }
 function renderPagination(p, pages) {
   if (pages <= 1) return "";
