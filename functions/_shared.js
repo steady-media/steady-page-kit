@@ -705,11 +705,11 @@ function aufmacherArticle(hero, withImage, side) {
 // Leisten-Module
 function railLatest(items) {
   return `<div class="rail-module"><h2 class="rail-module__title">Neueste Inhalte</h2>
-    <ul class="rail-list">${items.slice(0, 5).map(it => `<li><a href="/posts/${esc(it.guid)}"><span class="rail-list__t">${esc(it.title)}</span><span class="rail-list__d">${esc(fmtDate(it.pubDate))}</span></a></li>`).join("")}</ul></div>`;
+    <ul class="rail-list">${items.slice(0, 3).map(it => `<li><a href="/posts/${esc(it.guid)}"><span class="rail-list__t">${esc(it.title)}</span><span class="rail-list__d">${esc(fmtDate(it.pubDate))}</span></a></li>`).join("")}</ul></div>`;
 }
 function railPopular(items) {
   return `<div class="rail-module"><h2 class="rail-module__title">Meistgelesen</h2>
-    <ol class="rail-num">${items.slice(0, 5).map((it, i) => i === 0
+    <ol class="rail-num">${items.slice(0, 3).map((it, i) => i === 0
       ? `<li class="rail-num__lead"><a href="/posts/${esc(it.guid)}"><span class="rail-num__n">1</span><img class="rail-num__media" loading="lazy" alt="" src="${teaser(it.image, 420, 236)}"/><span class="rail-num__t">${esc(it.title)}</span></a></li>`
       : `<li><a href="/posts/${esc(it.guid)}"><span class="rail-num__n">${i + 1}</span><span class="rail-num__t">${esc(it.title)}</span></a></li>`).join("")}</ol></div>`;
 }
