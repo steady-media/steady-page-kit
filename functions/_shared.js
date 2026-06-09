@@ -207,7 +207,8 @@ html.logo-wide .brand__name{display:none;}
 .tabs__search svg{width:16px;height:16px;}
 search-modal-snippet:not(:defined){display:none;}
 :root{--search-snippet-primary-color:var(--color-brand);--search-snippet-primary-hover:var(--color-ink);--search-snippet-focus-ring:var(--color-brand);--search-snippet-text-color:var(--color-ink);--search-snippet-border-color:var(--rule);--search-snippet-border-radius:12px;}
-.header-actions steady-login-button{display:none;}
+.header-actions steady-login-button{display:inline-flex;align-items:center;}
+.login-link--fb{display:none;} .login-link--fb.is-on{display:inline-block;}
 .login-link{font:inherit;font-size:13px;font-weight:600;letter-spacing:.02em;color:var(--color-ink);cursor:pointer;text-decoration:none;}
 .login-link:hover{color:var(--color-brand);}
 .site-header--center .login-link{font-size:12px;text-transform:uppercase;letter-spacing:.06em;}
@@ -235,7 +236,7 @@ html.nav-figma .tabs__search svg{width:17px;height:17px;}
 /* pills */
 .pills{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;padding:8px 0 40px;}
 /* Chip (Figma Badge node 74:693 / 17304:15522): outlined pill in the accent colour */
-.pill{display:inline-flex;align-items:center;font-family:var(--font-head);font-size:13px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;color:var(--color-brand);
+.pill{display:inline-flex;align-items:center;font-family:var(--font-body);font-size:13px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;color:var(--color-brand);
       border:1px solid var(--color-brand);border-radius:100px;padding:3px 10px;background:transparent;line-height:1.25;white-space:nowrap;transition:background-color .15s,color .15s;}
 .pill:hover{background:var(--color-brand);color:var(--btn-fg,#fff);}
 /* grid */
@@ -295,7 +296,8 @@ html.nav-figma .tabs__search svg{width:17px;height:17px;}
 .load-more:hover{text-decoration:underline;text-underline-offset:4px;}
 .load-more:disabled{opacity:.5;cursor:default;text-decoration:none;}
 /* Headlines/Display nutzen --font-head; alles andere (Body) erbt --font-body */
-.brand__name,.tab,.eyebrow,.hero__title,.pill,.card__title,.load-more,.btn,.nav-action,.post__title,.post__back{font-family:var(--font-head);}
+.brand__name,.eyebrow,.hero__title,.card__title,.load-more,.btn,.nav-action,.post__title,.post__back{font-family:var(--font-head);}
+.tab{font-family:var(--font-body);}
 .font-bar__label{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--color-ink-soft);white-space:nowrap;}
 /* layout presets */
 html.dens-compact{--text-base:calc(16px*var(--fs));--text-h1:calc(42px*var(--fs));}
@@ -354,7 +356,7 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__figure i
 .portal-center .grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));padding-bottom:0;}
 .portal-center .section-head{padding-top:0;}
 .rail{display:flex;flex-direction:column;gap:30px;min-width:0;}
-.rail-module__title{font-family:var(--font-head);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-ink);margin:0 0 14px;padding-top:10px;border-top:1px solid var(--rule-sec);}
+.rail-module__title{font-family:var(--font-body);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-ink);margin:0 0 14px;padding-top:10px;border-top:1px solid var(--rule-sec);}
 .rail-list,.rail-num{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;}
 .rail-list a{display:block;}
 .rail-list__t{display:block;font-family:var(--font-head);font-size:15px;font-weight:600;line-height:1.3;color:var(--color-ink);}
@@ -374,8 +376,8 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__figure i
 .rubrik{padding:14px 0 30px;}
 .rubrik--lead{border-top:1px solid var(--rule);padding-top:30px;}
 .rubrik__head{display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:1px solid var(--rule-sec);padding-top:12px;margin-bottom:22px;}
-.rubrik__chip{font-family:var(--font-head);font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--color-ink);}
-.rubrik__more{font-family:var(--font-head);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-brand);}
+.rubrik__chip{font-family:var(--font-body);font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--color-ink);}
+.rubrik__more{font-family:var(--font-body);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-brand);}
 .rubrik__chip{transition:color .15s;} .rubrik__chip:hover{color:var(--color-brand);}
 .rubrik__more:hover{text-decoration:underline;}
 /* Sektionsseite */
@@ -383,7 +385,7 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__figure i
 .section-title{font-family:var(--font-head);font-size:calc(40px*var(--fs));line-height:1.1;font-weight:var(--weight-heading);letter-spacing:var(--track-head);text-transform:var(--case-head);margin:10px 0 4px;}
 .section-count{font-size:14px;color:var(--color-ink-soft);margin:0;}
 .section-eyebrow{display:flex;align-items:center;gap:14px;margin:0 0 22px;}
-.section-chip{font-family:var(--font-head);font-size:14px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-brand);}
+.section-chip{font-family:var(--font-body);font-size:14px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-brand);}
 .rubrik__grid{padding-bottom:0;grid-template-rows:max-content;grid-auto-rows:0;row-gap:0;overflow:hidden;}
 /* Feature-Sektion: 1 groß + Liste */
 .rubrik__feature{display:grid;grid-template-columns:1.5fr 1fr;gap:34px;align-items:start;}
@@ -410,7 +412,8 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__figure i
   .rail .rail-module{flex:1 1 240px;}
 }
 /* customizer panel */
-.cz-fab{position:fixed;right:20px;bottom:20px;z-index:60;width:50px;height:50px;border-radius:50%;border:0;background:var(--color-brand);color:#fff;font-size:20px;cursor:pointer;box-shadow:0 8px 24px rgba(41,30,56,.25);}
+.cz-fab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:60;width:34px;height:48px;border-radius:10px 0 0 10px;border:1px solid var(--color-hairline);border-right:0;background:rgba(255,255,255,.9);color:var(--color-ink-soft);font-size:15px;cursor:pointer;box-shadow:-4px 0 16px rgba(41,30,56,.09);backdrop-filter:blur(5px);transition:color .15s,background .15s,box-shadow .15s;}
+.cz-fab:hover{color:var(--color-brand);background:#fff;box-shadow:-5px 0 20px rgba(41,30,56,.14);}
 html.cz-on .cz-fab{display:none;}
 .cz{position:fixed;top:0;right:0;z-index:61;width:340px;max-width:92vw;height:100vh;background:#fff;border-left:1px solid #ECEAEF;box-shadow:-14px 0 44px rgba(41,30,56,.13);transform:translateX(100%);transition:transform .28s ease;display:flex;flex-direction:column;font-family:Inter,system-ui,sans-serif;color:#291E38;}
 html.cz-on .cz{transform:none;}
@@ -419,7 +422,7 @@ html.cz-on .cz{transform:none;}
 .cz-reset{font:inherit;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#9A95A6;background:none;border:1px solid #ECEAEF;border-radius:6px;padding:5px 9px;cursor:pointer;}
 .cz-x{width:28px;height:28px;border:1px solid #ECEAEF;border-radius:6px;background:#fff;color:#9A95A6;cursor:pointer;font-size:16px;line-height:1;}
 .cz-body{overflow-y:auto;flex:1;}
-.cz-foot{flex:none;padding:12px 16px;border-top:1px solid #ECEAEF;background:#fff;}
+.cz-pubbar{flex:none;padding:12px 16px;border-bottom:1px solid #ECEAEF;background:#fff;}
 .cz-pub{width:100%;font:inherit;font-size:13px;font-weight:700;color:#fff;background:#137EC0;border:0;border-radius:8px;padding:11px;cursor:pointer;transition:background .15s;}
 .cz-pub:hover{background:#0f6ba3;} .cz-pub:disabled{opacity:.6;cursor:default;}
 .cz-sec{border-bottom:1px solid #ECEAEF;}
@@ -576,7 +579,9 @@ function header({ tabs = false, activePath = "" } = {}, cfg = {}) {
     ? `<img class="brand__logo-img" src="/api/logo?v=${lg.ts}" alt="${esc(brand)}"/>`
     : `<span class="brand__logo" role="img" aria-label="${esc(brand)}"></span><span class="brand__name">${esc(brand)}</span>`;
   const brandHtml = `<a class="brand" href="/" aria-label="${esc(brand)}">${brandInner}</a>`;
-  const login = `<div class="header-actions"><a class="login-link" id="js-login" href="${STEADY_LOGIN_URL}">Login</a><a class="steady-login-button" data-size="small" data-language="de"></a></div>`;
+  // Echter Steady-Login-Button (Smart Layer) — verhält sich exakt wie auf steady.page (Login-Status,
+  // OAuth-Flow). Unser Textlink bleibt als Fallback, falls das Widget nicht lädt.
+  const login = `<div class="header-actions"><a class="steady-login-button" data-size="small" data-language="de"></a><a class="login-link login-link--fb" id="js-login" href="${STEADY_LOGIN_URL}">Login</a></div>`;
   const navBar = tabs
     ? `<nav class="tabs${center ? " tabs--center" : ""}"><div class="container tabs__bar"><div class="tabs__inner">${navLinksHtml(nav, activePath)}</div>${search}</div></nav>`
     : "";
@@ -587,12 +592,13 @@ function header({ tabs = false, activePath = "" } = {}, cfg = {}) {
   return `<header class="site-header${center ? " site-header--center" : ""}"><div class="container site-header__inner">
   ${brandHtml}
   ${login}
-</div></header>${navBar}${searchAssets}`;
+</div></header>${navBar}${searchAssets}<script>setTimeout(function(){try{var el=document.querySelector("steady-login-button");var ok=el&&el.shadowRoot&&el.shadowRoot.querySelector("a,button");if(!ok){var fb=document.getElementById("js-login");if(fb)fb.className+=" is-on";if(el)el.style.display="none";}}catch(e){}},3000);</script>`;
 }
 function footer() {
   return `<button class="cz-fab" id="cz-open" aria-label="Seite anpassen" title="Seite anpassen">✦</button>
 <aside class="cz" id="cz-panel" aria-label="Anpassen">
   <div class="cz-head"><span>Anpassen</span><div><button class="cz-reset" id="cz-reset" title="Alles zurücksetzen">Reset</button><button class="cz-x" id="cz-close" aria-label="Schließen">›</button></div></div>
+  <div class="cz-pubbar"><button class="cz-pub" id="cz-pub" type="button" title="Aktuelle Einstellungen mit Admin-Code für alle Besucher veröffentlichen">Für alle Besucher speichern</button></div>
   <div class="cz-body">
     <section class="cz-sec cz-open"><button class="cz-sh" data-acc>Looks<span class="cz-cv">▾</span></button><div class="cz-sb">
       <p class="cz-hint">Ein Klick = ein geprüfter Gesamtstil. Danach feinjustieren.</p>
@@ -656,7 +662,6 @@ function footer() {
       <label class="cz-lbl">Bild-Look</label><div class="cz-seg" data-fn="card" data-kind="image"><button data-v="farbe">Farbe</button><button data-v="duotone">Duotone</button><button data-v="graustufen">Grau</button></div>
     </div></section>
   </div>
-  <div class="cz-foot"><button class="cz-pub" id="cz-pub" type="button" title="Aktuelle Einstellungen mit Admin-Code für alle Besucher veröffentlichen">Für alle Besucher speichern</button></div>
 </aside>
 <script>(function(){
   var D=document.documentElement;
@@ -890,12 +895,12 @@ function railTopics(cats) {
     <div class="rail-pills">${cats.map(pill).join("")}</div></div>`;
 }
 // Portal-Band: Leisten flankieren den Aufmacher (Neueste/Themen links, Meistgelesen rechts)
-function portalBand(cfg, centerHtml, items, cats) {
+function portalBand(cfg, centerHtml, railItems, cats) {
   const railL = [];
-  if (cfg.rails.includes("neueste")) railL.push(railLatest(items));
+  if (cfg.rails.includes("neueste")) railL.push(railLatest(railItems.latest));
   if (cfg.rails.includes("themen")) railL.push(railTopics(cats));
   const railR = [];
-  if (cfg.rails.includes("meist")) railR.push(railPopular(items));
+  if (cfg.rails.includes("meist")) railR.push(railPopular(railItems.popular));
   const hasL = railL.length, hasR = railR.length;
   const cols = `${hasL ? "216px " : ""}minmax(0,1fr)${hasR ? " 216px" : ""}`;
   return `<section class="portal-band"><div class="portal-grid" style="grid-template-columns:${cols}">
@@ -920,11 +925,13 @@ function teaserText(it) {
   </a>`;
 }
 // Stream: nach Rubriken — Layout rotiert je Sektion (Feature / Karten / Kompakt), wie im Figma
-function rubrikStream(rest, cats) {
+function rubrikStream(rest, cats, leadItems) {
   if (!cats.length) return `<div class="grid">${rest.slice(0, PER_PAGE).map(card).join("")}</div>`;
   const MODES = ["feature", "cards", "compact"];
-  // Headerlose Teaser-Reihe direkt unter dem Aufmacher (wie im Figma)
-  const lead = `<section class="rubrik rubrik--lead"><div class="grid rubrik__grid">${rest.slice(0, 4).map(card).join("")}</div></section>`;
+  // Headerlose Teaser-Reihe direkt unter dem Aufmacher (wie im Figma) — disjunkt zu den Leisten
+  const lead = (leadItems && leadItems.length)
+    ? `<section class="rubrik rubrik--lead"><div class="grid rubrik__grid">${leadItems.map(card).join("")}</div></section>`
+    : "";
   return lead + cats.map((cat, i) => {
     const inCat = rest.filter(it => it.categories.includes(cat));
     if (!inCat.length) return "";
@@ -960,11 +967,16 @@ export function renderLanding(items, page = 1, cfg) {
   const hero = items[heroIdx];
   const rest = items.filter((_, i) => i !== heroIdx);
   const cats = topCategories(items);
+  // Top-Section-Teaser disjunkt verteilen, damit kein Teaser doppelt erscheint:
+  // Lead-Reihe (unter dem Aufmacher) bekommt die frischesten, dann Neueste-/Meistgelesen-Leiste.
+  const leadItems    = rest.slice(0, 4);
+  const latestItems  = rest.slice(4, 7);
+  const popularItems = rest.slice(7, 10);
 
   // 1) Kopf: Portal-Band (mit Leisten) oder einspaltiger Aufmacher/Hero
   let top;
   if (cfg.shell === "portal") {
-    top = portalBand(cfg, aufmacherArticle(hero, cfg.auf === "gross"), rest, cats);
+    top = portalBand(cfg, aufmacherArticle(hero, cfg.auf === "gross"), { latest: latestItems, popular: popularItems }, cats);
   } else if (cfg.auf === "gross") {
     top = `<section class="aufmacher-band"><div class="container">${aufmacherArticle(hero, true)}</div></section>`;
   } else {
@@ -974,7 +986,7 @@ export function renderLanding(items, page = 1, cfg) {
   // 2) Stream: Rubriken-Sektionen oder flache Liste mit Pills + „Mehr laden"
   let stream;
   if (cfg.stream === "rubrik") {
-    stream = `<div class="container">${rubrikStream(rest, cats)}<div id="memberships"></div></div>`;
+    stream = `<div class="container">${rubrikStream(rest, cats, leadItems)}<div id="memberships"></div></div>`;
   } else {
     const pages = Math.max(1, Math.ceil(rest.length / PER_PAGE));
     const p = Math.min(Math.max(1, page), pages);
