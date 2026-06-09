@@ -5,6 +5,7 @@ export const FEED_URL    = "https://steady.page/sebastian/rss";
 export const PUBLICATION = "Blaupause";
 export const AUTHOR      = "Sebastian Esser";
 export const STEADY_PUBLICATION_ID = "ab2d81e4-59a5-4097-a668-110ad2cd3256"; // Steady widget_loader (Smart Layers/Checkout/Paywall)
+export const STEADY_LOGIN_URL = "https://steady.page/de/log_in?publication=sebastian"; // kanonische Steady-Login-URL
 export const PER_PAGE    = 12;
 export const PINNED_GUID = null;   // optional: eine Post-GUID als Hero pinnen; null = neuester Post
 export const MAX_PILLS   = 8;
@@ -397,9 +398,12 @@ html.cz-on .cz{transform:none;}
 .cz-pal{display:flex;gap:10px;flex-wrap:wrap;}
 .cz-pal button{width:34px;height:34px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #ECEAEF;cursor:pointer;padding:0;}
 .cz-pal button.on{box-shadow:0 0 0 2px #137EC0;}
-.cz-colors{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
-.cz-color{display:flex;align-items:center;gap:8px;font-size:12px;color:#6B6577;}
-.cz-color input{width:30px;height:30px;border:1px solid #ECEAEF;border-radius:6px;padding:0;background:none;cursor:pointer;}
+.cz-colors{display:grid;grid-template-columns:1fr;gap:8px;margin-top:6px;}
+.cz-color{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:#291E38;border:1px solid #ECEAEF;border-radius:8px;padding:7px 9px;cursor:pointer;}
+.cz-color input{width:30px;height:30px;border:1px solid #ECEAEF;border-radius:6px;padding:0;background:none;cursor:pointer;flex:none;}
+.cz-color-t{display:flex;flex-direction:column;line-height:1.2;}
+.cz-color-t em{font-style:normal;font-weight:400;font-size:10px;color:#9A95A6;margin-top:2px;}
+.cz-lbl-x{text-transform:none;letter-spacing:0;font-weight:400;color:#bdb8c6;}
 .cz-seg{display:flex;gap:6px;}
 .cz-seg button{flex:1;font:inherit;font-size:12px;padding:8px 6px;border:1px solid #d7d4dd;border-radius:6px;background:#fff;color:#291E38;cursor:pointer;}
 .cz-seg button.on{border-color:#137EC0;background:#137EC0;color:#fff;}
@@ -515,7 +519,7 @@ function header({ tabs = false, activePath = "" } = {}, cfg = {}) {
   const search = cfg.search
     ? `<span class="tabs__search" role="button" tabindex="0" aria-label="Suche">${ICON_SEARCH}</span>` : "";
   const brandHtml = `<a class="brand" href="/" aria-label="${esc(brand)}"><span class="brand__logo" role="img" aria-label="${esc(brand)}"></span><span class="brand__name">${esc(brand)}</span></a>`;
-  const login = `<div class="header-actions"><a class="login-link" id="js-login" href="#" role="button">Login</a><a class="steady-login-button" data-size="small" data-language="de"></a></div>`;
+  const login = `<div class="header-actions"><a class="login-link" id="js-login" href="${STEADY_LOGIN_URL}">Login</a><a class="steady-login-button" data-size="small" data-language="de"></a></div>`;
   const navBar = tabs
     ? `<nav class="tabs${center ? " tabs--center" : ""}"><div class="container tabs__bar"><div class="tabs__inner">${navLinksHtml(nav, activePath)}</div>${search}</div></nav>`
     : "";
@@ -548,13 +552,15 @@ function footer() {
       <button class="cz-apply" id="cz-chrome-apply" type="button">Übernehmen</button>
     </div></section>
     <section class="cz-sec"><button class="cz-sh" data-acc>Farben<span class="cz-cv">▾</span></button><div class="cz-sb">
-      <label class="cz-lbl">Basis</label><div class="cz-seg" data-fn="base" data-kind="mode"><button data-v="light">Hell</button><button data-v="dark">Dunkel</button></div>
-      <label class="cz-lbl">Palette</label><div class="cz-pal" id="cz-pal"></div>
+      <p class="cz-hint">Zwei Farben steuern die ganze Seite. Wähle ein fertiges Schema – oder stell die Farben selbst ein.</p>
+      <label class="cz-lbl">Hell / Dunkel</label><div class="cz-seg" data-fn="base" data-kind="mode"><button data-v="light">Hell</button><button data-v="dark">Dunkel</button></div>
+      <label class="cz-lbl">Schema <span class="cz-lbl-x">— ein Klick setzt beide Farben</span></label><div class="cz-pal" id="cz-pal"></div>
+      <label class="cz-lbl">Eigene Farben</label>
       <div class="cz-colors">
-        <label class="cz-color"><input type="color" id="cz-c-brand" value="#137EC0"><span>Marke</span></label>
-        <label class="cz-color"><input type="color" id="cz-c-accent" value="#FF7264"><span>Akzent</span></label>
+        <label class="cz-color"><input type="color" id="cz-c-brand" value="#137EC0"><span class="cz-color-t">Marke<em>Buttons, Links, aktive Navi</em></span></label>
+        <label class="cz-color"><input type="color" id="cz-c-accent" value="#FF7264"><span class="cz-color-t">Akzent<em>Chips &amp; Hervorhebungen</em></span></label>
       </div>
-      <p class="cz-warn" id="cz-warn">⚠︎ Wenig Kontrast — Marke kaum sichtbar.</p>
+      <p class="cz-warn" id="cz-warn">⚠︎ Wenig Kontrast — die Marke ist auf dem Hintergrund kaum lesbar.</p>
     </div></section>
     <section class="cz-sec"><button class="cz-sh" data-acc>Schriften<span class="cz-cv">▾</span></button><div class="cz-sb">
       <label class="cz-lbl">Editorial-Pairing</label><select id="pair-picker" class="cz-sel"><option value="">– Pairing –</option></select>
@@ -671,9 +677,7 @@ function footer() {
       window.kitChromeSet({brand:(brandInp?brandInp.value.trim():""),nav:out});
     });
   }
-  /* login: Textlink → Steady-Button (Shadow-DOM) proxy-klicken (gleiche OAuth-Funktion) */
-  var loginLink=document.getElementById("js-login");
-  if(loginLink)loginLink.addEventListener("click",function(e){e.preventDefault();var el=document.querySelector("steady-login-button");var b=el&&el.shadowRoot&&el.shadowRoot.querySelector("button,a");if(b)b.click();else if(el&&el.click)el.click();});
+  /* login: direkter Link auf die Steady-Login-URL (robust, kein Widget-/Shadow-DOM-Timing) */
   /* Suche → Cloudflare AI Search Modal öffnen */
   var searchBtn=document.querySelector(".tabs__search");
   if(searchBtn){var openSearch=function(){var m=document.querySelector("search-modal-snippet");if(m&&typeof m.open==="function")m.open();};searchBtn.addEventListener("click",openSearch);searchBtn.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();openSearch();}});}
