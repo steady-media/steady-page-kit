@@ -421,8 +421,14 @@ html.cz-on .cz{transform:none;}
 .cz-nav{display:flex;flex-direction:column;gap:6px;}
 .cz-nav-row{display:flex;gap:5px;align-items:center;}
 .cz-nav-row input{min-width:0;border:1px solid #d7d4dd;border-radius:6px;padding:7px 8px;font:inherit;font-size:12px;color:#291E38;background:#fff;}
-.cz-nav-l{flex:0 0 38%;} .cz-nav-h{flex:1;}
+.cz-nav-l{flex:0 0 32%;} .cz-nav-h{flex:1;}
+.cz-nav-grip{flex:0 0 20px;height:30px;border:0;background:none;color:#c4bfce;cursor:grab;font-size:13px;line-height:1;padding:0;border-radius:6px;touch-action:none;}
+.cz-nav-grip:hover{color:#291E38;background:#F4F2F7;} .cz-nav-grip:active{cursor:grabbing;}
+.cz-nav-grip:focus-visible{outline:2px solid #137EC0;outline-offset:1px;}
+.cz-nav-row--drag{opacity:.55;}
 .cz-nav-x{flex:0 0 26px;height:30px;border:1px solid #ECEAEF;border-radius:6px;background:#fff;color:#9A95A6;cursor:pointer;font-size:15px;line-height:1;}
+.cz-subhead{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9A95A6;margin:18px 0 2px;padding-top:14px;border-top:1px solid #F0EEF3;}
+.cz-subhead:first-child{padding-top:0;border-top:0;margin-top:6px;}
 .cz-nav-add{margin-top:8px;font:inherit;font-size:12px;color:#137EC0;background:none;border:0;cursor:pointer;padding:2px 0;text-align:left;}
 .cz-apply{margin-top:12px;width:100%;font:inherit;font-size:13px;font-weight:600;color:#fff;background:#137EC0;border:0;border-radius:6px;padding:10px;cursor:pointer;}
 .cz-logo{display:flex;gap:6px;align-items:center;}
@@ -531,32 +537,15 @@ function footer() {
       <p class="cz-hint">Ein Klick = ein geprüfter Gesamtstil. Danach feinjustieren.</p>
       <div class="cz-looks" id="cz-looks"></div>
     </div></section>
-    <section class="cz-sec"><button class="cz-sh" data-acc>Aufbau<span class="cz-cv">▾</span></button><div class="cz-sb">
-      <label class="cz-lbl">Seitenlayout</label><div class="cz-seg" data-fn="struct" data-kind="shell"><button data-v="single">Einspaltig</button><button data-v="portal">Portal</button></div>
-      <label class="cz-lbl">Aufmacher</label><div class="cz-seg" data-fn="struct" data-kind="auf"><button data-v="klein">Klein</button><button data-v="gross">Groß</button></div>
-      <label class="cz-lbl">Inhalt</label><div class="cz-seg" data-fn="struct" data-kind="stream"><button data-v="liste">Eine Liste</button><button data-v="rubrik">Nach Rubriken</button></div>
-      <label class="cz-lbl">Seitenleisten</label><div class="cz-rails" id="cz-rails"><button data-rail="neueste">Neueste</button><button data-rail="meist">Meistgelesen</button><button data-rail="themen">Themen</button></div>
-      <p class="cz-hint">Struktur lädt die Seite kurz neu. Skin bleibt live.</p>
-    </div></section>
-    <section class="cz-sec"><button class="cz-sh" data-acc>Header<span class="cz-cv">▾</span></button><div class="cz-sb">
-      <label class="cz-lbl">Stil</label><div class="cz-seg" data-fn="struct" data-kind="header"><button data-v="links">Links</button><button data-v="zentriert">Zentriert</button></div>
-      <label class="cz-lbl">Suche</label><div class="cz-seg" data-fn="struct" data-kind="search"><button data-v="0">Aus</button><button data-v="1">An</button></div>
-      <label class="cz-lbl">Nav-Stil</label><div class="cz-seg" data-fn="layout" data-kind="nav"><button data-v="standard">Standard</button><button data-v="figma">Figma</button></div>
+    <section class="cz-sec"><button class="cz-sh" data-acc>Header &amp; Navigation<span class="cz-cv">▾</span></button><div class="cz-sb">
       <label class="cz-lbl">Titel</label><input class="cz-inp" id="cz-brand" type="text" placeholder="Blaupause" maxlength="60"/>
       <label class="cz-lbl">Logo (breit)</label><div class="cz-logo"><label class="cz-logo-up">Bild wählen<input type="file" id="cz-logo-file" accept="image/*" hidden/></label><button class="cz-logo-rm" id="cz-logo-rm" type="button">Entfernen</button></div>
+      <label class="cz-lbl">Header-Stil</label><div class="cz-seg" data-fn="struct" data-kind="header"><button data-v="links">Links</button><button data-v="zentriert">Zentriert</button></div>
+      <label class="cz-lbl">Nav-Stil</label><div class="cz-seg" data-fn="layout" data-kind="nav"><button data-v="standard">Standard</button><button data-v="figma">Figma</button></div>
+      <label class="cz-lbl">Suche</label><div class="cz-seg" data-fn="struct" data-kind="search"><button data-v="0">Aus</button><button data-v="1">An</button></div>
       <label class="cz-lbl">Navigation</label><div class="cz-nav" id="cz-nav"></div>
       <button class="cz-nav-add" id="cz-nav-add" type="button">+ Link hinzufügen</button>
       <button class="cz-apply" id="cz-chrome-apply" type="button">Übernehmen</button>
-    </div></section>
-    <section class="cz-sec"><button class="cz-sh" data-acc>Schriften<span class="cz-cv">▾</span></button><div class="cz-sb">
-      <label class="cz-lbl">Editorial-Pairing</label><select id="pair-picker" class="cz-sel"><option value="">– Pairing –</option></select>
-      <label class="cz-lbl">Überschriften</label><select id="head-picker" class="cz-sel"></select>
-      <label class="cz-lbl">Lauftext</label><select id="body-picker" class="cz-sel"></select>
-      <label class="cz-lbl">Schriftgröße</label><div class="cz-seg" data-fn="type" data-kind="size"><button data-v="klein">Klein</button><button data-v="standard">Standard</button><button data-v="gross">Groß</button></div>
-      <label class="cz-lbl">Zeilenhöhe</label><div class="cz-seg" data-fn="type" data-kind="lead"><button data-v="eng">Eng</button><button data-v="normal">Normal</button><button data-v="luftig">Luftig</button></div>
-      <label class="cz-lbl">Laufweite (Titel)</label><div class="cz-seg" data-fn="type" data-kind="track"><button data-v="eng">Eng</button><button data-v="normal">Normal</button><button data-v="weit">Weit</button></div>
-      <label class="cz-lbl">Titel-Schreibung</label><div class="cz-seg" data-fn="type" data-kind="case"><button data-v="normal">Aa</button><button data-v="gross">AA</button><button data-v="title">Aa Bb</button></div>
-      <label class="cz-lbl">Hero-Ausrichtung</label><div class="cz-seg" data-fn="type" data-kind="align"><button data-v="links">Links</button><button data-v="zentriert">Zentriert</button></div>
     </div></section>
     <section class="cz-sec"><button class="cz-sh" data-acc>Farben<span class="cz-cv">▾</span></button><div class="cz-sb">
       <label class="cz-lbl">Basis</label><div class="cz-seg" data-fn="base" data-kind="mode"><button data-v="light">Hell</button><button data-v="dark">Dunkel</button></div>
@@ -567,12 +556,30 @@ function footer() {
       </div>
       <p class="cz-warn" id="cz-warn">⚠︎ Wenig Kontrast — Marke kaum sichtbar.</p>
     </div></section>
+    <section class="cz-sec"><button class="cz-sh" data-acc>Schriften<span class="cz-cv">▾</span></button><div class="cz-sb">
+      <label class="cz-lbl">Editorial-Pairing</label><select id="pair-picker" class="cz-sel"><option value="">– Pairing –</option></select>
+      <label class="cz-lbl">Überschriften</label><select id="head-picker" class="cz-sel"></select>
+      <label class="cz-lbl">Lauftext</label><select id="body-picker" class="cz-sel"></select>
+      <label class="cz-lbl">Schriftgröße</label><div class="cz-seg" data-fn="type" data-kind="size"><button data-v="klein">Klein</button><button data-v="standard">Standard</button><button data-v="gross">Groß</button></div>
+      <label class="cz-lbl">Zeilenhöhe</label><div class="cz-seg" data-fn="type" data-kind="lead"><button data-v="eng">Eng</button><button data-v="normal">Normal</button><button data-v="luftig">Luftig</button></div>
+      <label class="cz-lbl">Laufweite (Titel)</label><div class="cz-seg" data-fn="type" data-kind="track"><button data-v="eng">Eng</button><button data-v="normal">Normal</button><button data-v="weit">Weit</button></div>
+      <label class="cz-lbl">Titel-Schreibung</label><div class="cz-seg" data-fn="type" data-kind="case"><button data-v="normal">Aa</button><button data-v="gross">AA</button><button data-v="title">Aa Bb</button></div>
+    </div></section>
     <section class="cz-sec"><button class="cz-sh" data-acc>Layout<span class="cz-cv">▾</span></button><div class="cz-sb">
+      <p class="cz-subhead">Aufbau</p>
+      <label class="cz-lbl">Seitenlayout</label><div class="cz-seg" data-fn="struct" data-kind="shell"><button data-v="single">Einspaltig</button><button data-v="portal">Portal</button></div>
+      <label class="cz-lbl">Aufmacher</label><div class="cz-seg" data-fn="struct" data-kind="auf"><button data-v="klein">Klein</button><button data-v="gross">Groß</button></div>
+      <label class="cz-lbl">Inhalt</label><div class="cz-seg" data-fn="struct" data-kind="stream"><button data-v="liste">Eine Liste</button><button data-v="rubrik">Nach Rubriken</button></div>
+      <label class="cz-lbl">Seitenleisten</label><div class="cz-rails" id="cz-rails"><button data-rail="neueste">Neueste</button><button data-rail="meist">Meistgelesen</button><button data-rail="themen">Themen</button></div>
+      <p class="cz-hint">Aufbau-Wechsel laden die Seite kurz neu. Der Rest bleibt live.</p>
+      <p class="cz-subhead">Raster</p>
       <label class="cz-lbl">Spalten</label><div class="cz-seg" data-fn="layout" data-kind="cols"><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button></div>
       <label class="cz-lbl">Inhaltsbreite</label><div class="cz-seg" data-fn="layout" data-kind="width"><button data-v="schmal">Schmal</button><button data-v="standard">Standard</button><button data-v="breit">Breit</button></div>
       <label class="cz-lbl">Dichte</label><div class="cz-seg" data-fn="layout" data-kind="dens"><button data-v="kompakt">Kompakt</button><button data-v="komfortabel">Komfort</button><button data-v="grosszuegig">Weit</button></div>
       <label class="cz-lbl">Ecken</label><div class="cz-seg" data-fn="layout" data-kind="corner"><button data-v="eckig">Eckig</button><button data-v="rund">Rund</button></div>
-      <label class="cz-lbl">Hero</label><div class="cz-seg" data-fn="layout" data-kind="hero"><button data-v="split">Geteilt</button><button data-v="center">Zentriert</button></div>
+      <p class="cz-subhead">Hero</p>
+      <label class="cz-lbl">Darstellung</label><div class="cz-seg" data-fn="layout" data-kind="hero"><button data-v="split">Geteilt</button><button data-v="center">Zentriert</button></div>
+      <label class="cz-lbl">Ausrichtung</label><div class="cz-seg" data-fn="type" data-kind="align"><button data-v="links">Links</button><button data-v="zentriert">Zentriert</button></div>
     </div></section>
     <section class="cz-sec"><button class="cz-sh" data-acc>Karten<span class="cz-cv">▾</span></button><div class="cz-sb">
       <label class="cz-lbl">Teaser-Stil</label><div class="cz-seg cz-seg--wrap" data-fn="card" data-kind="style"><button data-v="classic">Klassisch</button><button data-v="side">Bild links</button><button data-v="text">Nur Text</button><button data-v="overlay">Overlay</button><button data-v="list">Liste</button></div>
@@ -590,8 +597,8 @@ function footer() {
   var ob=document.getElementById("cz-open"),cb=document.getElementById("cz-close");
   if(ob)ob.addEventListener("click",function(){setOpen(true);});
   if(cb)cb.addEventListener("click",function(){setOpen(false);});
-  function saveAcc(){var o=[];[].forEach.call(document.querySelectorAll(".cz-sec"),function(s,i){if(s.classList.contains("cz-open"))o.push(i);});try{localStorage.setItem("kitAcc",JSON.stringify(o));}catch(e){}}
-  (function(){var a=null;try{a=JSON.parse(localStorage.getItem("kitAcc")||"null");}catch(e){}if(a&&typeof a.length==="number"){[].forEach.call(document.querySelectorAll(".cz-sec"),function(s,i){s.classList.toggle("cz-open",a.indexOf(i)>=0);});}}());
+  function saveAcc(){var o=[];[].forEach.call(document.querySelectorAll(".cz-sec"),function(s,i){if(s.classList.contains("cz-open"))o.push(i);});try{localStorage.setItem("kitAcc2",JSON.stringify(o));}catch(e){}}
+  (function(){var a=null;try{a=JSON.parse(localStorage.getItem("kitAcc2")||"null");}catch(e){}if(a&&typeof a.length==="number"){[].forEach.call(document.querySelectorAll(".cz-sec"),function(s,i){s.classList.toggle("cz-open",a.indexOf(i)>=0);});}}());
   [].forEach.call(document.querySelectorAll(".cz-sh[data-acc]"),function(h){h.addEventListener("click",function(){h.parentNode.classList.toggle("cz-open");saveAcc();});});
   function clearLook(){try{localStorage.removeItem("kitLook");}catch(e){}markLook();}
   /* fonts */
@@ -641,12 +648,19 @@ function footer() {
     var navInit=sc.nav;
     if(!navInit){var dom=document.querySelectorAll(".tabs__inner .tab");if(dom.length)navInit=[].map.call(dom,function(a){return {l:a.textContent.trim(),h:a.getAttribute("href"),x:a.target==="_blank"};});}
     if(!navInit)navInit=window.KIT_DEFAULT_NAV||[];
+    function moveRow(row,dir){var sib=dir<0?row.previousElementSibling:row.nextElementSibling;if(!sib)return;if(dir<0)navEd.insertBefore(row,sib);else navEd.insertBefore(sib,row);}
     function navRow(n){var row=document.createElement("div");row.className="cz-nav-row";
+      var gr=document.createElement("button");gr.type="button";gr.className="cz-nav-grip";gr.textContent="⠿";gr.title="Ziehen oder Pfeiltasten zum Sortieren";gr.setAttribute("aria-label","Link verschieben");
       var li=document.createElement("input");li.className="cz-nav-l";li.placeholder="Label";li.value=(n&&n.l)||"";
       var hi=document.createElement("input");hi.className="cz-nav-h";hi.placeholder="URL";hi.value=(n&&n.h)||"";
       var xb=document.createElement("button");xb.type="button";xb.className="cz-nav-x";xb.textContent="×";xb.title="Entfernen";
       xb.addEventListener("click",function(){if(row.parentNode)row.parentNode.removeChild(row);});
-      row.appendChild(li);row.appendChild(hi);row.appendChild(xb);navEd.appendChild(row);}
+      gr.addEventListener("keydown",function(e){if(e.key==="ArrowUp"){e.preventDefault();moveRow(row,-1);gr.focus();}else if(e.key==="ArrowDown"){e.preventDefault();moveRow(row,1);gr.focus();}});
+      gr.addEventListener("pointerdown",function(e){e.preventDefault();row.classList.add("cz-nav-row--drag");
+        var move=function(ev){var rows=[].slice.call(navEd.querySelectorAll(".cz-nav-row")),after=null;for(var i=0;i<rows.length;i++){var r=rows[i];if(r===row)continue;var b=r.getBoundingClientRect();if(ev.clientY<b.top+b.height/2){after=r;break;}}if(after){navEd.insertBefore(row,after);}else{navEd.appendChild(row);}};
+        var up=function(){row.classList.remove("cz-nav-row--drag");document.removeEventListener("pointermove",move);document.removeEventListener("pointerup",up);};
+        document.addEventListener("pointermove",move);document.addEventListener("pointerup",up);});
+      row.appendChild(gr);row.appendChild(li);row.appendChild(hi);row.appendChild(xb);navEd.appendChild(row);}
     navInit.forEach(navRow);
     var addB=document.getElementById("cz-nav-add");if(addB)addB.addEventListener("click",function(){navRow({l:"",h:""});});
     var apB=document.getElementById("cz-chrome-apply");
@@ -675,7 +689,7 @@ function footer() {
   if(looksEl&&window.KIT_LOOKS){for(var lo=0;lo<window.KIT_LOOKS.length;lo++){(function(idx){var L=window.KIT_LOOKS[idx];var b=document.createElement("button");b.className="cz-look";var bb=document.createElement("b");bb.textContent=L.n;var sp=document.createElement("span");sp.textContent=L.d||"";b.appendChild(bb);b.appendChild(sp);b.addEventListener("click",function(){window.kitLook(idx,true);syncAll();});looksEl.appendChild(b);})(lo);}}
   function syncAll(){if(headSel)headSel.value=gs("kitFontHead",window.KIT_DEFAULT_HEAD);if(bodySel)bodySel.value=gs("kitFontBody",window.KIT_DEFAULT_BODY);if(pairSel)pairSel.value="";[].forEach.call(document.querySelectorAll(".cz-seg"),markSeg);markPal();markLook();syncColors();}
   markPal();markLook();syncColors();
-  var rb=document.getElementById("cz-reset");if(rb)rb.addEventListener("click",function(){["kitFontHead","kitFontBody","kitColors","kitLayout","kitType","kitCard","kitPalette","kitBase","kitLook","kitPanelOpen","kitStruct","kitChrome","kitLogo","kitAcc"].forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});document.cookie="kitstruct=;path=/;max-age=0";document.cookie="kitchrome=;path=/;max-age=0";location.reload();});
+  var rb=document.getElementById("cz-reset");if(rb)rb.addEventListener("click",function(){["kitFontHead","kitFontBody","kitColors","kitLayout","kitType","kitCard","kitPalette","kitBase","kitLook","kitPanelOpen","kitStruct","kitChrome","kitLogo","kitAcc2"].forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});document.cookie="kitstruct=;path=/;max-age=0";document.cookie="kitchrome=;path=/;max-age=0";location.reload();});
   var btn=document.getElementById("js-loadmore");
   if(btn)btn.addEventListener("click",function(){
     var next=parseInt(btn.getAttribute("data-next"),10),pages=parseInt(btn.getAttribute("data-pages"),10);
