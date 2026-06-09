@@ -24,6 +24,16 @@ export async function getItems(feedUrl) {
 export function normTitle(s) {
   return String(s || "").toLowerCase().replace(/&[a-z]+;/g, " ").replace(/[^a-z0-9äöüß]+/g, " ").trim();
 }
+// Global gespeichertes Logo (KV) — von allen Routen gelesen und an header() gereicht.
+// Liefert {type, aspect, ts} oder null. Fehlertolerant (kein KV = kein Logo).
+export async function getLogoMeta(env) {
+  try {
+    if (!env || !env.KIT_KV) return null;
+    return await env.KIT_KV.get("logo:meta", "json");
+  } catch (e) {
+    return null;
+  }
+}
 
 function stripCdata(s) {
   return s.replace(/^\s*<!\[CDATA\[/, "").replace(/\]\]>\s*$/, "").trim();
@@ -161,6 +171,7 @@ a{color:inherit;text-decoration:none;} img{display:block;max-width:100%;}
 .brand__logo{width:34px;height:34px;border-radius:2px;background:var(--logo-url,url(/assets/logo.png)) center/cover no-repeat;flex:none;}
 html.logo-wide .brand__logo{width:var(--logo-w,150px);height:30px;border-radius:0;background-size:contain;background-position:left center;}
 html.logo-wide .brand__name{display:none;}
+.brand__logo-img{height:30px;width:auto;max-width:220px;display:block;flex:none;}
 .brand__name{font-weight:700;font-size:15px;letter-spacing:.13em;text-transform:uppercase;}
 .header-actions{display:flex;align-items:center;gap:12px;}
 .tabs{border-bottom:1px solid var(--color-hairline);background:#fff;}
@@ -488,7 +499,7 @@ function structSer(s){var p=[];if(s.shell)p.push("shell="+s.shell);if(s.auf)p.pu
 window.kitStructSet=function(obj,reload){var s=readStruct();for(var sk in obj)s[sk]=obj[sk];try{localStorage.setItem("kitStruct",JSON.stringify(s));}catch(e){}document.cookie="kitstruct="+encodeURIComponent(structSer(s))+";path=/;max-age=31536000";if(reload)location.reload();};
 window.kitChromeSet=function(o){try{localStorage.setItem("kitChrome",JSON.stringify(o));}catch(e){}document.cookie="kitchrome="+encodeURIComponent(JSON.stringify(o))+";path=/;max-age=31536000";location.reload();};
 window.kitLogoApply=function(src,aspect,save){if(src){D.style.setProperty("--logo-url",'url("'+src+'")');D.style.setProperty("--logo-w",Math.max(60,Math.round(30*(aspect||4)))+"px");D.classList.add("logo-wide");if(save){try{localStorage.setItem("kitLogo",JSON.stringify({src:src,aspect:aspect}));}catch(e){}}}else{D.style.removeProperty("--logo-url");D.style.removeProperty("--logo-w");D.classList.remove("logo-wide");if(save){try{localStorage.removeItem("kitLogo");}catch(e){}}}};
-window.kitLook=function(idx,save){var L=window.KIT_LOOKS[idx];if(!L)return;window.kitApplyFont("head",L.head,save);window.kitApplyFont("body",L.body,save);if(L.palette!=null)window.kitPalette(L.palette,save);if(L.base)window.kitBase(L.base,save);var k;for(k in L.type)window.kitType(k,L.type[k],save);for(k in L.layout)window.kitSetLayout(k,L.layout[k],save);for(k in L.card)window.kitCard(k,L.card[k],save);if(L.colors)for(k in L.colors)window.kitColor(k,L.colors[k],save);if(save)ssave("kitLook",idx);if(L.struct)window.kitStructSet(L.struct,true);};try{var sh=localStorage.getItem("kitFontHead");if(sh&&sh!==window.KIT_DEFAULT_HEAD)window.kitApplyFont("head",sh,false);}catch(e){}try{var sb=localStorage.getItem("kitFontBody");if(sb&&sb!==window.KIT_DEFAULT_BODY)window.kitApplyFont("body",sb,false);}catch(e){}var C=jget("kitColors");for(var ck in C)D.style.setProperty(ck,C[ck]);if(C["--color-brand"])D.style.setProperty("--btn-fg",btnFg(C["--color-brand"]));var L2=jget("kitLayout");for(var lk in L2)window.kitSetLayout(lk,L2[lk],false);var T2=jget("kitType");for(var tk in T2)window.kitType(tk,T2[tk],false);var K2=jget("kitCard");for(var kk in K2)window.kitCard(kk,K2[kk],false);try{var lg=JSON.parse(localStorage.getItem("kitLogo")||"null");if(lg&&lg.src)window.kitLogoApply(lg.src,lg.aspect,false);}catch(e){}try{if(localStorage.getItem("kitPanelOpen")==="1")D.classList.add("cz-on");}catch(e){}})();
+window.kitLook=function(idx,save){var L=window.KIT_LOOKS[idx];if(!L)return;window.kitApplyFont("head",L.head,save);window.kitApplyFont("body",L.body,save);if(L.palette!=null)window.kitPalette(L.palette,save);if(L.base)window.kitBase(L.base,save);var k;for(k in L.type)window.kitType(k,L.type[k],save);for(k in L.layout)window.kitSetLayout(k,L.layout[k],save);for(k in L.card)window.kitCard(k,L.card[k],save);if(L.colors)for(k in L.colors)window.kitColor(k,L.colors[k],save);if(save)ssave("kitLook",idx);if(L.struct)window.kitStructSet(L.struct,true);};try{var sh=localStorage.getItem("kitFontHead");if(sh&&sh!==window.KIT_DEFAULT_HEAD)window.kitApplyFont("head",sh,false);}catch(e){}try{var sb=localStorage.getItem("kitFontBody");if(sb&&sb!==window.KIT_DEFAULT_BODY)window.kitApplyFont("body",sb,false);}catch(e){}var C=jget("kitColors");for(var ck in C)D.style.setProperty(ck,C[ck]);if(C["--color-brand"])D.style.setProperty("--btn-fg",btnFg(C["--color-brand"]));var L2=jget("kitLayout");for(var lk in L2)window.kitSetLayout(lk,L2[lk],false);var T2=jget("kitType");for(var tk in T2)window.kitType(tk,T2[tk],false);var K2=jget("kitCard");for(var kk in K2)window.kitCard(kk,K2[kk],false);try{if(localStorage.getItem("kitPanelOpen")==="1")D.classList.add("cz-on");}catch(e){}})();
 `;
 
 function head(title) {
@@ -518,7 +529,12 @@ function header({ tabs = false, activePath = "" } = {}, cfg = {}) {
   const nav    = (cfg.nav && cfg.nav.length) ? cfg.nav : DEFAULT_NAV;
   const search = cfg.search
     ? `<span class="tabs__search" role="button" tabindex="0" aria-label="Suche">${ICON_SEARCH}</span>` : "";
-  const brandHtml = `<a class="brand" href="/" aria-label="${esc(brand)}"><span class="brand__logo" role="img" aria-label="${esc(brand)}"></span><span class="brand__name">${esc(brand)}</span></a>`;
+  // Global gespeichertes Logo (KV) gewinnt für ALLE Besucher; sonst Default-Icon + Wortmarke.
+  const lg = cfg.logo;
+  const brandInner = (lg && lg.ts)
+    ? `<img class="brand__logo-img" src="/api/logo?v=${lg.ts}" alt="${esc(brand)}"/>`
+    : `<span class="brand__logo" role="img" aria-label="${esc(brand)}"></span><span class="brand__name">${esc(brand)}</span>`;
+  const brandHtml = `<a class="brand" href="/" aria-label="${esc(brand)}">${brandInner}</a>`;
   const login = `<div class="header-actions"><a class="login-link" id="js-login" href="${STEADY_LOGIN_URL}">Login</a><a class="steady-login-button" data-size="small" data-language="de"></a></div>`;
   const navBar = tabs
     ? `<nav class="tabs${center ? " tabs--center" : ""}"><div class="container tabs__bar"><div class="tabs__inner">${navLinksHtml(nav, activePath)}</div>${search}</div></nav>`
@@ -543,7 +559,8 @@ function footer() {
     </div></section>
     <section class="cz-sec"><button class="cz-sh" data-acc>Header &amp; Navigation<span class="cz-cv">▾</span></button><div class="cz-sb">
       <label class="cz-lbl">Titel</label><input class="cz-inp" id="cz-brand" type="text" placeholder="Blaupause" maxlength="60"/>
-      <label class="cz-lbl">Logo (breit)</label><div class="cz-logo"><label class="cz-logo-up">Bild wählen<input type="file" id="cz-logo-file" accept="image/*" hidden/></label><button class="cz-logo-rm" id="cz-logo-rm" type="button">Entfernen</button></div>
+      <label class="cz-lbl">Logo (global)</label><div class="cz-logo"><label class="cz-logo-up">Bild wählen<input type="file" id="cz-logo-file" accept="image/*" hidden/></label><button class="cz-logo-rm" id="cz-logo-rm" type="button">Entfernen</button></div>
+      <p class="cz-hint">Wird für alle Besucher gespeichert (Admin-Code nötig, max. 1,5 MB). Ersetzt Icon + Wortmarke.</p>
       <label class="cz-lbl">Header-Stil</label><div class="cz-seg" data-fn="struct" data-kind="header"><button data-v="links">Links</button><button data-v="zentriert">Zentriert</button></div>
       <label class="cz-lbl">Nav-Stil</label><div class="cz-seg" data-fn="layout" data-kind="nav"><button data-v="standard">Standard</button><button data-v="figma">Figma</button></div>
       <label class="cz-lbl">Suche</label><div class="cz-seg" data-fn="struct" data-kind="search"><button data-v="0">Aus</button><button data-v="1">An</button></div>
@@ -685,8 +702,20 @@ function footer() {
   if(_sms){var _dc=getComputedStyle(document.documentElement);var _br=(_dc.getPropertyValue("--color-brand")||"#137EC0").trim(),_ik=(_dc.getPropertyValue("--color-ink")||"#291E38").trim();_sms.style.setProperty("--search-snippet-primary-color",_br);_sms.style.setProperty("--search-snippet-primary-hover",_ik);_sms.style.setProperty("--search-snippet-focus-ring",_br);_sms.style.setProperty("--search-snippet-text-color",_ik);}
   /* logo upload (clientseitig als Data-URL, im Browser gespeichert) */
   var logoFile=document.getElementById("cz-logo-file");
-  if(logoFile)logoFile.addEventListener("change",function(){var f=logoFile.files&&logoFile.files[0];if(!f)return;if(f.size>2097152){alert("Logo zu groß (max. 2 MB).");logoFile.value="";return;}var rd=new FileReader();rd.onload=function(){var src=rd.result;var im=new Image();im.onload=function(){window.kitLogoApply(src,im.naturalWidth/(im.naturalHeight||1),true);};im.onerror=function(){window.kitLogoApply(src,4,true);};im.src=src;};rd.readAsDataURL(f);});
-  var logoRm=document.getElementById("cz-logo-rm");if(logoRm)logoRm.addEventListener("click",function(){window.kitLogoApply(null,null,true);});
+  function kitAdminCode(){var c=null;try{c=localStorage.getItem("kitAdmin");}catch(e){}if(!c){c=window.prompt("Admin-Code, um das Logo global zu speichern:");if(c){c=c.trim();try{localStorage.setItem("kitAdmin",c);}catch(e){}}}return c;}
+  function kitAdminFail(){try{localStorage.removeItem("kitAdmin");}catch(e){}alert("Admin-Code falsch oder fehlt.");}
+  if(logoFile)logoFile.addEventListener("change",function(){
+    var f=logoFile.files&&logoFile.files[0];if(!f){return;}
+    if(f.size>1572864){alert("Logo zu groß (max. 1,5 MB).");logoFile.value="";return;}
+    var code=kitAdminCode();logoFile.value="";if(!code){return;}
+    function send(aspect){fetch("/api/logo",{method:"PUT",headers:{"x-kit-admin":code,"x-kit-type":f.type||"image/png","x-kit-aspect":String(aspect||4)},body:f}).then(function(r){if(r.status===401){kitAdminFail();return;}if(!r.ok){alert("Logo-Upload fehlgeschlagen.");return;}location.reload();}).catch(function(){alert("Logo-Upload fehlgeschlagen.");});}
+    var url=URL.createObjectURL(f),im=new Image();
+    im.onload=function(){var a=im.naturalWidth/(im.naturalHeight||1);URL.revokeObjectURL(url);send(a);};
+    im.onerror=function(){URL.revokeObjectURL(url);send(4);};
+    im.src=url;
+  });
+  var logoRm=document.getElementById("cz-logo-rm");
+  if(logoRm)logoRm.addEventListener("click",function(){var code=kitAdminCode();if(!code){return;}fetch("/api/logo",{method:"DELETE",headers:{"x-kit-admin":code}}).then(function(r){if(r.status===401){kitAdminFail();return;}location.reload();}).catch(function(){});});
   /* looks */
   var looksEl=document.getElementById("cz-looks");
   function markLook(){var sv=gs("kitLook",null);if(looksEl)[].forEach.call(looksEl.children,function(x,i){x.classList.toggle("on",String(i)===sv);});}

@@ -1,3 +1,8 @@
 name = "blaupause-kit"
 compatibility_date = "2025-06-01"
 pages_build_output_dir = "public"
+
+# KV-Store für das global gespeicherte Logo (functions/api/logo.js)
+[[kv_namespaces]]
+binding = "KIT_KV"
+id = "f1fbf2e7082641368c3e72a00c120c2a"

@@ -1,5 +1,5 @@
 // Route: GET /rubrik/:slug → Sektionsseite (alle Beiträge einer Feed-Kategorie)
-import { getItems, renderSection, render404, parseStruct, slugify } from "../_shared.js";
+import { getItems, renderSection, render404, parseStruct, slugify, getLogoMeta } from "../_shared.js";
 
 export async function onRequestGet(context) {
   const slug = context.params.slug;
@@ -7,6 +7,7 @@ export async function onRequestGet(context) {
   const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10) || 1);
   const cookie = context.request.headers.get("cookie") || "";
   const cfg = parseStruct(cookie);
+  cfg.logo = await getLogoMeta(context.env);
   const hasCfg = /(?:^|;\s*)kit(?:struct|chrome)=/.test(cookie);
   const cache = hasCfg ? "no-store" : "public, max-age=300";
 

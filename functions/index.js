@@ -1,12 +1,13 @@
 // Route: GET /  → Landing aus dem Steady-Feed. Komposition (Shell/Aufmacher/Stream)
 // kommt aus dem kitstruct-Cookie (vom Side-Panel gesetzt); Skin bleibt clientseitig.
-import { getItems, renderLanding, renderEmpty, parseStruct } from "./_shared.js";
+import { getItems, renderLanding, renderEmpty, parseStruct, getLogoMeta } from "./_shared.js";
 
 export async function onRequestGet(context) {
   const url = new URL(context.request.url);
   const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10) || 1);
   const cookie = context.request.headers.get("cookie") || "";
   const cfg = parseStruct(cookie);
+  cfg.logo = await getLogoMeta(context.env);
 
   let html;
   try {
