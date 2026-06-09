@@ -3,12 +3,14 @@
 // (authentifizierter Steady-Feed, ~6 jüngste Beiträge mit content:encoded), joinen wir den
 // Volltext per normalisiertem Titel an den passenden Beitrag — die Guids beider Feeds
 // unterscheiden sich, die Titel stimmen überein.
-import { getItems, renderPost, render404, parseStruct, normTitle, getLogoMeta } from "../_shared.js";
+import { getItems, renderPost, render404, parseStruct, normTitle, getLogoMeta, getConfig, effectiveCookie } from "../_shared.js";
 
 export async function onRequestGet(context) {
   const id = context.params.id;
   const cookie = context.request.headers.get("cookie") || "";
-  const cfg = parseStruct(cookie);
+  const g = await getConfig(context.env);
+  const cfg = parseStruct(effectiveCookie(cookie, g));
+  cfg.skin = g ? g.skin : null;
   cfg.logo = await getLogoMeta(context.env);
   const hasCfg = /(?:^|;\s*)kit(?:struct|chrome)=/.test(cookie);
   const cache = hasCfg ? "no-store" : "public, max-age=300";

@@ -34,6 +34,26 @@ export async function getLogoMeta(env) {
     return null;
   }
 }
+// Global veröffentlichte Konfiguration (Skin + Struktur) aus KV — Basis für ALLE Besucher.
+// Persönliche localStorage-/Cookie-Einstellungen überschreiben sie pro Browser. Liefert
+// {skin, kitstruct, kitchrome, ts} oder null.
+export async function getConfig(env) {
+  try {
+    if (!env || !env.KIT_KV) return null;
+    return await env.KIT_KV.get("config", "json");
+  } catch (e) {
+    return null;
+  }
+}
+// Persönlicher Cookie + global veröffentlichte Struktur als Fallback (wenn kein eigener Cookie).
+export function effectiveCookie(cookie, g) {
+  let out = cookie || "";
+  if (g) {
+    if (g.kitstruct && !/(?:^|;\s*)kitstruct=/.test(out)) out += (out ? "; " : "") + "kitstruct=" + g.kitstruct;
+    if (g.kitchrome && !/(?:^|;\s*)kitchrome=/.test(out)) out += (out ? "; " : "") + "kitchrome=" + g.kitchrome;
+  }
+  return out;
+}
 
 function stripCdata(s) {
   return s.replace(/^\s*<!\[CDATA\[/, "").replace(/\]\]>\s*$/, "").trim();
@@ -399,6 +419,9 @@ html.cz-on .cz{transform:none;}
 .cz-reset{font:inherit;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#9A95A6;background:none;border:1px solid #ECEAEF;border-radius:6px;padding:5px 9px;cursor:pointer;}
 .cz-x{width:28px;height:28px;border:1px solid #ECEAEF;border-radius:6px;background:#fff;color:#9A95A6;cursor:pointer;font-size:16px;line-height:1;}
 .cz-body{overflow-y:auto;flex:1;}
+.cz-foot{flex:none;padding:12px 16px;border-top:1px solid #ECEAEF;background:#fff;}
+.cz-pub{width:100%;font:inherit;font-size:13px;font-weight:700;color:#fff;background:#137EC0;border:0;border-radius:8px;padding:11px;cursor:pointer;transition:background .15s;}
+.cz-pub:hover{background:#0f6ba3;} .cz-pub:disabled{opacity:.6;cursor:default;}
 .cz-sec{border-bottom:1px solid #ECEAEF;}
 .cz-sh{width:100%;display:flex;align-items:center;justify-content:space-between;padding:15px 16px;font:inherit;font-size:14px;font-weight:600;background:none;border:0;cursor:pointer;color:#291E38;}
 .cz-cv{color:#9A95A6;transition:transform .2s;} .cz-sec:not(.cz-open) .cz-cv{transform:rotate(-90deg);}
@@ -500,7 +523,7 @@ function btnFg(b){return rl(b)>0.42?"#16121d":"#ffffff";}
 window.KIT_RATIO=ratio;window.KIT_RL=rl;
 function ssave(k,v){try{localStorage.setItem(k,v);}catch(e){}}
 function setObj(s,k,v){var o=jget(s);o[k]=v;jset(s,o);}
-function tc(s){var p=String(s||"").split("-");for(var i=0;i<p.length;i++)p[i]=p[i].charAt(0).toUpperCase()+p[i].slice(1);return p.join(" ");}function ff(slug){for(var i=0;i<window.KIT_FONTS.length;i++)if(window.KIT_FONTS[i].s===slug)return window.KIT_FONTS[i];if(window.KIT_BUNNY&&window.KIT_BUNNY[slug])return window.KIT_BUNNY[slug];return {s:slug,n:tc(slug),g:"sans-serif",w:"400,700"};}function rf(x){if(x&&typeof x==="object"&&x.s)return x;if(typeof x==="string"){if(x.charAt(0)==="{"){try{var o=JSON.parse(x);if(o&&o.s)return o;}catch(e){}}return ff(x);}return ff(window.KIT_DEFAULT_HEAD);}function ld(f){if(loaded[f.s])return;var l=document.createElement("link");l.rel="stylesheet";l.href="https://fonts.bunny.net/css?family="+f.s+":"+(f.w||"400,500,600,700")+"&display=swap";document.head.appendChild(l);loaded[f.s]=1;}function jget(k){try{return JSON.parse(localStorage.getItem(k)||"{}");}catch(e){return {};}}function jset(k,o){try{localStorage.setItem(k,JSON.stringify(o));}catch(e){}}window.kitApplyFont=function(role,x,save){var f=rf(x);ld(f);D.style.setProperty(role==="head"?"--font-head":"--font-body",'"'+f.n+'", '+(f.g||"sans-serif"));if(save){try{localStorage.setItem(role==="head"?"kitFontHead":"kitFontBody",JSON.stringify({s:f.s,n:f.n,g:f.g||"sans-serif",w:f.w||""}));}catch(e){}}};window.kitColor=function(name,val,save){D.style.setProperty(name,val);if(name==="--color-brand")D.style.setProperty("--btn-fg",btnFg(val));var extra=null;if(name==="--color-bg"){var dk=rl(val)<0.42;extra={"--color-ink":dk?"#ECEAF2":"#291E38","--color-ink-soft":dk?"#A6A2B5":"#6B6577","--color-line":dk?"#5A5470":"#9A95A6","--color-hairline":dk?"#2A2636":"#ECEAEF"};for(var e in extra)D.style.setProperty(e,extra[e]);}if(save){var c=jget("kitColors");c[name]=val;if(extra)for(var e2 in extra)c[e2]=extra[e2];jset("kitColors",c);}};window.kitPalette=function(idx,save){var p=window.KIT_PALETTES[idx];if(!p)return;var c=save?jget("kitColors"):null;for(var k in p.v){D.style.setProperty(k,p.v[k]);if(c)c[k]=p.v[k];}D.style.setProperty("--btn-fg",btnFg(p.v["--color-brand"]));if(save){jset("kitColors",c);try{localStorage.setItem("kitPalette",idx);}catch(e){}}};window.kitSetLayout=function(kind,val,save){if(kind==="cols")D.style.setProperty("--grid-cols",val);else if(kind==="width")D.style.setProperty("--container",val==="schmal"?"920px":val==="breit"?"1200px":"1024px");else if(kind==="corner"){var r=val==="rund";D.style.setProperty("--radius-card",r?"10px":"0");D.style.setProperty("--radius-btn",r?"8px":"1px");}else if(kind==="dens"){D.classList.remove("dens-compact","dens-roomy");if(val==="kompakt")D.classList.add("dens-compact");else if(val==="grosszuegig")D.classList.add("dens-roomy");}else if(kind==="hero")D.classList.toggle("hero-center",val==="center");else if(kind==="nav")D.classList.toggle("nav-figma",val==="figma");if(save)setObj("kitLayout",kind,val);};
+function tc(s){var p=String(s||"").split("-");for(var i=0;i<p.length;i++)p[i]=p[i].charAt(0).toUpperCase()+p[i].slice(1);return p.join(" ");}function ff(slug){for(var i=0;i<window.KIT_FONTS.length;i++)if(window.KIT_FONTS[i].s===slug)return window.KIT_FONTS[i];if(window.KIT_BUNNY&&window.KIT_BUNNY[slug])return window.KIT_BUNNY[slug];return {s:slug,n:tc(slug),g:"sans-serif",w:"400,700"};}function rf(x){if(x&&typeof x==="object"&&x.s)return x;if(typeof x==="string"){if(x.charAt(0)==="{"){try{var o=JSON.parse(x);if(o&&o.s)return o;}catch(e){}}return ff(x);}return ff(window.KIT_DEFAULT_HEAD);}function ld(f){if(loaded[f.s])return;var l=document.createElement("link");l.rel="stylesheet";l.href="https://fonts.bunny.net/css?family="+f.s+":"+(f.w||"400,500,600,700")+"&display=swap";document.head.appendChild(l);loaded[f.s]=1;}function gget(k){try{var v=localStorage.getItem(k);if(v!=null)return v;}catch(e){}return (window.KIT_GLOBAL&&window.KIT_GLOBAL[k]!=null)?window.KIT_GLOBAL[k]:null;}function jget(k){var v=gget(k);if(v!=null){try{return JSON.parse(v);}catch(e){}}return {};}function jset(k,o){try{localStorage.setItem(k,JSON.stringify(o));}catch(e){}}window.kitApplyFont=function(role,x,save){var f=rf(x);ld(f);D.style.setProperty(role==="head"?"--font-head":"--font-body",'"'+f.n+'", '+(f.g||"sans-serif"));if(save){try{localStorage.setItem(role==="head"?"kitFontHead":"kitFontBody",JSON.stringify({s:f.s,n:f.n,g:f.g||"sans-serif",w:f.w||""}));}catch(e){}}};window.kitColor=function(name,val,save){D.style.setProperty(name,val);if(name==="--color-brand")D.style.setProperty("--btn-fg",btnFg(val));var extra=null;if(name==="--color-bg"){var dk=rl(val)<0.42;extra={"--color-ink":dk?"#ECEAF2":"#291E38","--color-ink-soft":dk?"#A6A2B5":"#6B6577","--color-line":dk?"#5A5470":"#9A95A6","--color-hairline":dk?"#2A2636":"#ECEAEF"};for(var e in extra)D.style.setProperty(e,extra[e]);}if(save){var c=jget("kitColors");c[name]=val;if(extra)for(var e2 in extra)c[e2]=extra[e2];jset("kitColors",c);}};window.kitPalette=function(idx,save){var p=window.KIT_PALETTES[idx];if(!p)return;var c=save?jget("kitColors"):null;for(var k in p.v){D.style.setProperty(k,p.v[k]);if(c)c[k]=p.v[k];}D.style.setProperty("--btn-fg",btnFg(p.v["--color-brand"]));if(save){jset("kitColors",c);try{localStorage.setItem("kitPalette",idx);}catch(e){}}};window.kitSetLayout=function(kind,val,save){if(kind==="cols")D.style.setProperty("--grid-cols",val);else if(kind==="width")D.style.setProperty("--container",val==="schmal"?"920px":val==="breit"?"1200px":"1024px");else if(kind==="corner"){var r=val==="rund";D.style.setProperty("--radius-card",r?"10px":"0");D.style.setProperty("--radius-btn",r?"8px":"1px");}else if(kind==="dens"){D.classList.remove("dens-compact","dens-roomy");if(val==="kompakt")D.classList.add("dens-compact");else if(val==="grosszuegig")D.classList.add("dens-roomy");}else if(kind==="hero")D.classList.toggle("hero-center",val==="center");else if(kind==="nav")D.classList.toggle("nav-figma",val==="figma");if(save)setObj("kitLayout",kind,val);};
 window.KIT_BASES={light:{"--color-bg":"#FFFFFF","--color-ink":"#291E38","--color-ink-soft":"#6B6577","--color-line":"#9A95A6","--color-hairline":"#ECEAEF"},dark:{"--color-bg":"#14121A","--color-ink":"#ECEAF2","--color-ink-soft":"#A6A2B5","--color-line":"#5A5470","--color-hairline":"#2A2636"}};
 window.kitBase=function(mode,save){var b=window.KIT_BASES[mode];if(!b)return;var c=save?jget("kitColors"):null;for(var k in b){D.style.setProperty(k,b[k]);if(c)c[k]=b[k];}if(save){jset("kitColors",c);ssave("kitBase",mode);}};
 window.kitType=function(kind,val,save){if(kind==="size")D.style.setProperty("--fs",val==="klein"?"0.92":val==="gross"?"1.12":"1");else if(kind==="lead")D.style.setProperty("--lh-body",val==="eng"?"1.4":val==="luftig"?"1.75":"1.55");else if(kind==="track")D.style.setProperty("--track-head",val==="eng"?"-.04em":val==="weit"?".06em":"-.01em");else if(kind==="case")D.style.setProperty("--case-head",val==="gross"?"uppercase":val==="title"?"capitalize":"none");else if(kind==="align")D.style.setProperty("--align-head",val==="zentriert"?"center":"left");if(save)setObj("kitType",kind,val);};
@@ -511,10 +534,15 @@ function structSer(s){var p=[];if(s.shell)p.push("shell="+s.shell);if(s.auf)p.pu
 window.kitStructSet=function(obj,reload){var s=readStruct();for(var sk in obj)s[sk]=obj[sk];try{localStorage.setItem("kitStruct",JSON.stringify(s));}catch(e){}document.cookie="kitstruct="+encodeURIComponent(structSer(s))+";path=/;max-age=31536000";if(reload)location.reload();};
 window.kitChromeSet=function(o){try{localStorage.setItem("kitChrome",JSON.stringify(o));}catch(e){}document.cookie="kitchrome="+encodeURIComponent(JSON.stringify(o))+";path=/;max-age=31536000";location.reload();};
 window.kitLogoApply=function(src,aspect,save){if(src){D.style.setProperty("--logo-url",'url("'+src+'")');D.style.setProperty("--logo-w",Math.max(60,Math.round(30*(aspect||4)))+"px");D.classList.add("logo-wide");if(save){try{localStorage.setItem("kitLogo",JSON.stringify({src:src,aspect:aspect}));}catch(e){}}}else{D.style.removeProperty("--logo-url");D.style.removeProperty("--logo-w");D.classList.remove("logo-wide");if(save){try{localStorage.removeItem("kitLogo");}catch(e){}}}};
-window.kitLook=function(idx,save){var L=window.KIT_LOOKS[idx];if(!L)return;window.kitApplyFont("head",L.head,save);window.kitApplyFont("body",L.body,save);if(L.palette!=null)window.kitPalette(L.palette,save);if(L.base)window.kitBase(L.base,save);var k;for(k in L.type)window.kitType(k,L.type[k],save);for(k in L.layout)window.kitSetLayout(k,L.layout[k],save);for(k in L.card)window.kitCard(k,L.card[k],save);if(L.colors)for(k in L.colors)window.kitColor(k,L.colors[k],save);if(save)ssave("kitLook",idx);if(L.struct)window.kitStructSet(L.struct,true);};try{var sh=localStorage.getItem("kitFontHead");if(sh&&sh!==window.KIT_DEFAULT_HEAD)window.kitApplyFont("head",sh,false);}catch(e){}try{var sb=localStorage.getItem("kitFontBody");if(sb&&sb!==window.KIT_DEFAULT_BODY)window.kitApplyFont("body",sb,false);}catch(e){}var C=jget("kitColors");for(var ck in C)D.style.setProperty(ck,C[ck]);if(C["--color-brand"])D.style.setProperty("--btn-fg",btnFg(C["--color-brand"]));var L2=jget("kitLayout");for(var lk in L2)window.kitSetLayout(lk,L2[lk],false);var T2=jget("kitType");for(var tk in T2)window.kitType(tk,T2[tk],false);var K2=jget("kitCard");for(var kk in K2)window.kitCard(kk,K2[kk],false);try{if(localStorage.getItem("kitPanelOpen")==="1")D.classList.add("cz-on");}catch(e){}})();
+window.kitLook=function(idx,save){var L=window.KIT_LOOKS[idx];if(!L)return;window.kitApplyFont("head",L.head,save);window.kitApplyFont("body",L.body,save);if(L.palette!=null)window.kitPalette(L.palette,save);if(L.base)window.kitBase(L.base,save);var k;for(k in L.type)window.kitType(k,L.type[k],save);for(k in L.layout)window.kitSetLayout(k,L.layout[k],save);for(k in L.card)window.kitCard(k,L.card[k],save);if(L.colors)for(k in L.colors)window.kitColor(k,L.colors[k],save);if(save)ssave("kitLook",idx);if(L.struct)window.kitStructSet(L.struct,true);};try{var sh=gget("kitFontHead");if(sh&&sh!==window.KIT_DEFAULT_HEAD)window.kitApplyFont("head",sh,false);}catch(e){}try{var sb=gget("kitFontBody");if(sb&&sb!==window.KIT_DEFAULT_BODY)window.kitApplyFont("body",sb,false);}catch(e){}var C=jget("kitColors");for(var ck in C)D.style.setProperty(ck,C[ck]);if(C["--color-brand"])D.style.setProperty("--btn-fg",btnFg(C["--color-brand"]));var L2=jget("kitLayout");for(var lk in L2)window.kitSetLayout(lk,L2[lk],false);var T2=jget("kitType");for(var tk in T2)window.kitType(tk,T2[tk],false);var K2=jget("kitCard");for(var kk in K2)window.kitCard(kk,K2[kk],false);try{if(localStorage.getItem("kitPanelOpen")==="1")D.classList.add("cz-on");}catch(e){}})();
 `;
 
-function head(title) {
+function head(title, cfg) {
+  cfg = cfg || {};
+  // Global veröffentlichter Skin als Basis (vor FONT_INIT); persönliches localStorage gewinnt.
+  const kitGlobal = (cfg.skin && typeof cfg.skin === "object")
+    ? `<script>window.KIT_GLOBAL=${JSON.stringify(cfg.skin).replace(/</g, "\\u003c")};</script>`
+    : "";
   return `<!DOCTYPE html><html lang="de"><head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>${esc(title)}</title>
@@ -522,6 +550,7 @@ function head(title) {
 <link rel="preconnect" href="https://fonts.bunny.net" crossorigin/>
 <link id="kit-font-css" href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet"/>
 <style>${CSS}</style>
+${kitGlobal}
 <script>${FONT_INIT}</script>
 <script>window.KIT_DEFAULT_BRAND=${JSON.stringify(PUBLICATION)};window.KIT_DEFAULT_NAV=${JSON.stringify(DEFAULT_NAV)};</script>
 <!-- Steady Smart Layers / Checkout / Paywall — der echte Steady-Layer -->
@@ -627,11 +656,12 @@ function footer() {
       <label class="cz-lbl">Bild-Look</label><div class="cz-seg" data-fn="card" data-kind="image"><button data-v="farbe">Farbe</button><button data-v="duotone">Duotone</button><button data-v="graustufen">Grau</button></div>
     </div></section>
   </div>
+  <div class="cz-foot"><button class="cz-pub" id="cz-pub" type="button" title="Aktuelle Einstellungen mit Admin-Code für alle Besucher veröffentlichen">Für alle Besucher speichern</button></div>
 </aside>
 <script>(function(){
   var D=document.documentElement;
-  function gs(k,d){try{var v=localStorage.getItem(k);return v==null?d:v;}catch(e){return d;}}
-  function jget(k){try{return JSON.parse(localStorage.getItem(k)||"{}");}catch(e){return {};}}
+  function gs(k,d){try{var v=localStorage.getItem(k);if(v!=null)return v;}catch(e){}if(window.KIT_GLOBAL&&window.KIT_GLOBAL[k]!=null)return window.KIT_GLOBAL[k];return d;}
+  function jget(k){var v=null;try{v=localStorage.getItem(k);}catch(e){}if(v==null&&window.KIT_GLOBAL&&window.KIT_GLOBAL[k]!=null)v=window.KIT_GLOBAL[k];if(v!=null){try{return JSON.parse(v);}catch(e){}}return {};}
   function setOpen(o){D.classList.toggle("cz-on",o);try{localStorage.setItem("kitPanelOpen",o?"1":"0");}catch(e){}}
   var ob=document.getElementById("cz-open"),cb=document.getElementById("cz-close");
   if(ob)ob.addEventListener("click",function(){setOpen(true);});
@@ -768,6 +798,22 @@ function footer() {
   function syncAll(){var fh=document.getElementById("cz-fh-in");if(fh)fh.value=curName("head");var fb=document.getElementById("cz-fb-in");if(fb)fb.value=curName("body");if(pairSel)pairSel.value="";[].forEach.call(document.querySelectorAll(".cz-seg"),markSeg);markPal();markLook();syncColors();}
   markPal();markLook();syncColors();
   var rb=document.getElementById("cz-reset");if(rb)rb.addEventListener("click",function(){["kitFontHead","kitFontBody","kitColors","kitLayout","kitType","kitCard","kitPalette","kitBase","kitLook","kitPanelOpen","kitStruct","kitChrome","kitLogo","kitAcc2"].forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});document.cookie="kitstruct=;path=/;max-age=0";document.cookie="kitchrome=;path=/;max-age=0";location.reload();});
+  /* Global veröffentlichen: aktuelle Skin-Settings + Struktur-Cookies in KV speichern (Admin-Code) */
+  var pub=document.getElementById("cz-pub");
+  if(pub)pub.addEventListener("click",function(){
+    var code=kitAdminCode();if(!code)return;
+    var SKIN=["kitFontHead","kitFontBody","kitColors","kitLayout","kitType","kitCard","kitPalette","kitBase","kitLook"];
+    var skin={};for(var i=0;i<SKIN.length;i++){try{var v=localStorage.getItem(SKIN[i]);if(v!=null)skin[SKIN[i]]=v;}catch(e){}}
+    function ck(name){var ps=document.cookie.split("; ");for(var j=0;j<ps.length;j++)if(ps[j].indexOf(name+"=")===0)return ps[j].slice(name.length+1);return "";}
+    var payload={skin:skin,kitstruct:ck("kitstruct"),kitchrome:ck("kitchrome")};
+    var orig=pub.textContent;pub.disabled=true;pub.textContent="Speichert …";
+    fetch("/api/config",{method:"PUT",headers:{"x-kit-admin":code,"content-type":"application/json"},body:JSON.stringify(payload)}).then(function(r){
+      pub.disabled=false;
+      if(r.status===401){pub.textContent=orig;kitAdminFail();return;}
+      if(!r.ok){pub.textContent=orig;alert("Speichern fehlgeschlagen.");return;}
+      pub.textContent="✓ Für alle gespeichert";setTimeout(function(){pub.textContent=orig;},2200);
+    }).catch(function(){pub.disabled=false;pub.textContent=orig;alert("Speichern fehlgeschlagen.");});
+  });
   var btn=document.getElementById("js-loadmore");
   if(btn)btn.addEventListener("click",function(){
     var next=parseInt(btn.getAttribute("data-next"),10),pages=parseInt(btn.getAttribute("data-pages"),10);
@@ -946,7 +992,7 @@ export function renderLanding(items, page = 1, cfg) {
 </div>`;
   }
 
-  return head(PUBLICATION) + header({ tabs: true, activePath: "/" }, cfg) + `
+  return head(PUBLICATION, cfg) + header({ tabs: true, activePath: "/" }, cfg) + `
 <main>${top}${stream}</main>` + footer();
 }
 
@@ -968,7 +1014,7 @@ export function renderSection(category, items, allItems, page = 1, cfg) {
     <p class="section-eyebrow"><a class="post__back" href="/">${ICON_BACK} ${esc(PUBLICATION)}</a><span class="section-chip">${esc(display)}</span></p>
     ${aufmacherArticle(featured, true, true)}
   </div></section>` : "";
-  return head(display + " — " + PUBLICATION) + header({ tabs: true, activePath: "/rubrik/" + slug }, cfg) + `
+  return head(display + " — " + PUBLICATION, cfg) + header({ tabs: true, activePath: "/rubrik/" + slug }, cfg) + `
 <main>${aufmacher}<div class="container section-body">
   <div class="grid">${slice.map(card).join("")}</div>
   ${more}
@@ -1012,7 +1058,7 @@ export function renderPost(item, cfg = {}, full = "") {
     : `<div class="post__body"><p>Dieser Beitrag erscheint im Original auf Steady. Den vollständigen Text
          liest du dort — inklusive Mitglieder-Inhalten.</p></div>`;
   const cta = full ? "Auf Steady öffnen" : "Ganzen Beitrag auf Steady lesen";
-  return head(`${item.title} — ${PUBLICATION}`) + header({ tabs: true, activePath: "" }, cfg) + `
+  return head(`${item.title} — ${PUBLICATION}`, cfg) + header({ tabs: true, activePath: "" }, cfg) + `
 <main><article class="post">
   <div class="post__col">
     <a class="pill post__eyebrow" href="/rubrik/${slugify(cat)}">${esc(cat)}</a>
@@ -1037,13 +1083,13 @@ export function renderPost(item, cfg = {}, full = "") {
 }
 
 export function renderEmpty(cfg = {}) {
-  return head(PUBLICATION) + header({ tabs: true, activePath: "/" }, cfg) +
+  return head(PUBLICATION, cfg) + header({ tabs: true, activePath: "/" }, cfg) +
     `<main><div class="container" style="padding:80px 0;color:var(--color-ink-soft)">Inhalte laden gerade nicht. Bitte gleich neu laden.</div></main>` +
     footer();
 }
 
 export function renderMemberships(cfg = {}) {
-  return head("Mitglied werden — " + PUBLICATION) + header({ tabs: true, activePath: "/memberships" }, cfg) + `
+  return head("Mitglied werden — " + PUBLICATION, cfg) + header({ tabs: true, activePath: "/memberships" }, cfg) + `
 <main><div class="container" style="padding:48px 0 72px">
   <h1 style="font-family:var(--font-head);font-size:34px;font-weight:var(--weight-heading);text-align:center;letter-spacing:-.01em;margin:0 0 10px">Mitglied werden</h1>
   <p style="text-align:center;color:var(--color-ink-soft);font-size:18px;margin:0 0 40px">Wähle deine Mitgliedschaft — der Checkout läuft direkt hier auf der Seite.</p>
@@ -1053,7 +1099,7 @@ export function renderMemberships(cfg = {}) {
 }
 
 export function render404(cfg = {}) {
-  return head("Nicht gefunden — " + PUBLICATION) + header({ tabs: false }, cfg) +
+  return head("Nicht gefunden — " + PUBLICATION, cfg) + header({ tabs: false }, cfg) +
     `<main><div class="container" style="padding:80px 0"><h1 style="font-size:32px">Beitrag nicht gefunden</h1>
      <p style="color:var(--color-ink-soft)"><a class="btn btn--primary" href="/" style="margin-top:12px">Zur Startseite</a></p></div></main>` +
     footer();
