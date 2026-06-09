@@ -406,6 +406,18 @@ html.cz-on .cz{transform:none;}
 .cz-sb{padding:0 16px 18px;}
 .cz-lbl{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#9A95A6;margin:12px 0 6px;}
 .cz-sel{width:100%;border:1px solid #d7d4dd;border-radius:6px;padding:9px 11px;font:inherit;font-size:13px;color:#291E38;background:#fff;cursor:pointer;}
+.cz-font{position:relative;}
+.cz-font-in{width:100%;border:1px solid #d7d4dd;border-radius:6px;padding:9px 11px;font:inherit;font-size:13px;color:#291E38;background:#fff;}
+.cz-font-in:focus{outline:none;border-color:#137EC0;}
+.cz-font-pop{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:6;background:#fff;border:1px solid #d7d4dd;border-radius:8px;box-shadow:0 12px 30px rgba(41,30,56,.16);max-height:248px;overflow-y:auto;}
+.cz-font-pop.open{display:block;}
+.cz-font-opt{display:flex;align-items:baseline;justify-content:space-between;gap:10px;width:100%;text-align:left;font:inherit;font-size:13px;color:#291E38;background:none;border:0;border-bottom:1px solid #F4F2F7;padding:8px 11px;cursor:pointer;}
+.cz-font-opt:hover{background:#F4F2F7;}
+.cz-font-opt em{font-style:normal;font-size:10px;color:#9A95A6;text-transform:capitalize;flex:none;white-space:nowrap;}
+.cz-more{margin-top:14px;width:100%;display:flex;align-items:center;justify-content:space-between;font:inherit;font-size:12px;font-weight:600;color:#137EC0;background:none;border:0;cursor:pointer;padding:4px 0;}
+.cz-more .cz-cv{color:#137EC0;transition:transform .2s;}
+.cz-more[aria-expanded="false"] .cz-cv{transform:rotate(-90deg);}
+.cz-more-body{display:none;} .cz-more-body.open{display:block;}
 .cz-pal{display:flex;gap:10px;flex-wrap:wrap;}
 .cz-pal button{width:34px;height:34px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #ECEAEF;cursor:pointer;padding:0;}
 .cz-pal button.on{box-shadow:0 0 0 2px #137EC0;}
@@ -488,7 +500,7 @@ function btnFg(b){return rl(b)>0.42?"#16121d":"#ffffff";}
 window.KIT_RATIO=ratio;window.KIT_RL=rl;
 function ssave(k,v){try{localStorage.setItem(k,v);}catch(e){}}
 function setObj(s,k,v){var o=jget(s);o[k]=v;jset(s,o);}
-function ff(slug){for(var i=0;i<window.KIT_FONTS.length;i++)if(window.KIT_FONTS[i].s===slug)return window.KIT_FONTS[i];return window.KIT_FONTS[0];}function ld(f){if(loaded[f.s])return;var l=document.createElement("link");l.rel="stylesheet";l.href="https://fonts.bunny.net/css?family="+f.s+":"+(f.w||"400,500,600,700")+"&display=swap";document.head.appendChild(l);loaded[f.s]=1;}function jget(k){try{return JSON.parse(localStorage.getItem(k)||"{}");}catch(e){return {};}}function jset(k,o){try{localStorage.setItem(k,JSON.stringify(o));}catch(e){}}window.kitApplyFont=function(role,slug,save){var f=ff(slug);ld(f);D.style.setProperty(role==="head"?"--font-head":"--font-body",'"'+f.n+'", '+(f.g||"sans-serif"));if(save){try{localStorage.setItem(role==="head"?"kitFontHead":"kitFontBody",f.s);}catch(e){}}};window.kitColor=function(name,val,save){D.style.setProperty(name,val);if(name==="--color-brand")D.style.setProperty("--btn-fg",btnFg(val));var extra=null;if(name==="--color-bg"){var dk=rl(val)<0.42;extra={"--color-ink":dk?"#ECEAF2":"#291E38","--color-ink-soft":dk?"#A6A2B5":"#6B6577","--color-line":dk?"#5A5470":"#9A95A6","--color-hairline":dk?"#2A2636":"#ECEAEF"};for(var e in extra)D.style.setProperty(e,extra[e]);}if(save){var c=jget("kitColors");c[name]=val;if(extra)for(var e2 in extra)c[e2]=extra[e2];jset("kitColors",c);}};window.kitPalette=function(idx,save){var p=window.KIT_PALETTES[idx];if(!p)return;var c=save?jget("kitColors"):null;for(var k in p.v){D.style.setProperty(k,p.v[k]);if(c)c[k]=p.v[k];}D.style.setProperty("--btn-fg",btnFg(p.v["--color-brand"]));if(save){jset("kitColors",c);try{localStorage.setItem("kitPalette",idx);}catch(e){}}};window.kitSetLayout=function(kind,val,save){if(kind==="cols")D.style.setProperty("--grid-cols",val);else if(kind==="width")D.style.setProperty("--container",val==="schmal"?"920px":val==="breit"?"1200px":"1024px");else if(kind==="corner"){var r=val==="rund";D.style.setProperty("--radius-card",r?"10px":"0");D.style.setProperty("--radius-btn",r?"8px":"1px");}else if(kind==="dens"){D.classList.remove("dens-compact","dens-roomy");if(val==="kompakt")D.classList.add("dens-compact");else if(val==="grosszuegig")D.classList.add("dens-roomy");}else if(kind==="hero")D.classList.toggle("hero-center",val==="center");else if(kind==="nav")D.classList.toggle("nav-figma",val==="figma");if(save)setObj("kitLayout",kind,val);};
+function tc(s){var p=String(s||"").split("-");for(var i=0;i<p.length;i++)p[i]=p[i].charAt(0).toUpperCase()+p[i].slice(1);return p.join(" ");}function ff(slug){for(var i=0;i<window.KIT_FONTS.length;i++)if(window.KIT_FONTS[i].s===slug)return window.KIT_FONTS[i];if(window.KIT_BUNNY&&window.KIT_BUNNY[slug])return window.KIT_BUNNY[slug];return {s:slug,n:tc(slug),g:"sans-serif",w:"400,700"};}function rf(x){if(x&&typeof x==="object"&&x.s)return x;if(typeof x==="string"){if(x.charAt(0)==="{"){try{var o=JSON.parse(x);if(o&&o.s)return o;}catch(e){}}return ff(x);}return ff(window.KIT_DEFAULT_HEAD);}function ld(f){if(loaded[f.s])return;var l=document.createElement("link");l.rel="stylesheet";l.href="https://fonts.bunny.net/css?family="+f.s+":"+(f.w||"400,500,600,700")+"&display=swap";document.head.appendChild(l);loaded[f.s]=1;}function jget(k){try{return JSON.parse(localStorage.getItem(k)||"{}");}catch(e){return {};}}function jset(k,o){try{localStorage.setItem(k,JSON.stringify(o));}catch(e){}}window.kitApplyFont=function(role,x,save){var f=rf(x);ld(f);D.style.setProperty(role==="head"?"--font-head":"--font-body",'"'+f.n+'", '+(f.g||"sans-serif"));if(save){try{localStorage.setItem(role==="head"?"kitFontHead":"kitFontBody",JSON.stringify({s:f.s,n:f.n,g:f.g||"sans-serif",w:f.w||""}));}catch(e){}}};window.kitColor=function(name,val,save){D.style.setProperty(name,val);if(name==="--color-brand")D.style.setProperty("--btn-fg",btnFg(val));var extra=null;if(name==="--color-bg"){var dk=rl(val)<0.42;extra={"--color-ink":dk?"#ECEAF2":"#291E38","--color-ink-soft":dk?"#A6A2B5":"#6B6577","--color-line":dk?"#5A5470":"#9A95A6","--color-hairline":dk?"#2A2636":"#ECEAEF"};for(var e in extra)D.style.setProperty(e,extra[e]);}if(save){var c=jget("kitColors");c[name]=val;if(extra)for(var e2 in extra)c[e2]=extra[e2];jset("kitColors",c);}};window.kitPalette=function(idx,save){var p=window.KIT_PALETTES[idx];if(!p)return;var c=save?jget("kitColors"):null;for(var k in p.v){D.style.setProperty(k,p.v[k]);if(c)c[k]=p.v[k];}D.style.setProperty("--btn-fg",btnFg(p.v["--color-brand"]));if(save){jset("kitColors",c);try{localStorage.setItem("kitPalette",idx);}catch(e){}}};window.kitSetLayout=function(kind,val,save){if(kind==="cols")D.style.setProperty("--grid-cols",val);else if(kind==="width")D.style.setProperty("--container",val==="schmal"?"920px":val==="breit"?"1200px":"1024px");else if(kind==="corner"){var r=val==="rund";D.style.setProperty("--radius-card",r?"10px":"0");D.style.setProperty("--radius-btn",r?"8px":"1px");}else if(kind==="dens"){D.classList.remove("dens-compact","dens-roomy");if(val==="kompakt")D.classList.add("dens-compact");else if(val==="grosszuegig")D.classList.add("dens-roomy");}else if(kind==="hero")D.classList.toggle("hero-center",val==="center");else if(kind==="nav")D.classList.toggle("nav-figma",val==="figma");if(save)setObj("kitLayout",kind,val);};
 window.KIT_BASES={light:{"--color-bg":"#FFFFFF","--color-ink":"#291E38","--color-ink-soft":"#6B6577","--color-line":"#9A95A6","--color-hairline":"#ECEAEF"},dark:{"--color-bg":"#14121A","--color-ink":"#ECEAF2","--color-ink-soft":"#A6A2B5","--color-line":"#5A5470","--color-hairline":"#2A2636"}};
 window.kitBase=function(mode,save){var b=window.KIT_BASES[mode];if(!b)return;var c=save?jget("kitColors"):null;for(var k in b){D.style.setProperty(k,b[k]);if(c)c[k]=b[k];}if(save){jset("kitColors",c);ssave("kitBase",mode);}};
 window.kitType=function(kind,val,save){if(kind==="size")D.style.setProperty("--fs",val==="klein"?"0.92":val==="gross"?"1.12":"1");else if(kind==="lead")D.style.setProperty("--lh-body",val==="eng"?"1.4":val==="luftig"?"1.75":"1.55");else if(kind==="track")D.style.setProperty("--track-head",val==="eng"?"-.04em":val==="weit"?".06em":"-.01em");else if(kind==="case")D.style.setProperty("--case-head",val==="gross"?"uppercase":val==="title"?"capitalize":"none");else if(kind==="align")D.style.setProperty("--align-head",val==="zentriert"?"center":"left");if(save)setObj("kitType",kind,val);};
@@ -581,13 +593,16 @@ function footer() {
       <p class="cz-warn" id="cz-warn">⚠︎ Wenig Kontrast — die Marke ist auf dem Hintergrund kaum lesbar.</p>
     </div></section>
     <section class="cz-sec"><button class="cz-sh" data-acc>Schriften<span class="cz-cv">▾</span></button><div class="cz-sb">
-      <label class="cz-lbl">Editorial-Pairing</label><select id="pair-picker" class="cz-sel"><option value="">– Pairing –</option></select>
-      <label class="cz-lbl">Überschriften</label><select id="head-picker" class="cz-sel"></select>
-      <label class="cz-lbl">Lauftext</label><select id="body-picker" class="cz-sel"></select>
+      <label class="cz-lbl">Schrift-Paar (Vorlage)</label><select id="pair-picker" class="cz-sel"><option value="">– Vorlage wählen –</option></select>
+      <label class="cz-lbl">Überschriften</label><div class="cz-font"><input class="cz-font-in" id="cz-fh-in" type="text" placeholder="Schrift suchen …" autocomplete="off" spellcheck="false"><div class="cz-font-pop" id="cz-fh-pop"></div></div>
+      <label class="cz-lbl">Lauftext</label><div class="cz-font"><input class="cz-font-in" id="cz-fb-in" type="text" placeholder="Schrift suchen …" autocomplete="off" spellcheck="false"><div class="cz-font-pop" id="cz-fb-pop"></div></div>
       <label class="cz-lbl">Schriftgröße</label><div class="cz-seg" data-fn="type" data-kind="size"><button data-v="klein">Klein</button><button data-v="standard">Standard</button><button data-v="gross">Groß</button></div>
-      <label class="cz-lbl">Zeilenhöhe</label><div class="cz-seg" data-fn="type" data-kind="lead"><button data-v="eng">Eng</button><button data-v="normal">Normal</button><button data-v="luftig">Luftig</button></div>
-      <label class="cz-lbl">Laufweite (Titel)</label><div class="cz-seg" data-fn="type" data-kind="track"><button data-v="eng">Eng</button><button data-v="normal">Normal</button><button data-v="weit">Weit</button></div>
-      <label class="cz-lbl">Titel-Schreibung</label><div class="cz-seg" data-fn="type" data-kind="case"><button data-v="normal">Aa</button><button data-v="gross">AA</button><button data-v="title">Aa Bb</button></div>
+      <button class="cz-more" id="cz-type-more" type="button" aria-expanded="false">Feinschliff<span class="cz-cv">▾</span></button>
+      <div class="cz-more-body" id="cz-type-adv">
+        <label class="cz-lbl">Zeilenhöhe</label><div class="cz-seg" data-fn="type" data-kind="lead"><button data-v="eng">Eng</button><button data-v="normal">Normal</button><button data-v="luftig">Luftig</button></div>
+        <label class="cz-lbl">Laufweite (Titel)</label><div class="cz-seg" data-fn="type" data-kind="track"><button data-v="eng">Eng</button><button data-v="normal">Normal</button><button data-v="weit">Weit</button></div>
+        <label class="cz-lbl">Titel-Schreibung</label><div class="cz-seg" data-fn="type" data-kind="case"><button data-v="normal">Aa</button><button data-v="gross">AA</button><button data-v="title">Aa Bb</button></div>
+      </div>
     </div></section>
     <section class="cz-sec"><button class="cz-sh" data-acc>Layout<span class="cz-cv">▾</span></button><div class="cz-sb">
       <p class="cz-subhead">Aufbau</p>
@@ -626,12 +641,41 @@ function footer() {
   [].forEach.call(document.querySelectorAll(".cz-sh[data-acc]"),function(h){h.addEventListener("click",function(){h.parentNode.classList.toggle("cz-open");saveAcc();});});
   function clearLook(){try{localStorage.removeItem("kitLook");}catch(e){}markLook();}
   /* fonts */
-  function buildPicker(el,cur){if(!el||!window.KIT_FONTS)return;var cats=window.KIT_FONT_CATS||[""];for(var ci=0;ci<cats.length;ci++){var grp=document.createElement("optgroup");grp.label=cats[ci];for(var i=0;i<window.KIT_FONTS.length;i++){var f=window.KIT_FONTS[i];if((f.c||"")!==cats[ci])continue;var o=document.createElement("option");o.value=f.s;o.textContent=f.n;if(f.s===cur)o.selected=true;grp.appendChild(o);}if(grp.children.length)el.appendChild(grp);}}
-  var headSel=document.getElementById("head-picker"),bodySel=document.getElementById("body-picker"),pairSel=document.getElementById("pair-picker");
-  buildPicker(headSel,gs("kitFontHead",window.KIT_DEFAULT_HEAD));buildPicker(bodySel,gs("kitFontBody",window.KIT_DEFAULT_BODY));
-  if(headSel)headSel.addEventListener("change",function(){window.kitApplyFont("head",headSel.value,true);if(pairSel)pairSel.value="";clearLook();});
-  if(bodySel)bodySel.addEventListener("change",function(){window.kitApplyFont("body",bodySel.value,true);if(pairSel)pairSel.value="";clearLook();});
-  if(pairSel&&window.KIT_PAIRS){for(var pi=0;pi<window.KIT_PAIRS.length;pi++){var pp=window.KIT_PAIRS[pi];var po=document.createElement("option");po.value=pi;po.textContent=pp.n;pairSel.appendChild(po);}pairSel.addEventListener("change",function(){var pr=window.KIT_PAIRS[parseInt(pairSel.value,10)];if(!pr)return;window.kitApplyFont("head",pr.h,true);window.kitApplyFont("body",pr.b,true);if(headSel)headSel.value=pr.h;if(bodySel)bodySel.value=pr.b;clearLook();});}
+  /* Schriften: Such-Comboboxen über den kompletten Bunny-Katalog (lazy geladen) */
+  window.KIT_BUNNY=window.KIT_BUNNY||{};window.KIT_BUNNY_LIST=window.KIT_BUNNY_LIST||[];
+  var bunnyState=0,bunnyCbs=[];
+  function tcp(s){var p=String(s||"").split("-");for(var i=0;i<p.length;i++)p[i]=p[i].charAt(0).toUpperCase()+p[i].slice(1);return p.join(" ");}
+  function genOf(c){if(c==="serif")return "serif";if(c==="monospace")return "monospace";if(c==="handwriting")return "cursive";return "sans-serif";}
+  function wOf(a){if(!a||!a.length)return "400,700";var keep=[],want=[300,400,500,600,700,800];for(var i=0;i<a.length;i++)if(want.indexOf(a[i])>=0)keep.push(a[i]);if(!keep.length)keep=[a[0]];return keep.join(",");}
+  function loadBunny(cb){
+    if(bunnyState===2){cb&&cb();return;}
+    if(cb)bunnyCbs.push(cb);
+    if(bunnyState===1)return;
+    bunnyState=1;
+    function done(){for(var z=0;z<bunnyCbs.length;z++)bunnyCbs[z]();bunnyCbs=[];}
+    fetch("https://fonts.bunny.net/list").then(function(r){return r.json();}).then(function(j){
+      var ks=Object.keys(j);
+      for(var i=0;i<ks.length;i++){var k=ks[i],f=j[k];window.KIT_BUNNY[k]={s:k,n:f.familyName||tcp(k),g:genOf(f.category),w:wOf(f.weights),c:f.category||""};window.KIT_BUNNY_LIST.push(window.KIT_BUNNY[k]);}
+      window.KIT_BUNNY_LIST.sort(function(a,b){var x=a.n.toLowerCase(),y=b.n.toLowerCase();return x<y?-1:x>y?1:0;});
+      bunnyState=2;done();
+    }).catch(function(){bunnyState=0;done();});
+  }
+  function fontPool(){var seen={},out=[];for(var i=0;i<window.KIT_FONTS.length;i++){out.push(window.KIT_FONTS[i]);seen[window.KIT_FONTS[i].s]=1;}for(var j=0;j<window.KIT_BUNNY_LIST.length;j++)if(!seen[window.KIT_BUNNY_LIST[j].s])out.push(window.KIT_BUNNY_LIST[j]);return out;}
+  function fontMatch(q){q=(q||"").toLowerCase();var pool=fontPool(),res=[];for(var i=0;i<pool.length&&res.length<60;i++){var f=pool[i];if(!q||f.n.toLowerCase().indexOf(q)>=0||f.s.indexOf(q)>=0)res.push(f);}return res;}
+  function curName(role){var v=gs(role==="head"?"kitFontHead":"kitFontBody",role==="head"?window.KIT_DEFAULT_HEAD:window.KIT_DEFAULT_BODY);if(v&&v.charAt(0)==="{"){try{var o=JSON.parse(v);if(o&&o.n)return o.n;}catch(e){}}for(var i=0;i<window.KIT_FONTS.length;i++)if(window.KIT_FONTS[i].s===v)return window.KIT_FONTS[i].n;if(window.KIT_BUNNY&&window.KIT_BUNNY[v])return window.KIT_BUNNY[v].n;return tcp(v);}
+  var pairSel=document.getElementById("pair-picker");
+  function setupFontBox(role,inId,popId){
+    var inp=document.getElementById(inId),pop=document.getElementById(popId);if(!inp||!pop)return;
+    inp.value=curName(role);
+    function render(q){var res=fontMatch(q);pop.innerHTML="";for(var i=0;i<res.length;i++){(function(f){var b=document.createElement("button");b.type="button";b.className="cz-font-opt";var nm=document.createElement("span");nm.textContent=f.n;var ct=document.createElement("em");ct.textContent=f.c||f.g||"";b.appendChild(nm);b.appendChild(ct);b.addEventListener("mousedown",function(e){e.preventDefault();window.kitApplyFont(role,f,true);inp.value=f.n;pop.classList.remove("open");if(pairSel)pairSel.value="";clearLook();});pop.appendChild(b);})(res[i]);}pop.classList.toggle("open",res.length>0);}
+    inp.addEventListener("focus",function(){inp.select();render("");loadBunny(function(){if(document.activeElement===inp)render(inp.value&&inp.value!==curName(role)?inp.value:"");});});
+    inp.addEventListener("input",function(){render(inp.value);});
+    inp.addEventListener("blur",function(){setTimeout(function(){pop.classList.remove("open");},170);});
+  }
+  setupFontBox("head","cz-fh-in","cz-fh-pop");setupFontBox("body","cz-fb-in","cz-fb-pop");
+  if(pairSel&&window.KIT_PAIRS){for(var pi=0;pi<window.KIT_PAIRS.length;pi++){var pp=window.KIT_PAIRS[pi];var po=document.createElement("option");po.value=pi;po.textContent=pp.n;pairSel.appendChild(po);}pairSel.addEventListener("change",function(){var pr=window.KIT_PAIRS[parseInt(pairSel.value,10)];if(!pr)return;window.kitApplyFont("head",pr.h,true);window.kitApplyFont("body",pr.b,true);var fh=document.getElementById("cz-fh-in");if(fh)fh.value=curName("head");var fb=document.getElementById("cz-fb-in");if(fb)fb.value=curName("body");clearLook();});}
+  var moreBtn=document.getElementById("cz-type-more"),moreBody=document.getElementById("cz-type-adv");
+  if(moreBtn&&moreBody)moreBtn.addEventListener("click",function(){var o=moreBody.classList.toggle("open");moreBtn.setAttribute("aria-expanded",o?"true":"false");});
   /* colors + contrast guard */
   var cmap={"cz-c-brand":"--color-brand","cz-c-accent":"--color-accent","cz-c-bg":"--color-bg"};
   function cv(varn){return getComputedStyle(D).getPropertyValue(varn).trim();}
@@ -721,7 +765,7 @@ function footer() {
   var looksEl=document.getElementById("cz-looks");
   function markLook(){var sv=gs("kitLook",null);if(looksEl)[].forEach.call(looksEl.children,function(x,i){x.classList.toggle("on",String(i)===sv);});}
   if(looksEl&&window.KIT_LOOKS){for(var lo=0;lo<window.KIT_LOOKS.length;lo++){(function(idx){var L=window.KIT_LOOKS[idx];var b=document.createElement("button");b.className="cz-look";var bb=document.createElement("b");bb.textContent=L.n;var sp=document.createElement("span");sp.textContent=L.d||"";b.appendChild(bb);b.appendChild(sp);b.addEventListener("click",function(){window.kitLook(idx,true);syncAll();});looksEl.appendChild(b);})(lo);}}
-  function syncAll(){if(headSel)headSel.value=gs("kitFontHead",window.KIT_DEFAULT_HEAD);if(bodySel)bodySel.value=gs("kitFontBody",window.KIT_DEFAULT_BODY);if(pairSel)pairSel.value="";[].forEach.call(document.querySelectorAll(".cz-seg"),markSeg);markPal();markLook();syncColors();}
+  function syncAll(){var fh=document.getElementById("cz-fh-in");if(fh)fh.value=curName("head");var fb=document.getElementById("cz-fb-in");if(fb)fb.value=curName("body");if(pairSel)pairSel.value="";[].forEach.call(document.querySelectorAll(".cz-seg"),markSeg);markPal();markLook();syncColors();}
   markPal();markLook();syncColors();
   var rb=document.getElementById("cz-reset");if(rb)rb.addEventListener("click",function(){["kitFontHead","kitFontBody","kitColors","kitLayout","kitType","kitCard","kitPalette","kitBase","kitLook","kitPanelOpen","kitStruct","kitChrome","kitLogo","kitAcc2"].forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});document.cookie="kitstruct=;path=/;max-age=0";document.cookie="kitchrome=;path=/;max-age=0";location.reload();});
   var btn=document.getElementById("js-loadmore");
