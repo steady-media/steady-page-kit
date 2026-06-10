@@ -6,7 +6,7 @@
 // Die Top-Section verteilt Teaser DISJUNKT (Hero, Lead-Reihe, Neueste, Meistgelesen),
 // damit kein Beitrag oben doppelt erscheint.
 
-import { PUBLICATION, PER_PAGE, PINNED_GUID, MEMBER_HEADING, NEWSLETTER_URL } from "./config.js";
+import { PUBLICATION, PER_PAGE, PINNED_GUID, MEMBER_HEADING } from "./config.js";
 import { esc, fmtDate, slugify, teaser } from "./util.js";
 import { normTitle, topCategories } from "./feed.js";
 import { ICON_BACK, ICON_CLAP, ICON_SHARE } from "./icons.js";
@@ -202,22 +202,13 @@ export function renderLanding(items, page = 1, cfg) {
 </div>`;
   }
 
-  // Newsletter-CTA (per Panel abschaltbar: Layout → Newsletter-Box)
-  const cta = cfg.newsletter !== false
-    ? `<section class="cta-band"><div class="container cta-band__inner">
-  <div><h2 class="cta-band__title">${esc(PUBLICATION)} als Newsletter</h2>
-  <p class="cta-band__text">Neue Ausgaben direkt ins Postfach — jederzeit abbestellbar.</p></div>
-  <a class="btn btn--primary" href="${esc(NEWSLETTER_URL)}" target="_blank" rel="noopener">Newsletter anmelden</a>
-</div></section>`
-    : "";
-
   const meta = {
     desc: cfg.channelDesc || `Aktuelle Beiträge von ${PUBLICATION}`,
     path: "/",
     image: hero.image ? teaser(hero.image, 1200, 630) : "",
   };
   return head(PUBLICATION, cfg, meta) + header({ tabs: true, activePath: "/" }, cfg) + `
-<main id="main">${top}${stream}${cta}</main>` + footer();
+<main id="main">${top}${stream}</main>` + footer();
 }
 
 /** Rubrik-Seite (/rubrik/:slug): Aufmacher (erster Beitrag) + Raster + „Mehr laden". */

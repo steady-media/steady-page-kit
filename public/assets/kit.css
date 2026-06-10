@@ -137,12 +137,6 @@ html.nav-figma .tabs__search svg{width:17px;height:17px;}
 .post__body--full strong,.post__body--full b{font-weight:700;}
 .post__readon{margin:14px 0 8px;}
 
-/* ------------------------------------------------------------------ Newsletter-CTA (Landing) */
-.cta-band{padding:8px 0 56px;}
-.cta-band__inner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:18px 28px;border:1px solid var(--rule);border-radius:var(--radius-card);padding:26px 28px;}
-.cta-band__title{font-family:var(--font-head);font-size:calc(22px*var(--fs));font-weight:var(--weight-heading);letter-spacing:var(--track-head);margin:0 0 4px;}
-.cta-band__text{font-size:15px;color:var(--color-ink-soft);margin:0;}
-
 /* ------------------------------------------------------------------ Suche (eigenes Modal) */
 .kit-search{width:min(560px,92vw);border:1px solid var(--color-hairline);border-radius:14px;padding:0;background:var(--color-bg);color:var(--color-ink);box-shadow:0 24px 70px rgba(0,0,0,.28);}
 .kit-search::backdrop{background:rgba(20,16,28,.45);}
@@ -365,5 +359,4 @@ html.cz-on .cz{transform:none;}
 @media (max-width:560px){.grid{grid-template-columns:1fr;}.header-actions .btn--outline{display:none;}
   /* Touch-Targets (≥44px): Pills + Login-Fallback */
   .pill{padding:7px 14px;}
-  .login-link{padding:10px 6px;}
-  .cta-band__inner{padding:22px 18px;}}
+  .login-link{padding:10px 6px;}}

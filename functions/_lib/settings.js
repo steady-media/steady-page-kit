@@ -11,7 +11,7 @@
 /** Default-Struktur = einspaltige Seite mit Split-Hero und flacher Liste. */
 export function parseStruct(cookie) {
   const def = { shell: "single", auf: "klein", stream: "liste", rails: [],
-                headerStyle: "links", search: false, newsletter: true, brand: "", nav: null };
+                headerStyle: "links", search: false, brand: "", nav: null };
   if (!cookie) return def;
 
   // kitstruct=shell=portal&auf=gross&stream=rubrik&rails=neueste,meist,themen&…
@@ -24,7 +24,6 @@ export function parseStruct(cookie) {
       def.stream = q.get("stream") === "rubrik" ? "rubrik" : "liste";
       def.headerStyle = q.get("header") === "zentriert" ? "zentriert" : "links";
       def.search = q.get("search") === "1";
-      def.newsletter = q.get("nl") !== "0"; // Newsletter-CTA auf der Landing (Default: an)
       const allow = ["neueste", "meist", "themen"];
       if (q.has("rails")) def.rails = (q.get("rails") || "").split(",").filter(r => allow.includes(r));
       else def.rails = def.shell === "portal" ? allow.slice() : [];

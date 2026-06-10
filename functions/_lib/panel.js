@@ -57,7 +57,6 @@ export function panelHtml() {
       <label class="cz-lbl">Aufmacher</label><div class="cz-seg" data-fn="struct" data-kind="auf"><button data-v="klein">Klein</button><button data-v="gross">Groß</button></div>
       <label class="cz-lbl">Inhalt</label><div class="cz-seg" data-fn="struct" data-kind="stream"><button data-v="liste">Eine Liste</button><button data-v="rubrik">Nach Rubriken</button></div>
       <label class="cz-lbl">Seitenleisten</label><div class="cz-rails" id="cz-rails"><button data-rail="neueste">Neueste</button><button data-rail="meist">Meistgelesen</button><button data-rail="themen">Themen</button></div>
-      <label class="cz-lbl">Newsletter-Box</label><div class="cz-seg" data-fn="struct" data-kind="nl"><button data-v="1">An</button><button data-v="0">Aus</button></div>
       <p class="cz-hint">Aufbau-Wechsel laden die Seite kurz neu. Der Rest bleibt live.</p>
       <p class="cz-subhead">Raster</p>
       <label class="cz-lbl">Spalten</label><div class="cz-seg" data-fn="layout" data-kind="cols"><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button></div>

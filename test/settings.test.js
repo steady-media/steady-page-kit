@@ -10,17 +10,15 @@ test("parseStruct ohne Cookie = Default-Seite", () => {
   assert.equal(s.stream, "liste");
   assert.deepEqual(s.rails, []);
   assert.equal(s.search, false);
-  assert.equal(s.newsletter, true); // CTA standardmäßig an
 });
 
-test("parseStruct liest kitstruct-Cookie inkl. nl-Flag", () => {
-  const val = encodeURIComponent("shell=portal&auf=gross&stream=rubrik&rails=neueste,meist&search=1&nl=0");
+test("parseStruct liest kitstruct-Cookie", () => {
+  const val = encodeURIComponent("shell=portal&auf=gross&stream=rubrik&rails=neueste,meist&search=1");
   const s = parseStruct("foo=1; kitstruct=" + val);
   assert.equal(s.shell, "portal");
   assert.equal(s.auf, "gross");
   assert.deepEqual(s.rails, ["neueste", "meist"]);
   assert.equal(s.search, true);
-  assert.equal(s.newsletter, false);
 });
 
 test("parseStruct verwirft unbekannte Rails und kaputtes kitchrome", () => {

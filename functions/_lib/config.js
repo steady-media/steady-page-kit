@@ -46,4 +46,4 @@ export const DEFAULT_NAV = [
 ];
 
 // Cache-Buster für public/assets/kit.css + kit-*.js — bei Asset-Änderungen hochzählen.
-export const ASSET_VERSION = "2026-06-10b";
+export const ASSET_VERSION = "2026-06-10c";

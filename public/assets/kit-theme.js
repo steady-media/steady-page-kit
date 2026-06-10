@@ -310,7 +310,6 @@ window.KIT_LOOKS = [
     if (s.stream) p.push("stream=" + s.stream);
     if (s.header) p.push("header=" + s.header);
     if (s.search) p.push("search=" + s.search);
-    if (s.nl != null) p.push("nl=" + s.nl);
     if (s.rails) p.push("rails=" + s.rails.join(","));
     return p.join("&");
   }

@@ -245,7 +245,7 @@
     layout: { cols: "3", width: "standard", dens: "komfortabel", corner: "eckig", hero: "split", nav: "standard" },
     type:   { size: "standard", lead: "normal", track: "normal", case: "normal", align: "links" },
     card:   { style: "classic", aspect: "16:9", surface: "flat", image: "farbe" },
-    struct: { shell: "single", auf: "klein", stream: "liste", header: "links", search: "0", nl: "1" },
+    struct: { shell: "single", auf: "klein", stream: "liste", header: "links", search: "0" },
   };
   var STORE_KEYS = { layout: "kitLayout", type: "kitType", card: "kitCard", struct: "kitStruct" };
   function currentValue(fn, kind) {
