@@ -1,17 +1,15 @@
-// Route: GET /rubrik/:slug → Sektionsseite (alle Beiträge einer Feed-Kategorie)
-import { getItems, renderSection, render404, parseStruct, slugify, getLogoMeta, getConfig, effectiveCookie } from "../_shared.js";
+// Route: GET /rubrik/:slug → Rubrik-Seite (alle Beiträge einer Feed-Kategorie).
+import { getItems } from "../_lib/feed.js";
+import { slugify } from "../_lib/util.js";
+import { buildPageContext } from "../_lib/settings.js";
+import { htmlResponse } from "../_lib/http.js";
+import { renderSection, render404 } from "../_lib/render.js";
 
 export async function onRequestGet(context) {
   const slug = context.params.slug;
   const url = new URL(context.request.url);
   const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10) || 1);
-  const cookie = context.request.headers.get("cookie") || "";
-  const g = await getConfig(context.env);
-  const cfg = parseStruct(effectiveCookie(cookie, g));
-  cfg.skin = g ? g.skin : null;
-  cfg.logo = await getLogoMeta(context.env);
-  const hasCfg = /(?:^|;\s*)kit(?:struct|chrome)=/.test(cookie);
-  const cache = hasCfg ? "no-store" : "public, max-age=300";
+  const { cfg, cacheControl } = await buildPageContext(context);
 
   let category = null, items = [], all = [];
   try {
@@ -20,18 +18,10 @@ export async function onRequestGet(context) {
     all.forEach(it => it.categories.forEach(c => { if (c) cats.add(c); }));
     category = [...cats].find(c => slugify(c) === slug) || null;
     if (category) items = all.filter(it => it.categories.includes(category));
-  } catch (e) {
+  } catch (err) {
     category = null;
   }
 
-  if (!category) {
-    return new Response(render404(cfg), {
-      status: 404,
-      headers: { "content-type": "text/html; charset=utf-8", "cache-control": cache },
-    });
-  }
-
-  return new Response(renderSection(category, items, all, page, cfg), {
-    headers: { "content-type": "text/html; charset=utf-8", "cache-control": cache },
-  });
+  if (!category) return htmlResponse(render404(cfg), cacheControl, 404);
+  return htmlResponse(renderSection(category, items, all, page, cfg), cacheControl);
 }

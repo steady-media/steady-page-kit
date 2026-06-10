@@ -1,0 +1,9 @@
+# Lokale Secrets für `npm run dev` — Kopie als .dev.vars anlegen (ist gitignored!).
+# Produktion: npx wrangler pages secret put <NAME> --project-name blaupause-kit
+
+# Authentifizierter Steady-RSS-Feed mit Volltexten (content:encoded).
+# Enthält den pub_auth-Token → niemals committen.
+FULLTEXT_FEED_URL=
+
+# Admin-Code für globales Schreiben (Logo-Upload + „Für alle Besucher speichern").
+KIT_ADMIN_CODE=

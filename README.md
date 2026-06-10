@@ -1,66 +1,100 @@
-# Blaupause Kit — feed-driven Steady-Skin auf Cloudflare Pages
+# Blaupause Kit — anpassbare Steady-Landingpage auf Cloudflare Pages
 
-Eine portable, pixelnahe Hülle von `steady.page/sebastian`, die ihre Inhalte **live aus
-Steady** zieht. Du schreibst weiter in Steady — neue Posts erscheinen hier automatisch.
-
-## Wie es funktioniert
+Eine portable Hülle von `steady.page/sebastian`, die ihre Inhalte **live aus Steady**
+zieht und über ein eingebautes Customizer-Panel gestaltbar ist (Fonts, Farben,
+Layout, Struktur) — mit Leitplanken, damit keine „MySpace-Seiten" entstehen.
+Du schreibst weiter in Steady; neue Posts erscheinen hier automatisch.
 
 ```
-Steady (du schreibst)  ──RSS──▶  Cloudflare Pages Function  ──HTML──▶  Besucher
-   steady.page/sebastian/rss        functions/*.js (Edge-Cache 10 Min)
+Steady (CMS)  ──RSS──▶  Pages Functions (SSR, Edge-Cache 10 Min)  ──HTML──▶  Besucher
+                              │
+                              ├─ KV (KIT_KV): global veröffentlichte Config + Logo
+                              └─ Secrets: FULLTEXT_FEED_URL, KIT_ADMIN_CODE
 ```
 
-- **Steady ist das CMS.** Single Source of Truth ist der RSS-Feed `steady.page/sebastian/rss`
-  (Titel, Excerpt, Kategorie, Teaser-Bild, Datum, Link, GUID — für alle Posts).
-- **Auto-Update:** Die Functions rendern bei Abruf aus dem Feed, mit 10-Min-Edge-Cache.
-  Neuer Steady-Post → spätestens nach Cache-Ablauf live. Kein Rebuild, kein Trigger, keine Wartung.
-- **Routen:**
-  - `GET /` → Landing: Hero (neuester bzw. gepinnter Post) + Kategorie-Pills + Post-Grid + Pagination
-  - `GET /posts/:id` → Einzelpost-Ansicht (`:id` = Feed-GUID); jeder Steady-Post bekommt automatisch seine Seite
-  - `GET /?page=N` → Paginierung durch alle Posts
+## Architektur in einem Absatz
 
-## Struktur
+Der **Server** rendert die Seiten-**Struktur** (einspaltig oder Portal, Aufmacher,
+Rubriken, Leisten, Header) aus dem `kitstruct`/`kitchrome`-Cookie bzw. der global
+veröffentlichten Config. Der **Client** (kit-theme.js) wendet den **Skin** (Fonts,
+Farben, Karten-Stile) als CSS-Variablen/Klassen an — blockierend im `<head>`, damit
+nichts flackert. Präzedenz überall: **persönliche Einstellungen (localStorage/Cookie)
+schlagen die globale Basis (KV), die globale Basis schlägt die Defaults.**
+
+## Code-Landkarte
 
 ```
 functions/
-  _shared.js        Feed holen + parsen, Design-Tokens/CSS, Render-Helfer
-  index.js          Route /        (Landing)
-  posts/[id].js     Route /posts/:id (Einzelpost)
-public/
-  assets/           Brand-Chrome (Logo, Favicon, Steady-Wordmark) — lokal, portabel
-wrangler.toml       Pages-Config (output dir = public)
+  index.js            Route /                  Landing (Komposition laut Config)
+  posts/[id].js       Route /posts/:id         Einzelpost + Volltext-Join (Titel-Match)
+  rubrik/[slug].js    Route /rubrik/:slug      Rubrik-Seite einer Feed-Kategorie
+  memberships.js      Route /memberships       Steady-Checkout-Embed
+  api/
+    config.js         GET/PUT/DELETE           global veröffentlichte Einstellungen (KV)
+    logo.js           GET/PUT/DELETE           global gespeichertes Logo (KV)
+  _lib/                                        (Unterstrich = wird nicht geroutet)
+    config.js         Konstanten (Feed-URL, Steady-IDs, DEFAULT_NAV, ASSET_VERSION)
+    util.js           esc, fmtDate, slugify, teaser (Bild-Resize)
+    feed.js           getItems, parseFeed, normTitle, topCategories
+    settings.js       parseStruct, getConfig/getLogoMeta (KV), buildPageContext
+    http.js           htmlResponse, jsonResponse, isAdmin (x-kit-admin-Gate)
+    icons.js          Inline-SVGs
+    page.js           head() / header() / footer()
+    panel.js          Markup des Customizer-Panels
+    render.js         renderLanding/-Section/-Post/-Memberships/-404/-Empty
+public/assets/
+  kit.css             Design-Tokens + alle Komponenten-Styles
+  kit-theme.js        Theme-Engine: Kataloge (Fonts/Paletten/Looks) + Setter (window.kit*)
+  kit-panel.js        Panel-Logik (bindet Controls an die Setter, Publish, Logo, Mehr-laden)
+  kit-search.js       fetch-Interceptor für das Cloudflare-AI-Search-Modal
 ```
 
-Teaser-Bilder der Posts kommen aus dem Feed (Steady-CDN) — deckt automatisch neue Posts ab.
-Nur das stabile Brand-Chrome liegt lokal in `public/assets/`.
+**Konvention:** Skin-Regler wirken live (CSS-Variablen). Struktur-Regler schreiben
+einen Cookie und laden neu, weil der Server die Struktur rendert. Wer einen neuen
+Regler baut: Token in `kit.css` → Setter in `kit-theme.js` → Control in
+`_lib/panel.js` (data-fn/data-kind/data-v) — die generische Segment-Logik in
+`kit-panel.js` greift automatisch.
 
-## Lokal starten
+## Lokal entwickeln
 
 ```bash
 npm install
-npm run dev          # → http://localhost:8788
+cp .dev.vars.example .dev.vars   # Secrets eintragen (gitignored)
+npm run dev                      # → http://localhost:8788
+npm run check                    # Syntax-Check über alle JS-Dateien
 ```
 
-## Deployen (Weg B: GitHub → Cloudflare Pages)
+## Deployen
 
-1. Repo zu GitHub pushen.
-2. Cloudflare Dashboard → Workers & Pages → Create → Pages → **Connect to Git** → dieses Repo.
-3. Build settings: **Build command** leer lassen, **Build output directory** = `public`.
-4. Deploy. Ab dann: `git push` = neues Deployment. Inhalte aktualisieren sich ohne Push (Feed + Cache).
+```bash
+npm run deploy                   # direkt (nach `npx wrangler login`)
+```
 
-Alternativ direkt: `npm run deploy` (nach `npx wrangler login`).
+Oder via GitHub-Integration: Repo verbinden, Build command leer, Output dir `public`.
+Nach Asset-Änderungen (`public/assets/kit-*`): `ASSET_VERSION` in
+`functions/_lib/config.js` hochzählen (Cache-Buster).
 
-## Konfiguration
+## Secrets & Bindings (Produktion)
 
-In `functions/_shared.js` oben:
-- `FEED_URL` — die Steady-RSS-URL
-- `PINNED_GUID` — eine Post-GUID als Hero pinnen (`null` = neuester Post)
-- `PER_PAGE`, `MAX_PILLS` — Grid-/Pill-Anzahl
-- `--font-sans` Token im CSS — `CircularStd` eintragen, sobald die Lizenz vorliegt (ersetzt DM Sans)
+| Name | Typ | Zweck |
+|---|---|---|
+| `KIT_KV` | KV-Binding (wrangler.toml) | globale Config + Logo |
+| `KIT_ADMIN_CODE` | Secret | Gate für globales Speichern (Panel → „Für alle Besucher speichern", Logo) |
+| `FULLTEXT_FEED_URL` | Secret | authentifizierter Steady-Feed mit Volltexten (`content:encoded`) |
 
-## Bekannte Grenze: Artikel-Body
+```bash
+printf '%s' "<wert>" | npx wrangler pages secret put KIT_ADMIN_CODE --project-name blaupause-kit
+```
 
-Der RSS-Feed liefert **Metadaten + Excerpt**, nicht den vollen Artikeltext (den gated Steady).
-Die Einzelseite zeigt darum Preview + „Ganzen Beitrag auf Steady lesen". Den Volltext bringt
-später das echte **Steady-Post-/Paywall-Embed-Widget** — Andock-Punkte sind im Code markiert
-(`#memberships` auf der Landing, `PAYWALL-ANDOCKZONE` in der Einzelseite).
+## Wissenswertes
+
+- **Volltexte:** Der öffentliche Feed liefert nur Teaser. `posts/[id].js` joint den
+  Volltext-Feed **per normalisiertem Titel** (die GUIDs beider Feeds unterscheiden
+  sich!). Kein Match → Teaser-Stub mit Steady-Link. Der Volltext-Feed umfasst nur
+  die ~6 jüngsten Beiträge.
+- **Caching:** HTML 5 Min (mit persönlichen Cookies: `no-store`), Feed 10 Min Edge,
+  Logo 10 Min (Cache-Bust über `?v=<ts>`), globale Config 60 s.
+- **Login:** Der echte `<steady-login-button>` (Smart Layer). Ein Inline-Snippet
+  blendet nach 3 s einen direkten Login-Link ein, falls das Widget nicht lädt.
+- **Suche:** Cloudflare AI Search; der Index basiert auf Markdown-Exporten, die
+  Chunks haben keine Titel/URLs — `kit-search.js` ergänzt sie clientseitig.

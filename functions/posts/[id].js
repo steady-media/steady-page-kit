@@ -1,51 +1,37 @@
-// Route: GET /posts/:id  → Einzelpost-Ansicht aus dem Feed-Item (guid == :id)
-// Volltext: der öffentliche Feed liefert nur Teaser. Wenn FULLTEXT_FEED_URL gesetzt ist
-// (authentifizierter Steady-Feed, ~6 jüngste Beiträge mit content:encoded), joinen wir den
-// Volltext per normalisiertem Titel an den passenden Beitrag — die Guids beider Feeds
-// unterscheiden sich, die Titel stimmen überein.
-import { getItems, renderPost, render404, parseStruct, normTitle, getLogoMeta, getConfig, effectiveCookie } from "../_shared.js";
+// Route: GET /posts/:id → Einzelpost (":id" = Feed-GUID).
+//
+// Volltext: Der öffentliche Feed liefert nur Teaser. Ist das Secret FULLTEXT_FEED_URL
+// gesetzt (authentifizierter Steady-Feed, ~6 jüngste Beiträge mit content:encoded),
+// joinen wir den Volltext per normalisiertem Titel an den Beitrag — die Guids beider
+// Feeds unterscheiden sich, die Titel stimmen überein. Fehler/abgelaufener Token
+// degradieren sauber auf den Teaser-Stub mit Steady-Link.
+import { getItems, normTitle } from "../_lib/feed.js";
+import { buildPageContext } from "../_lib/settings.js";
+import { htmlResponse } from "../_lib/http.js";
+import { renderPost, render404 } from "../_lib/render.js";
 
 export async function onRequestGet(context) {
   const id = context.params.id;
-  const cookie = context.request.headers.get("cookie") || "";
-  const g = await getConfig(context.env);
-  const cfg = parseStruct(effectiveCookie(cookie, g));
-  cfg.skin = g ? g.skin : null;
-  cfg.logo = await getLogoMeta(context.env);
-  const hasCfg = /(?:^|;\s*)kit(?:struct|chrome)=/.test(cookie);
-  const cache = hasCfg ? "no-store" : "public, max-age=300";
+  const { cfg, cacheControl } = await buildPageContext(context);
 
   let item = null;
   try {
-    const items = await getItems();
-    item = items.find(i => i.guid === id);
+    item = (await getItems()).find(i => i.guid === id) || null;
   } catch (err) {
     item = null;
   }
+  if (!item) return htmlResponse(render404(cfg), cacheControl, 404);
 
-  if (!item) {
-    return new Response(render404(cfg), {
-      status: 404,
-      headers: { "content-type": "text/html; charset=utf-8", "cache-control": cache },
-    });
-  }
-
-  // Volltext aus dem authentifizierten Feed dazuholen (best effort — Fehler/Token-Ablauf
-  // degradiert sauber auf den Teaser-Stub).
   let full = "";
-  const ftUrl = context.env && context.env.FULLTEXT_FEED_URL;
-  if (ftUrl) {
+  const fulltextUrl = context.env && context.env.FULLTEXT_FEED_URL;
+  if (fulltextUrl) {
     try {
-      const ft = await getItems(ftUrl);
       const want = normTitle(item.title);
-      const match = ft.find(i => normTitle(i.title) === want);
+      const match = (await getItems(fulltextUrl)).find(i => normTitle(i.title) === want);
       if (match && match.content) full = match.content;
     } catch (err) {
       full = "";
     }
   }
-
-  return new Response(renderPost(item, cfg, full), {
-    headers: { "content-type": "text/html; charset=utf-8", "cache-control": cache },
-  });
+  return htmlResponse(renderPost(item, cfg, full), cacheControl);
 }

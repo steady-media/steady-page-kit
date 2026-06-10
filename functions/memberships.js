@@ -1,19 +1,11 @@
-// Route: GET /memberships → Steady-Checkout-Embed (insert_steady_checkout_here)
-// Die Steady-Backend-Checkout-URL zeigt auf neu.blaupause.community/memberships;
-// das Widget rendert die Mitgliedschaftspakete in den Container.
-import { renderMemberships, parseStruct, getLogoMeta, getConfig, effectiveCookie } from "./_shared.js";
+// Route: GET /memberships → Steady-Checkout-Embed.
+// Die Steady-Backend-Checkout-URL zeigt auf diese Seite; das Smart-Layer-Widget
+// rendert die Mitgliedschaftspakete in den #insert_steady_checkout_here-Container.
+import { buildPageContext } from "./_lib/settings.js";
+import { htmlResponse } from "./_lib/http.js";
+import { renderMemberships } from "./_lib/render.js";
 
 export async function onRequestGet(context) {
-  const cookie = context.request.headers.get("cookie") || "";
-  const g = await getConfig(context.env);
-  const cfg = parseStruct(effectiveCookie(cookie, g));
-  cfg.skin = g ? g.skin : null;
-  cfg.logo = await getLogoMeta(context.env);
-  const hasCfg = /(?:^|;\s*)kit(?:struct|chrome)=/.test(cookie);
-  return new Response(renderMemberships(cfg), {
-    headers: {
-      "content-type": "text/html; charset=utf-8",
-      "cache-control": hasCfg ? "no-store" : "public, max-age=300",
-    },
-  });
+  const { cfg, cacheControl } = await buildPageContext(context);
+  return htmlResponse(renderMemberships(cfg), cacheControl);
 }
