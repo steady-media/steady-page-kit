@@ -101,4 +101,4 @@ export const DEFAULT_NAV = (Array.isArray(kit.nav) && kit.nav.length)
 export const USER_AGENT = "SteadyPageKit/1.0";
 
 // Cache-Buster für public/assets/kit.css + kit-*.js — bei Asset-Änderungen hochzählen.
-export const ASSET_VERSION = "2026-06-10d";
+export const ASSET_VERSION = "2026-06-10e";
