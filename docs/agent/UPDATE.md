@@ -18,7 +18,7 @@ publisher's configuration.
 ## Path A — repo was created from the GitHub template (or any git copy)
 
 ```sh
-git remote add upstream https://github.com/<UPSTREAM_REPO>.git   # once
+git remote add upstream https://github.com/seboess/steady-page-kit.git   # once
 git fetch upstream
 git merge upstream/main
 ```
