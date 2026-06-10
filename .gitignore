@@ -1,7 +1,11 @@
 node_modules/
 .wrangler/
 .dev.vars
+.env
 .DS_Store
+
+# Laufzeit-Daten des Node-Pfads (fs-KV: Config/Logo/Claps)
+data/
 
 # Claude Code local settings
 .claude/

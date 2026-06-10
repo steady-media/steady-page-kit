@@ -1,16 +1,37 @@
 // _lib/feed.js — Steady-RSS holen und in Items parsen.
 // Der Feed ist das CMS; gerendert wird live mit 10 Minuten Edge-Cache.
 
-import { FEED_URL, MAX_PILLS } from "./config.js";
+import { FEED_URL, MAX_PILLS, USER_AGENT } from "./config.js";
 
-/** Feed-XML laden (Edge-Cache 10 Min). */
+// In-Memory-Cache (10 Min) pro Feed-URL. Auf Node ist das DER Cache; auf Cloudflare
+// liegt er zusätzlich vor dem Edge-Cache (cf-Option unten) — bewusst doppelt, nicht
+// „reparieren". Bei Fetch-Fehlern servieren wir lieber den letzten Stand als gar nichts.
+const FEED_TTL_MS = 10 * 60 * 1000;
+const feedCache = new Map(); // url → { xml, at }
+
+/** Cache leeren — nur für Tests. */
+export function _resetFeedCache() { feedCache.clear(); }
+
+/** Feed-XML laden (10 Min gecacht; cf-Option wird außerhalb Cloudflares ignoriert). */
 export async function fetchFeedXml(feedUrl) {
-  const res = await fetch(feedUrl || FEED_URL, {
-    headers: { "user-agent": "BlaupauseKit/1.0 (+cloudflare-pages)" },
-    cf: { cacheTtl: 600, cacheEverything: true },
-  });
-  if (!res.ok) throw new Error("feed HTTP " + res.status);
-  return res.text();
+  const url = feedUrl || FEED_URL;
+  if (!url) throw new Error("feed URL missing — kit.config.js ist noch nicht konfiguriert");
+  const hit = feedCache.get(url);
+  if (hit && Date.now() - hit.at < FEED_TTL_MS) return hit.xml;
+  try {
+    const res = await fetch(url, {
+      headers: { "user-agent": USER_AGENT },
+      cf: { cacheTtl: 600, cacheEverything: true },
+    });
+    if (!res.ok) throw new Error("feed HTTP " + res.status);
+    const xml = await res.text();
+    if (feedCache.size > 8) feedCache.clear(); // mehr als public+fulltext gibt es nicht — Schutzkappe
+    feedCache.set(url, { xml, at: Date.now() });
+    return xml;
+  } catch (err) {
+    if (hit) return hit.xml; // abgelaufen, aber besser als Fehlerseite
+    throw err;
+  }
 }
 
 /**

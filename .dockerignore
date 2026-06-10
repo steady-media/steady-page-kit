@@ -1,0 +1,13 @@
+.git
+node_modules
+.wrangler
+data
+.env
+.dev.vars
+.claude
+.gstack
+.github
+test
+docs
+*.md
+.DS_Store
