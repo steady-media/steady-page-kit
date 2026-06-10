@@ -7,14 +7,25 @@ export function esc(s) {
     .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-const MONTHS = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August",
-                "September", "Oktober", "November", "Dezember"];
+import { LOCALE } from "./i18n.js";
 
-/** RSS-pubDate → deutsches Langdatum ("17. März 2025"); leer bei ungültigem Datum. */
-export function fmtDate(pub) {
+// Formatter pro Locale cachen — Intl.DateTimeFormat-Konstruktion ist teuer.
+const dateFmts = new Map();
+function dateFmt(locale) {
+  if (!dateFmts.has(locale)) {
+    dateFmts.set(locale, new Intl.DateTimeFormat(locale, {
+      day: "numeric", month: "long", year: "numeric", timeZone: "UTC",
+    }));
+  }
+  return dateFmts.get(locale);
+}
+
+/** RSS-pubDate → Langdatum in der Kit-Sprache ("17. März 2025" / "March 17, 2025");
+ *  leer bei ungültigem Datum. `intlLocale` überschreibt (Tests, Sonderfälle). */
+export function fmtDate(pub, intlLocale) {
   const d = new Date(pub);
   if (isNaN(d.getTime())) return "";
-  return `${d.getUTCDate()}. ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+  return dateFmt(intlLocale || LOCALE.intl).format(d);
 }
 
 /** Kategorie-Name → URL-Slug (für /rubrik/:slug). */

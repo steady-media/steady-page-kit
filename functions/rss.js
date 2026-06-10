@@ -1,5 +1,6 @@
 // Route: GET /rss — eigener Feed-Endpunkt dieser Domain (Proxy des öffentlichen Steady-Feeds).
 import { fetchFeedXml } from "./_lib/feed.js";
+import { t } from "./_lib/i18n.js";
 
 export async function onRequestGet(context) {
   try {
@@ -8,7 +9,7 @@ export async function onRequestGet(context) {
       headers: { "content-type": "application/rss+xml; charset=utf-8", "cache-control": "public, max-age=600" },
     });
   } catch (err) {
-    return new Response("Feed derzeit nicht erreichbar.", { status: 503, headers: { "retry-after": "120" } });
+    return new Response(t("feed.unavailable"), { status: 503, headers: { "retry-after": "120" } });
   }
 }
 

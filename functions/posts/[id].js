@@ -6,13 +6,14 @@
 // Feeds unterscheiden sich, die Titel stimmen überein. Der Mitglieder-Teil wird beim
 // Rendern mit dem offiziellen Steady-Paywall-Element gegated (siehe render.js).
 import { getItems, normTitle } from "../_lib/feed.js";
-import { buildPageContext, getClaps } from "../_lib/settings.js";
+import { buildPageContext, getClaps, isConfigured } from "../_lib/settings.js";
 import { htmlResponse } from "../_lib/http.js";
-import { renderPost, render404 } from "../_lib/render.js";
+import { renderPost, render404, renderOnboarding } from "../_lib/render.js";
 
 export async function onRequestGet(context) {
   const id = context.params.id;
   const { cfg, cacheControl } = await buildPageContext(context);
+  if (!isConfigured(cfg)) return htmlResponse(renderOnboarding(), "no-store");
 
   let items = [];
   try {

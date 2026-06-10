@@ -10,6 +10,11 @@
 (function () {
   var D = document.documentElement;
 
+  /* — i18n: page.js injiziert window.KIT_I18N (Sprache aus kit.config.js).
+       Die deutschen Literale bleiben als eingebauter Fallback. — */
+  var I18N = window.KIT_I18N || {};
+  function T(key, fallback) { return I18N[key] != null ? I18N[key] : fallback; }
+
   /* — Storage-Helfer: localStorage zuerst, dann global veröffentlichte Basis — */
   function gs(k, d) {
     try { var v = localStorage.getItem(k); if (v != null) return v; } catch (e) {}
@@ -144,7 +149,7 @@
           b.type = "button";
           b.className = "cz-font-opt";
           var nm = document.createElement("span"); nm.textContent = f.n;
-          var ct = document.createElement("em"); ct.textContent = f.c || f.g || "";
+          var ct = document.createElement("em"); ct.textContent = (I18N.cats && I18N.cats[f.c]) || f.c || f.g || "";
           b.appendChild(nm); b.appendChild(ct);
           // mousedown statt click: feuert vor dem blur des Inputs (Popup bleibt benutzbar)
           b.addEventListener("mousedown", function (e) {
@@ -176,7 +181,7 @@
     for (var pi = 0; pi < window.KIT_PAIRS.length; pi++) {
       var pp = window.KIT_PAIRS[pi];
       var po = document.createElement("option");
-      po.value = pi; po.textContent = pp.n;
+      po.value = pi; po.textContent = (I18N.pairs && I18N.pairs[pi]) || pp.n;
       pairSel.appendChild(po);
     }
     pairSel.addEventListener("change", function () {
@@ -224,7 +229,8 @@
       (function (idx) {
         var p = window.KIT_PALETTES[idx];
         var b = document.createElement("button");
-        b.title = p.n + ((window.KIT_RL && window.KIT_RL(p.v["--color-bg"] || "#FFFFFF") < 0.42) ? " (dunkel)" : "");
+        b.title = ((I18N.palettes && I18N.palettes[idx]) || p.n)
+          + ((window.KIT_RL && window.KIT_RL(p.v["--color-bg"] || "#FFFFFF") < 0.42) ? T("palette.dark", " (dunkel)") : "");
         var brand = p.v["--color-brand"], bg = p.v["--color-bg"] || "#FFFFFF";
         b.style.background = "linear-gradient(135deg, " + brand + " 0 50%, " + bg + " 50% 100%)";
         b.addEventListener("click", function () { window.kitPalette(idx, true); markPal(); syncColors(); clearLook(); });
@@ -322,10 +328,10 @@
       var row = document.createElement("div"); row.className = "cz-nav-row";
       var grip = document.createElement("button");
       grip.type = "button"; grip.className = "cz-nav-grip"; grip.textContent = "⠿";
-      grip.title = "Ziehen oder Pfeiltasten zum Sortieren"; grip.setAttribute("aria-label", "Link verschieben");
-      var label = document.createElement("input"); label.className = "cz-nav-l"; label.placeholder = "Label"; label.value = (n && n.l) || "";
-      var href = document.createElement("input"); href.className = "cz-nav-h"; href.placeholder = "URL"; href.value = (n && n.h) || "";
-      var del = document.createElement("button"); del.type = "button"; del.className = "cz-nav-x"; del.textContent = "×"; del.title = "Entfernen";
+      grip.title = T("nav.grip.title", "Ziehen oder Pfeiltasten zum Sortieren"); grip.setAttribute("aria-label", T("nav.grip.aria", "Link verschieben"));
+      var label = document.createElement("input"); label.className = "cz-nav-l"; label.placeholder = T("nav.label.ph", "Label"); label.value = (n && n.l) || "";
+      var href = document.createElement("input"); href.className = "cz-nav-h"; href.placeholder = T("nav.url.ph", "URL"); href.value = (n && n.h) || "";
+      var del = document.createElement("button"); del.type = "button"; del.className = "cz-nav-x"; del.textContent = "×"; del.title = T("nav.remove", "Entfernen");
       del.addEventListener("click", function () { if (row.parentNode) row.parentNode.removeChild(row); });
       grip.addEventListener("keydown", function (e) {
         if (e.key === "ArrowUp") { e.preventDefault(); moveRow(row, -1); grip.focus(); }
@@ -396,7 +402,7 @@
     function renderResults(results, query) {
       sRes.innerHTML = ""; sActive = -1;
       if (!results.length) {
-        if (query) { var p = document.createElement("p"); p.className = "kit-search__empty"; p.textContent = "Keine Treffer für „" + query + "“."; sRes.appendChild(p); }
+        if (query) { var p = document.createElement("p"); p.className = "kit-search__empty"; p.textContent = T("search.empty", "Keine Treffer für „{q}“.").split("{q}").join(query); sRes.appendChild(p); }
         return;
       }
       results.forEach(function (r) {
@@ -440,14 +446,14 @@
     var c = null;
     try { c = localStorage.getItem("kitAdmin"); } catch (e) {}
     if (!c) {
-      c = window.prompt("Admin-Code für globale Änderungen:");
+      c = window.prompt(T("admin.prompt", "Admin-Code für globale Änderungen:"));
       if (c) { c = c.trim(); try { localStorage.setItem("kitAdmin", c); } catch (e) {} }
     }
     return c;
   }
   function kitAdminFail() {
     try { localStorage.removeItem("kitAdmin"); } catch (e) {}
-    alert("Admin-Code falsch oder fehlt.");
+    alert(T("admin.fail", "Admin-Code falsch oder fehlt."));
   }
 
   /* ---------------------------------------------------------------- Logo (global, KV) */
@@ -455,7 +461,7 @@
   if (logoFile) logoFile.addEventListener("change", function () {
     var f = logoFile.files && logoFile.files[0];
     if (!f) return;
-    if (f.size > 1572864) { alert("Logo zu groß (max. 1,5 MB)."); logoFile.value = ""; return; }
+    if (f.size > 1572864) { alert(T("logo.toobig", "Logo zu groß (max. 1,5 MB).")); logoFile.value = ""; return; }
     var code = kitAdminCode();
     logoFile.value = "";
     if (!code) return;
@@ -466,9 +472,9 @@
         body: f,
       }).then(function (r) {
         if (r.status === 401) { kitAdminFail(); return; }
-        if (!r.ok) { alert("Logo-Upload fehlgeschlagen."); return; }
+        if (!r.ok) { alert(T("logo.fail", "Logo-Upload fehlgeschlagen.")); return; }
         location.reload();
-      }).catch(function () { alert("Logo-Upload fehlgeschlagen."); });
+      }).catch(function () { alert(T("logo.fail", "Logo-Upload fehlgeschlagen.")); });
     }
     // Seitenverhältnis fürs Server-Meta ermitteln (Fallback 4:1)
     var url = URL.createObjectURL(f), im = new Image();
@@ -495,10 +501,11 @@
     for (var lo = 0; lo < window.KIT_LOOKS.length; lo++) {
       (function (idx) {
         var L = window.KIT_LOOKS[idx];
+        var Li = (I18N.looks && I18N.looks[idx]) || {};
         var b = document.createElement("button");
         b.className = "cz-look";
-        var bb = document.createElement("b"); bb.textContent = L.n;
-        var sp = document.createElement("span"); sp.textContent = L.d || "";
+        var bb = document.createElement("b"); bb.textContent = Li.n || L.n;
+        var sp = document.createElement("span"); sp.textContent = Li.d || L.d || "";
         b.appendChild(bb); b.appendChild(sp);
         b.addEventListener("click", function () { window.kitLook(idx, true); syncAll(); });
         looksEl.appendChild(b);
@@ -548,7 +555,7 @@
     var payload = { skin: skin, kitstruct: cookieValue("kitstruct"), kitchrome: cookieValue("kitchrome") };
     var orig = pubBtn.textContent;
     pubBtn.disabled = true;
-    pubBtn.textContent = "Speichert …";
+    pubBtn.textContent = T("pub.saving", "Speichert …");
     fetch("/api/config", {
       method: "PUT",
       headers: { "x-kit-admin": code, "content-type": "application/json" },
@@ -556,10 +563,10 @@
     }).then(function (r) {
       pubBtn.disabled = false;
       if (r.status === 401) { pubBtn.textContent = orig; kitAdminFail(); return; }
-      if (!r.ok) { pubBtn.textContent = orig; alert("Speichern fehlgeschlagen."); return; }
-      pubBtn.textContent = "✓ Für alle gespeichert";
+      if (!r.ok) { pubBtn.textContent = orig; alert(T("pub.fail", "Speichern fehlgeschlagen.")); return; }
+      pubBtn.textContent = T("pub.done", "✓ Für alle gespeichert");
       setTimeout(function () { pubBtn.textContent = orig; }, 2200);
-    }).catch(function () { pubBtn.disabled = false; pubBtn.textContent = orig; alert("Speichern fehlgeschlagen."); });
+    }).catch(function () { pubBtn.disabled = false; pubBtn.textContent = orig; alert(T("pub.fail", "Speichern fehlgeschlagen.")); });
   });
 
   /* ---------------------------------------------------------------- Publish-Status + Revert */
@@ -570,8 +577,8 @@
     if (!pubTs) return;
     fetch("/api/config").then(function (r) { return r.json(); }).then(function (j) {
       pubTs.textContent = (j && j.ts)
-        ? "Stand: " + new Date(j.ts).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })
-        : "Noch nichts veröffentlicht";
+        ? T("pub.stand", "Stand: ") + new Date(j.ts).toLocaleString(window.KIT_LOCALE || "de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })
+        : T("pub.none", "Noch nichts veröffentlicht");
     }).catch(function () { pubTs.textContent = "–"; });
   }
   refreshPubMeta();
@@ -582,8 +589,8 @@
     fetch("/api/config", { method: "PATCH", headers: { "x-kit-admin": code } }).then(function (r) {
       pubUndo.disabled = false;
       if (r.status === 401) { kitAdminFail(); return; }
-      if (r.status === 404) { alert("Keine Vorversion vorhanden."); return; }
-      if (!r.ok) { alert("Zurücknehmen fehlgeschlagen."); return; }
+      if (r.status === 404) { alert(T("undo.none", "Keine Vorversion vorhanden.")); return; }
+      if (!r.ok) { alert(T("undo.fail", "Zurücknehmen fehlgeschlagen.")); return; }
       location.reload(); // Vorversion ist jetzt aktiv
     }).catch(function () { pubUndo.disabled = false; });
   });
@@ -614,7 +621,7 @@
       navigator.share({ title: title, url: url }).catch(function () {});
     } else if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(url).then(function () {
-        if (label) { label.textContent = "Link kopiert ✓"; setTimeout(function () { label.textContent = "Teilen"; }, 1800); }
+        if (label) { label.textContent = T("share.copied", "Link kopiert ✓"); setTimeout(function () { label.textContent = T("share", "Teilen"); }, 1800); }
       }).catch(function () {});
     }
   });
@@ -626,7 +633,7 @@
     var next = parseInt(loadMoreBtn.getAttribute("data-next"), 10);
     var pages = parseInt(loadMoreBtn.getAttribute("data-pages"), 10);
     loadMoreBtn.disabled = true;
-    loadMoreBtn.textContent = "Lädt …";
+    loadMoreBtn.textContent = T("loading", "Lädt …");
     var base = loadMoreBtn.getAttribute("data-url") || "/";
     var sep = base.indexOf("?") >= 0 ? "&" : "?";
     fetch(base + sep + "page=" + next).then(function (r) { return r.text(); }).then(function (html) {
@@ -636,8 +643,8 @@
       next++;
       loadMoreBtn.setAttribute("data-next", next);
       loadMoreBtn.disabled = false;
-      loadMoreBtn.textContent = "Mehr laden";
+      loadMoreBtn.textContent = T("loadmore", "Mehr laden");
       if (next > pages) loadMoreBtn.style.display = "none";
-    }).catch(function () { loadMoreBtn.disabled = false; loadMoreBtn.textContent = "Mehr laden"; });
+    }).catch(function () { loadMoreBtn.disabled = false; loadMoreBtn.textContent = T("loadmore", "Mehr laden"); });
   });
 })();

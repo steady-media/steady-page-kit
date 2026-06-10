@@ -8,6 +8,17 @@
 // Struktur (Shell/Aufmacher/Stream/Leisten/Header) rendert der SERVER aus dem Cookie;
 // Skin (Fonts/Farben/Karten) wendet der CLIENT an (public/assets/kit-theme.js).
 
+import { FEED_URL } from "./config.js";
+
+/**
+ * Effektiv konfiguriert? Zählt kit.config.js (FEED_URL aus dem Slug abgeleitet)
+ * UND den FEED_URL-Env-Override (cfg.feedUrl aus buildPageContext). Unkonfigurierte
+ * Installationen zeigen die Onboarding-Seite statt einer Fehlerseite.
+ */
+export function isConfigured(cfg) {
+  return !!((cfg && cfg.feedUrl) || FEED_URL);
+}
+
 /** Default-Struktur = einspaltige Seite mit Split-Hero und flacher Liste. */
 export function parseStruct(cookie) {
   const def = { shell: "single", auf: "klein", stream: "liste", rails: [],

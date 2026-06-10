@@ -7,6 +7,7 @@
 // damit kein Beitrag oben doppelt erscheint.
 
 import { PUBLICATION, PER_PAGE, PINNED_GUID, MEMBER_HEADING } from "./config.js";
+import { t } from "./i18n.js";
 import { esc, fmtDate, slugify, teaser } from "./util.js";
 import { normTitle, topCategories } from "./feed.js";
 import { ICON_BACK, ICON_CLAP, ICON_SHARE } from "./icons.js";
@@ -62,7 +63,7 @@ function aufmacherArticle(hero, withImage, side) {
   const body = `<div class="aufmacher__body">
     <h1 class="aufmacher__title"><a href="/posts/${esc(hero.guid)}">${esc(hero.title)}</a></h1>
     ${hero.description ? `<p class="aufmacher__excerpt">${esc(hero.description)}</p>` : ""}
-    <div class="aufmacher__meta"><span>${esc(fmtDate(hero.pubDate))}</span><span>${readMin(hero)} Min Lesezeit</span></div>
+    <div class="aufmacher__meta"><span>${esc(fmtDate(hero.pubDate))}</span><span>${esc(t("read.min", { min: readMin(hero) }))}</span></div>
   </div>`;
   return `<article class="aufmacher${side ? " aufmacher--side" : ""}">${side ? media + body : body + media}</article>`;
 }
@@ -70,17 +71,17 @@ function aufmacherArticle(hero, withImage, side) {
 /* — Portal-Leisten (Module der 3-Spalten-Shell) — */
 
 function railLatest(items) {
-  return `<div class="rail-module"><h2 class="rail-module__title">Neueste Inhalte</h2>
+  return `<div class="rail-module"><h2 class="rail-module__title">${t("rail.latest")}</h2>
     <ul class="rail-list">${items.slice(0, 3).map(it => `<li><a href="/posts/${esc(it.guid)}"><span class="rail-list__t">${esc(it.title)}</span><span class="rail-list__d">${esc(fmtDate(it.pubDate))}</span></a></li>`).join("")}</ul></div>`;
 }
 function railPopular(items) {
-  return `<div class="rail-module"><h2 class="rail-module__title">Meistgelesen</h2>
+  return `<div class="rail-module"><h2 class="rail-module__title">${t("rail.popular")}</h2>
     <ol class="rail-num">${items.slice(0, 3).map((it, i) => i === 0
       ? `<li class="rail-num__lead"><a href="/posts/${esc(it.guid)}"><span class="rail-num__n">1</span><img class="rail-num__media" loading="lazy" alt="" src="${teaser(it.image, 420, 236)}"/><span class="rail-num__t">${esc(it.title)}</span></a></li>`
       : `<li><a href="/posts/${esc(it.guid)}"><span class="rail-num__n">${i + 1}</span><span class="rail-num__t">${esc(it.title)}</span></a></li>`).join("")}</ol></div>`;
 }
 function railTopics(cats) {
-  return `<div class="rail-module"><h2 class="rail-module__title">Meine Themen</h2>
+  return `<div class="rail-module"><h2 class="rail-module__title">${t("rail.topics")}</h2>
     <div class="rail-pills">${cats.map(pill).join("")}</div></div>`;
 }
 
@@ -130,7 +131,7 @@ function rubrikStream(rest, cats, leadItems) {
   return lead + cats.map((cat, i) => {
     const inCat = rest.filter(it => it.categories.includes(cat));
     if (!inCat.length) return "";
-    const head = `<header class="rubrik__head"><a class="rubrik__chip" href="/rubrik/${slugify(cat)}">${esc(cat)}</a><a class="rubrik__more" href="/rubrik/${slugify(cat)}">Mehr →</a></header>`;
+    const head = `<header class="rubrik__head"><a class="rubrik__chip" href="/rubrik/${slugify(cat)}">${esc(cat)}</a><a class="rubrik__more" href="/rubrik/${slugify(cat)}">${esc(t("more.arrow"))}</a></header>`;
     const mode = MODES[i % 3];
     let body;
     if (mode === "feature") {
@@ -191,7 +192,7 @@ export function renderLanding(items, page = 1, cfg) {
     const slice = rest.slice((p - 1) * PER_PAGE, p * PER_PAGE);
     const pills = cats.map(pill).join("");
     const more = pages > 1
-      ? `<div class="loadmore-wrap"><button class="load-more" id="js-loadmore" data-next="${p + 1}" data-pages="${pages}" data-url="/">Mehr laden</button></div>`
+      ? `<div class="loadmore-wrap"><button class="load-more" id="js-loadmore" data-next="${p + 1}" data-pages="${pages}" data-url="/">${esc(t("loadmore"))}</button></div>`
       : "";
     stream = `<div class="container">
   <div class="pills">${pills}</div>
@@ -203,7 +204,7 @@ export function renderLanding(items, page = 1, cfg) {
   }
 
   const meta = {
-    desc: cfg.channelDesc || `Aktuelle Beiträge von ${PUBLICATION}`,
+    desc: cfg.channelDesc || t("landing.desc", { name: PUBLICATION }),
     path: "/",
     image: hero.image ? teaser(hero.image, 1200, 630) : "",
   };
@@ -222,14 +223,14 @@ export function renderSection(category, items, allItems, page = 1, cfg) {
   const p = Math.min(Math.max(1, page), pages);
   const slice = rest.slice((p - 1) * PER_PAGE, p * PER_PAGE);
   const more = p < pages
-    ? `<div class="loadmore-wrap"><button class="load-more" id="js-loadmore" data-next="${p + 1}" data-pages="${pages}" data-url="/rubrik/${slug}">Mehr laden</button></div>`
+    ? `<div class="loadmore-wrap"><button class="load-more" id="js-loadmore" data-next="${p + 1}" data-pages="${pages}" data-url="/rubrik/${slug}">${esc(t("loadmore"))}</button></div>`
     : "";
   const aufmacher = featured ? `<section class="aufmacher-band"><div class="container">
     <p class="section-eyebrow"><a class="post__back" href="/">${ICON_BACK} ${esc(PUBLICATION)}</a><span class="section-chip">${esc(display)}</span></p>
     ${aufmacherArticle(featured, true, true)}
   </div></section>` : "";
   const meta = {
-    desc: `Alle Beiträge aus der Rubrik ${display} bei ${PUBLICATION}.`,
+    desc: t("rubrik.desc", { category: display, name: PUBLICATION }),
     path: "/rubrik/" + slug,
     image: (featured && featured.image) ? teaser(featured.image, 1200, 630) : "",
   };
@@ -241,16 +242,24 @@ export function renderSection(category, items, allItems, page = 1, cfg) {
 </div></main>` + footer();
 }
 
+// String wörtlich in eine RegExp einbetten (die Mitglieder-Überschrift ist
+// Publisher-Input aus kit.config.js — Sonderzeichen dürfen das Muster nicht brechen).
+function escapeRegExp(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 /**
  * Volltext-HTML aufbereiten:
  *  1. führendes <h1> (Titel-Echo) und ggf. die doppelte Lede entfernen — beides
  *     zeigen wir bereits im Seitenkopf,
  *  2. Steady-Editor-Tönungen (<mark style="background…">) entfernen — sie markieren
  *     den Mitglieder-Teil nur visuell und kollidieren mit Dark Mode,
- *  3. vor der Mitglieder-Überschrift („${MEMBER_HEADING} 🔒") das offizielle
+ *  3. vor der Mitglieder-Überschrift („<memberHeading> 🔒") das offizielle
  *     Steady-Paywall-Element einsetzen → das Widget übernimmt das Gating.
+ * `memberHeading` ist parametrisiert (Default: kit.config.js), damit Tests und
+ * abweichende Publikationen unabhängig von der Publisher-Datei bleiben.
  */
-export function prepareFullText(full, description) {
+export function prepareFullText(full, description, memberHeading = MEMBER_HEADING) {
   let out = full.replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>\s*/i, "");
   if (description) {
     const fp = out.match(/^\s*<p\b[^>]*>([\s\S]*?)<\/p>\s*/i);
@@ -262,8 +271,8 @@ export function prepareFullText(full, description) {
     }
   }
   out = out.replace(/<\/?mark\b[^>]*>/gi, "");
-  const memberHeading = new RegExp(`<h[23]\\b[^>]*>(?:(?!</h[23]>)[\\s\\S])*?${MEMBER_HEADING}`, "i");
-  const m = out.search(memberHeading);
+  const headingRe = new RegExp(`<h[23]\\b[^>]*>(?:(?!</h[23]>)[\\s\\S])*?${escapeRegExp(memberHeading)}`, "i");
+  const m = out.search(headingRe);
   if (m >= 0) out = out.slice(0, m) + STEADY_PAYWALL_MARKER + out.slice(m);
   return out;
 }
@@ -276,23 +285,22 @@ export function prepareFullText(full, description) {
 export function renderPost(item, cfg = {}, full = "", extras = {}) {
   const { claps = 0, prev = null, next = null } = extras;
   const fullClean = full ? prepareFullText(full, item.description) : "";
-  const cat = (item.categories && item.categories.find(c => c && c.trim())) || "Newsletter";
+  const cat = (item.categories && item.categories.find(c => c && c.trim())) || t("post.fallbackCategory");
   const heroImg = item.image
     ? `<figure class="post__hero"><img alt="" src="${teaser(item.image, 1600, 1200)}"/></figure>` : "";
   const bodyInner = full
     ? `<div class="post__body post__body--full">${fullClean}</div>`
-    : `<div class="post__body"><p>Dieser Beitrag erscheint im Original auf Steady. Den vollständigen Text
-         liest du dort — inklusive Mitglieder-Inhalten.</p></div>`;
-  const cta = full ? "Auf Steady öffnen" : "Ganzen Beitrag auf Steady lesen";
+    : `<div class="post__body"><p>${esc(t("post.stub"))}</p></div>`;
+  const cta = full ? t("post.open") : t("post.readfull");
 
   // Nachbar-Navigation: next = neuerer, prev = älterer Beitrag (Feed ist neueste zuerst)
   const navLink = (p, cls, label) => p
-    ? `<a class="post-nav__a ${cls}" href="/posts/${esc(p.guid)}"><em>${label}</em><span>${esc(p.title)}</span></a>`
+    ? `<a class="post-nav__a ${cls}" href="/posts/${esc(p.guid)}"><em>${esc(label)}</em><span>${esc(p.title)}</span></a>`
     : `<span class="post-nav__spacer"></span>`;
   const postNav = (prev || next)
-    ? `<nav class="post__col post-nav" aria-label="Weitere Beiträge">
-    ${navLink(next, "post-nav__a--next", "← Neuerer Beitrag")}
-    ${navLink(prev, "post-nav__a--prev", "Älterer Beitrag →")}
+    ? `<nav class="post__col post-nav" aria-label="${esc(t("post.nav.aria"))}">
+    ${navLink(next, "post-nav__a--next", t("post.nav.newer"))}
+    ${navLink(prev, "post-nav__a--prev", t("post.nav.older"))}
   </nav>`
     : "";
 
@@ -317,8 +325,8 @@ export function renderPost(item, cfg = {}, full = "", extras = {}) {
   </div>
   <div class="post__col post__foot">
     <div class="post__react">
-      <button class="post__clap" id="js-clap" type="button" data-guid="${esc(item.guid)}" aria-label="Applaudieren">${ICON_CLAP}<span id="js-clap-n">${claps}</span></button>
-      <button class="post__share" id="js-share" type="button" data-title="${esc(item.title)}">${ICON_SHARE}<span id="js-share-t">Teilen</span></button>
+      <button class="post__clap" id="js-clap" type="button" data-guid="${esc(item.guid)}" aria-label="${esc(t("post.clap.aria"))}">${ICON_CLAP}<span id="js-clap-n">${claps}</span></button>
+      <button class="post__share" id="js-share" type="button" data-title="${esc(item.title)}">${ICON_SHARE}<span id="js-share-t">${esc(t("post.share"))}</span></button>
     </div>
   </div>
   ${postNav}
@@ -328,25 +336,65 @@ export function renderPost(item, cfg = {}, full = "", extras = {}) {
 /** Fallback, wenn der Feed nicht erreichbar ist. */
 export function renderEmpty(cfg = {}) {
   return head(PUBLICATION, cfg, { noindex: true }) + header({ tabs: true, activePath: "/" }, cfg) +
-    `<main id="main"><div class="container" style="padding:80px 0;color:var(--color-ink-soft)">Inhalte laden gerade nicht. Bitte gleich neu laden.</div></main>` +
+    `<main id="main"><div class="container" style="padding:80px 0;color:var(--color-ink-soft)">${esc(t("empty"))}</div></main>` +
     footer();
 }
 
 /** /memberships: Steady rendert den Checkout in den Container (Backend-Checkout-URL). */
 export function renderMemberships(cfg = {}) {
-  const meta = { desc: `Werde Mitglied von ${PUBLICATION} und unterstütze unabhängigen Journalismus.`, path: "/memberships" };
-  return head("Mitglied werden — " + PUBLICATION, cfg, meta) + header({ tabs: true, activePath: "/memberships" }, cfg) + `
+  const meta = { desc: t("memberships.desc", { name: PUBLICATION }), path: "/memberships" };
+  return head(t("memberships.title") + " — " + PUBLICATION, cfg, meta) + header({ tabs: true, activePath: "/memberships" }, cfg) + `
 <main id="main"><div class="container" style="padding:48px 0 72px">
-  <h1 style="font-family:var(--font-head);font-size:34px;font-weight:var(--weight-heading);text-align:center;letter-spacing:-.01em;margin:0 0 10px">Mitglied werden</h1>
-  <p style="text-align:center;color:var(--color-ink-soft);font-size:18px;margin:0 0 40px">Wähle deine Mitgliedschaft — der Checkout läuft direkt hier auf der Seite.</p>
+  <h1 style="font-family:var(--font-head);font-size:34px;font-weight:var(--weight-heading);text-align:center;letter-spacing:-.01em;margin:0 0 10px">${esc(t("memberships.title"))}</h1>
+  <p style="text-align:center;color:var(--color-ink-soft);font-size:18px;margin:0 0 40px">${esc(t("memberships.sub"))}</p>
   <!-- Steady rendert den Checkout in diesen Container (Backend Checkout-URL = /memberships) -->
   <div id="insert_steady_checkout_here" style="display:none;"></div>
 </div></main>` + footer();
 }
 
 export function render404(cfg = {}) {
-  return head("Nicht gefunden — " + PUBLICATION, cfg, { noindex: true }) + header({ tabs: false }, cfg) +
-    `<main id="main"><div class="container" style="padding:80px 0"><h1 style="font-size:32px">Beitrag nicht gefunden</h1>
-     <p style="color:var(--color-ink-soft)"><a class="btn btn--primary" href="/" style="margin-top:12px">Zur Startseite</a></p></div></main>` +
+  return head(t("notfound.pagetitle") + " — " + PUBLICATION, cfg, { noindex: true }) + header({ tabs: false }, cfg) +
+    `<main id="main"><div class="container" style="padding:80px 0"><h1 style="font-size:32px">${esc(t("notfound.title"))}</h1>
+     <p style="color:var(--color-ink-soft)"><a class="btn btn--primary" href="/" style="margin-top:12px">${esc(t("notfound.home"))}</a></p></div></main>` +
     footer();
+}
+
+/**
+ * Onboarding-Seite für unkonfigurierte Installationen (kit.config.js ohne Slug,
+ * kein FEED_URL-Env-Override). Bewusst self-contained — kein head()/header()/Feed,
+ * damit sie auch dann rendert, wenn sonst noch gar nichts stimmt.
+ */
+export function renderOnboarding() {
+  return `<!DOCTYPE html><html lang="de"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex"/>
+<title>Steady Page Kit — Setup</title>
+<style>
+  body{margin:0;font:17px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;color:#16242f;background:#f5f7f9}
+  .wrap{max-width:680px;margin:0 auto;padding:64px 24px}
+  .card{background:#fff;border:1px solid #e3e8ec;border-radius:12px;padding:36px 40px;margin-bottom:20px}
+  h1{font-size:26px;margin:0 0 6px}
+  h2{font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:#137ec0;margin:0 0 14px}
+  p{margin:0 0 12px}
+  .say{display:inline-block;background:#eef6fb;border:1px solid #cfe6f4;border-radius:8px;padding:6px 14px;font-weight:600}
+  code{background:#f0f3f5;border-radius:4px;padding:2px 6px;font-size:15px}
+  .muted{color:#5d6f7c;font-size:15px}
+</style></head><body><div class="wrap">
+<div class="card">
+  <h1>Steady Page Kit</h1>
+  <p class="muted">Diese Seite ist noch nicht eingerichtet. / This site isn't set up yet.</p>
+</div>
+<div class="card">
+  <h2>Deutsch</h2>
+  <p>Öffne diesen Projektordner in deinem KI-Coding-Tool (Claude&nbsp;Code, Cursor, Codex, Gemini&nbsp;CLI, Amp&nbsp;…) und sage:</p>
+  <p><span class="say">Richte meine Seite ein</span></p>
+  <p class="muted">Der Agent fragt nach deiner Steady-Publikation, füllt <code>kit.config.js</code> aus und bringt die Seite live (Ablauf: <code>docs/agent/SETUP.md</code>). Ohne KI-Tool: <code>kit.config.js</code> von Hand ausfüllen — die Kommentare darin erklären jedes Feld.</p>
+</div>
+<div class="card">
+  <h2>English</h2>
+  <p>Open this project folder in your AI coding tool (Claude&nbsp;Code, Cursor, Codex, Gemini&nbsp;CLI, Amp&nbsp;…) and say:</p>
+  <p><span class="say">Set up my page</span></p>
+  <p class="muted">The agent asks for your Steady publication, fills in <code>kit.config.js</code> and takes the site live (see <code>docs/agent/SETUP.md</code>). No AI tool? Fill in <code>kit.config.js</code> manually — its comments explain every field.</p>
+</div>
+</div></body></html>`;
 }
