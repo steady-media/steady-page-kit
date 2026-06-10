@@ -9,6 +9,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { startServer } from "../server/node.js";
 import { _resetFeedCache } from "../functions/_lib/feed.js";
+import { IS_CONFIGURED } from "../functions/_lib/config.js";
 
 const FEED_XML = `<?xml version="1.0"?><rss><channel>
 <title>Test-Publikation</title><description><![CDATA[Testfeed.]]></description>
@@ -148,7 +149,12 @@ test("405 bei nicht unterstützter Methode, mit Allow-Header", async () => {
   assert.ok(res.headers.get("allow").includes("GET"));
 });
 
-test("Onboarding-Modus: ohne Feed-Quelle zeigt / die Setup-Seite", async t => {
+test(
+  "Onboarding-Modus: ohne Feed-Quelle zeigt / die Setup-Seite",
+  // In gefüllten Publisher-Forks greift IS_CONFIGURED aus kit.config.js — den
+  // unkonfigurierten Zustand gibt es dort nicht mehr.
+  { skip: IS_CONFIGURED && "kit.config.js ist gefüllt (Fork)" },
+  async t => {
   const dir = await mkdtemp(join(tmpdir(), "kitdata2-"));
   const srv = await startServer({ port: 0, env: { FEED_URL: "", KIT_DATA_DIR: dir } });
   t.after(async () => { await new Promise(r => srv.close(r)); await rm(dir, { recursive: true, force: true }); });

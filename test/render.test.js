@@ -3,6 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { prepareFullText, renderPost, renderOnboarding } from "../functions/_lib/render.js";
+import { STEADY_PUBLICATION_ID, SITE_ORIGIN } from "../functions/_lib/config.js";
 
 const FULL = `<h1>Mein Titel</h1><p>Die Lede aus dem Feed.</p><p>Öffentlicher Absatz.</p>
 <hr aria-hidden="true"/><h2><mark style="background-color: rgb(230, 243, 251); color: inherit">Mitglieder-Bereich</mark><strong><mark style="background-color: rgb(230, 243, 251); color: inherit"> 🔒</mark></strong></h2><p>Geheimer Inhalt.</p>`;
@@ -67,8 +68,14 @@ test("renderPost: SEO-Meta, echte Reaktionen, Nachbar-Navigation", () => {
   assert.ok(html.includes("Älterer Beitrag"));              // Prev-Link
 });
 
-test("renderPost: ohne Publikations-ID und Origin kein Widget-Script, kein Canonical", () => {
-  const html = renderPost(ITEM, {}, "", {});
-  assert.ok(!html.includes("widget_loader"));
-  assert.ok(!html.includes('rel="canonical"'));
-});
+test(
+  "renderPost: ohne Publikations-ID und Origin kein Widget-Script, kein Canonical",
+  // In Publisher-Forks ist kit.config.js gefüllt → Defaults sind gesetzt, der
+  // Leer-Zustand existiert dort nicht. Test gilt nur für das Template selbst.
+  { skip: !!(STEADY_PUBLICATION_ID || SITE_ORIGIN) && "kit.config.js ist gefüllt (Fork)" },
+  () => {
+    const html = renderPost(ITEM, {}, "", {});
+    assert.ok(!html.includes("widget_loader"));
+    assert.ok(!html.includes('rel="canonical"'));
+  }
+);

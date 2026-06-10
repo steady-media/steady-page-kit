@@ -3,7 +3,7 @@
 // Inhalt der kit.config.js (Publisher-Datei!) testbar bleibt.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { normalizeSlug, deriveSteady, IS_CONFIGURED, FEED_URL, MEMBER_HEADING } from "../functions/_lib/config.js";
+import { normalizeSlug, deriveSteady, IS_CONFIGURED, FEED_URL, MEMBER_HEADING, STEADY_SLUG, LANGUAGE } from "../functions/_lib/config.js";
 import { isConfigured } from "../functions/_lib/settings.js";
 
 test("normalizeSlug: nackte Slugs, @-Präfix, Whitespace", () => {
@@ -41,12 +41,12 @@ test("deriveSteady: leerer Slug → leere URLs (Onboarding-Modus)", () => {
   assert.equal(d.newsletterUrl, "");
 });
 
-test("Template-Zustand: kit.config.js wird leer ausgeliefert → unkonfiguriert", () => {
-  // Das Template selbst darf keinen Publisher eingebrannt haben.
-  assert.equal(FEED_URL, "");
-  assert.equal(IS_CONFIGURED, false);
-  // Sprach-Default (de) für die Mitglieder-Überschrift bleibt gesetzt.
-  assert.equal(MEMBER_HEADING, "Mitglieder-Bereich");
+test("kit.config.js: Ableitungen konsistent — gilt für Template UND gefüllte Forks", () => {
+  // Bewusst KEIN Test auf Leere: Publisher-Forks haben kit.config.js gefüllt,
+  // und `npm test` muss dort genauso grün sein wie im leeren Template.
+  assert.equal(IS_CONFIGURED, FEED_URL !== "");
+  assert.equal(FEED_URL, deriveSteady(STEADY_SLUG, LANGUAGE).feedUrl);
+  assert.ok(MEMBER_HEADING.length > 0); // leer konfiguriert → Sprach-Default greift
 });
 
 test("isConfigured: FEED_URL-Env-Override zählt als konfiguriert", () => {
