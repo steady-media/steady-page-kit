@@ -1,12 +1,10 @@
-# Cloudflare-Pages-Konfiguration — NUR für den Cloudflare-Pfad relevant.
-# Setup (Agent oder Mensch): docs/agent/deploy/cloudflare.md
-#   1. name = dein Projektname (z. B. dein Steady-Slug)
-#   2. id   = deine KV-Namespace-ID aus `npx wrangler kv namespace create KIT_KV`
-name = "steady-page-kit"
+# Cloudflare-Pages-Konfiguration dieser Installation (Blaupause).
+# Template-Setup für andere Publisher: docs/agent/deploy/cloudflare.md
+name = "blaupause-kit"
 compatibility_date = "2025-06-01"
 pages_build_output_dir = "public"
 
 # KV-Store: global veröffentlichte Config + Logo + Clap-Zähler
 [[kv_namespaces]]
 binding = "KIT_KV"
-id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+id = "f1fbf2e7082641368c3e72a00c120c2a"
