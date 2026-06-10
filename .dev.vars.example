@@ -1,17 +1,18 @@
-# Lokale Secrets für `npm run dev` — Kopie als .dev.vars anlegen (ist gitignored!).
-# Produktion: npx wrangler pages secret put <NAME> --project-name blaupause-kit
+# Lokale Secrets für den Cloudflare-Pfad (npm run dev:cf) — Kopie als .dev.vars anlegen
+# (gitignored). Produktion: npx wrangler pages secret put <NAME> --project-name <name>
+# Local secrets for the Cloudflare path — copy to .dev.vars (gitignored).
 
-# Authentifizierter Steady-RSS-Feed mit Volltexten (content:encoded).
-# Enthält den pub_auth-Token → niemals committen.
-FULLTEXT_FEED_URL=
-
-# Admin-Code für globales Schreiben (Logo, „Für alle Besucher speichern", Revert).
+# Admin-Code für globales Schreiben (Panel: „Für alle Besucher speichern", Logo, Revert).
 KIT_ADMIN_CODE=
+
+# Optional: Authentifizierter Steady-RSS-Feed mit Volltexten (content:encoded).
+# Steady-Backend → Einstellungen → RSS-Feed. Enthält den Auth-Token → niemals committen!
+FULLTEXT_FEED_URL=
 
 # Optional: Cloudflare Web Analytics (Beacon-Token aus dem Dashboard).
 # ANALYTICS_TOKEN=
 
-# Optional (Portabilität): Kit für eine andere Publikation betreiben.
+# Optional (Overrides — normalerweise kommt alles aus kit.config.js):
 # FEED_URL=
 # SITE_ORIGIN=
 # STEADY_PUBLICATION_ID=
