@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { parseFeed, parseChannelMeta, normTitle, topCategories } from "../functions/_lib/feed.js";
 
 const XML = `<?xml version="1.0"?><rss><channel>
-<title>Blaupause</title><description><![CDATA[Der Newsletter über Medien.]]></description>
+<title>Beispiel-Publikation</title><description><![CDATA[Der Newsletter über Medien.]]></description>
 <item>
   <title><![CDATA[Hallo Welt]]></title>
   <description><![CDATA[Ein Teaser.]]></description>
@@ -33,7 +33,7 @@ test("parseFeed extrahiert alle Item-Felder", () => {
 
 test("parseChannelMeta liest den Channel-Kopf", () => {
   const meta = parseChannelMeta(XML);
-  assert.equal(meta.title, "Blaupause");
+  assert.equal(meta.title, "Beispiel-Publikation");
   assert.equal(meta.description, "Der Newsletter über Medien.");
 });
 

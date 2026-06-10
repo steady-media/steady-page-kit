@@ -38,7 +38,9 @@ a{color:inherit;text-decoration:none;} img{display:block;max-width:100%;}
 .site-header{border-bottom:0;background:#fff;}
 .site-header__inner{display:flex;align-items:center;justify-content:space-between;height:74px;}
 .brand{display:flex;align-items:center;gap:11px;}
-.brand__logo{width:34px;height:34px;border-radius:2px;background:url(/assets/logo.png) center/cover no-repeat;flex:none;}
+/* Default-Brand-Icon: Quadrat in Markenfarbe (themefähig, kein Asset nötig);
+   ein global hochgeladenes Logo (KV) ersetzt Icon + Wortmarke komplett. */
+.brand__logo{width:34px;height:34px;border-radius:2px;background:var(--color-brand);flex:none;}
 /* global hochgeladenes Logo (KV): skaliert proportional in 240×32 */
 .brand__logo-img{max-height:32px;max-width:240px;width:auto;height:auto;display:block;flex:none;object-fit:contain;}
 .brand__name{font-weight:700;font-size:15px;letter-spacing:.13em;text-transform:uppercase;}
