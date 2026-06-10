@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "wrangler pages dev public",
     "deploy": "wrangler pages deploy public --project-name blaupause-kit --branch main",
-    "check": "sh -c 'for f in functions/index.js functions/memberships.js functions/posts/*.js functions/rubrik/*.js functions/_lib/*.js functions/api/*.js public/assets/kit-*.js; do node --check \"$f\" || exit 1; done; echo \"check: alle Dateien ok\"'"
+    "check": "sh -c 'for f in functions/*.js functions/posts/*.js functions/rubrik/*.js functions/_lib/*.js functions/api/*.js public/assets/kit-*.js; do node --check \"$f\" || exit 1; done; echo \"check: alle Dateien ok\"'",
+    "test": "node --test test/*.test.js"
   },
   "devDependencies": {
     "wrangler": "^4"

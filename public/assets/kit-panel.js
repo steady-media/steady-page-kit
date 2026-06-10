@@ -30,8 +30,12 @@
     try { localStorage.setItem("kitPanelOpen", open ? "1" : "0"); } catch (e) {}
   }
   var openBtn = document.getElementById("cz-open"), closeBtn = document.getElementById("cz-close");
-  if (openBtn) openBtn.addEventListener("click", function () { setOpen(true); });
-  if (closeBtn) closeBtn.addEventListener("click", function () { setOpen(false); });
+  if (openBtn) openBtn.addEventListener("click", function () { setOpen(true); if (closeBtn) closeBtn.focus(); });
+  if (closeBtn) closeBtn.addEventListener("click", function () { setOpen(false); if (openBtn) openBtn.focus(); });
+  // ESC schließt das Panel (Suche/Dialoge fangen ESC selbst ab)
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && D.classList.contains("cz-on")) { setOpen(false); if (openBtn) openBtn.focus(); }
+  });
 
   // Offene Sektionen als Index-Liste merken (kitAcc2), beim Laden wiederherstellen
   function saveAccordion() {
@@ -241,7 +245,7 @@
     layout: { cols: "3", width: "standard", dens: "komfortabel", corner: "eckig", hero: "split", nav: "standard" },
     type:   { size: "standard", lead: "normal", track: "normal", case: "normal", align: "links" },
     card:   { style: "classic", aspect: "16:9", surface: "flat", image: "farbe" },
-    struct: { shell: "single", auf: "klein", stream: "liste", header: "links", search: "0" },
+    struct: { shell: "single", auf: "klein", stream: "liste", header: "links", search: "0", nl: "1" },
   };
   var STORE_KEYS = { layout: "kitLayout", type: "kitType", card: "kitCard", struct: "kitStruct" };
   function currentValue(fn, kind) {
@@ -367,26 +371,66 @@
     });
   }
 
-  /* ---------------------------------------------------------------- Suche (Cloudflare AI Search) */
+  /* ---------------------------------------------------------------- Suche (feed-basiert, /api/search) */
   var searchBtn = document.querySelector(".tabs__search");
-  if (searchBtn) {
-    var openSearch = function () {
-      var m = document.querySelector("search-modal-snippet");
-      if (m && typeof m.open === "function") m.open();
-    };
+  var searchDlg = document.getElementById("kit-search");
+  if (searchBtn && searchDlg) {
+    var sIn = document.getElementById("kit-search-in");
+    var sRes = document.getElementById("kit-search-res");
+    var sTimer = null, sActive = -1;
+
+    function openSearch() {
+      if (typeof searchDlg.showModal === "function") searchDlg.showModal();
+      else searchDlg.setAttribute("open", "");
+      sIn.value = ""; sRes.innerHTML = ""; sActive = -1;
+      sIn.focus();
+    }
+    function closeSearch() {
+      if (typeof searchDlg.close === "function") searchDlg.close();
+      else searchDlg.removeAttribute("open");
+    }
+    function markActive(links) {
+      for (var i = 0; i < links.length; i++) links[i].classList.toggle("is-active", i === sActive);
+      if (links[sActive]) links[sActive].scrollIntoView({ block: "nearest" });
+    }
+    function renderResults(results, query) {
+      sRes.innerHTML = ""; sActive = -1;
+      if (!results.length) {
+        if (query) { var p = document.createElement("p"); p.className = "kit-search__empty"; p.textContent = "Keine Treffer für „" + query + "“."; sRes.appendChild(p); }
+        return;
+      }
+      results.forEach(function (r) {
+        var a = document.createElement("a");
+        a.className = "kit-search__a"; a.href = r.u;
+        var t = document.createElement("span"); t.className = "kit-search__t"; t.textContent = r.t;
+        a.appendChild(t);
+        if (r.d) { var d = document.createElement("span"); d.className = "kit-search__d"; d.textContent = r.d; a.appendChild(d); }
+        var m = document.createElement("span"); m.className = "kit-search__m";
+        m.textContent = [r.c, r.dt].filter(Boolean).join(" · ");
+        if (m.textContent) a.appendChild(m);
+        sRes.appendChild(a);
+      });
+    }
+    function runSearch() {
+      var q = sIn.value.trim();
+      if (q.length < 2) { renderResults([], ""); return; }
+      fetch("/api/search?q=" + encodeURIComponent(q))
+        .then(function (r) { return r.json(); })
+        .then(function (j) { if (sIn.value.trim() === q) renderResults((j && j.results) || [], q); })
+        .catch(function () {});
+    }
     searchBtn.addEventListener("click", openSearch);
     searchBtn.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openSearch(); } });
-  }
-  // Snippet-Farben an die Marke koppeln (inline gewinnt gegen :host-Defaults des Widgets)
-  var sms = document.querySelector("search-modal-snippet");
-  if (sms) {
-    var dc = getComputedStyle(document.documentElement);
-    var brandCol = (dc.getPropertyValue("--color-brand") || "#137EC0").trim();
-    var inkCol = (dc.getPropertyValue("--color-ink") || "#291E38").trim();
-    sms.style.setProperty("--search-snippet-primary-color", brandCol);
-    sms.style.setProperty("--search-snippet-primary-hover", inkCol);
-    sms.style.setProperty("--search-snippet-focus-ring", brandCol);
-    sms.style.setProperty("--search-snippet-text-color", inkCol);
+    document.getElementById("kit-search-close").addEventListener("click", closeSearch);
+    // Klick auf den Backdrop (= das dialog-Element selbst) schließt
+    searchDlg.addEventListener("click", function (e) { if (e.target === searchDlg) closeSearch(); });
+    sIn.addEventListener("input", function () { clearTimeout(sTimer); sTimer = setTimeout(runSearch, 180); });
+    sIn.addEventListener("keydown", function (e) {
+      var links = sRes.querySelectorAll(".kit-search__a");
+      if (e.key === "ArrowDown") { e.preventDefault(); if (links.length) { sActive = Math.min(sActive + 1, links.length - 1); markActive(links); } }
+      else if (e.key === "ArrowUp") { e.preventDefault(); if (links.length) { sActive = Math.max(sActive - 1, 0); markActive(links); } }
+      else if (e.key === "Enter") { var pick = links[sActive >= 0 ? sActive : 0]; if (pick) { e.preventDefault(); location.href = pick.href; } }
+    });
   }
 
   /* ---------------------------------------------------------------- Admin-Code (globales Schreiben) */
@@ -396,7 +440,7 @@
     var c = null;
     try { c = localStorage.getItem("kitAdmin"); } catch (e) {}
     if (!c) {
-      c = window.prompt("Admin-Code, um das Logo global zu speichern:");
+      c = window.prompt("Admin-Code für globale Änderungen:");
       if (c) { c = c.trim(); try { localStorage.setItem("kitAdmin", c); } catch (e) {} }
     }
     return c;
@@ -516,6 +560,63 @@
       pubBtn.textContent = "✓ Für alle gespeichert";
       setTimeout(function () { pubBtn.textContent = orig; }, 2200);
     }).catch(function () { pubBtn.disabled = false; pubBtn.textContent = orig; alert("Speichern fehlgeschlagen."); });
+  });
+
+  /* ---------------------------------------------------------------- Publish-Status + Revert */
+  // „Zuletzt veröffentlicht"-Anzeige + Rücksprung zur Vorversion (PATCH /api/config).
+  var pubTs = document.getElementById("cz-pub-ts");
+  var pubUndo = document.getElementById("cz-pub-undo");
+  function refreshPubMeta() {
+    if (!pubTs) return;
+    fetch("/api/config").then(function (r) { return r.json(); }).then(function (j) {
+      pubTs.textContent = (j && j.ts)
+        ? "Stand: " + new Date(j.ts).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })
+        : "Noch nichts veröffentlicht";
+    }).catch(function () { pubTs.textContent = "–"; });
+  }
+  refreshPubMeta();
+  if (pubUndo) pubUndo.addEventListener("click", function () {
+    var code = kitAdminCode();
+    if (!code) return;
+    pubUndo.disabled = true;
+    fetch("/api/config", { method: "PATCH", headers: { "x-kit-admin": code } }).then(function (r) {
+      pubUndo.disabled = false;
+      if (r.status === 401) { kitAdminFail(); return; }
+      if (r.status === 404) { alert("Keine Vorversion vorhanden."); return; }
+      if (!r.ok) { alert("Zurücknehmen fehlgeschlagen."); return; }
+      location.reload(); // Vorversion ist jetzt aktiv
+    }).catch(function () { pubUndo.disabled = false; });
+  });
+
+  /* ---------------------------------------------------------------- Post-Reaktionen */
+  // Clap: KV-Zähler über /api/react (optimistisches UI); Teilen: Web Share API → Clipboard-Fallback.
+  var clapBtn = document.getElementById("js-clap");
+  if (clapBtn) {
+    var clapN = document.getElementById("js-clap-n");
+    var clapBusy = false;
+    clapBtn.addEventListener("click", function () {
+      if (clapBusy) return;
+      clapBusy = true;
+      setTimeout(function () { clapBusy = false; }, 400); // Mehrfach-Klicks drosseln
+      if (clapN) clapN.textContent = String((parseInt(clapN.textContent, 10) || 0) + 1);
+      fetch("/api/react?g=" + encodeURIComponent(clapBtn.getAttribute("data-guid")), { method: "POST" })
+        .then(function (r) { return r.json(); })
+        .then(function (j) { if (clapN && j && typeof j.n === "number") clapN.textContent = String(j.n); })
+        .catch(function () {});
+    });
+  }
+  var shareBtn = document.getElementById("js-share");
+  if (shareBtn) shareBtn.addEventListener("click", function () {
+    var title = shareBtn.getAttribute("data-title") || document.title;
+    var url = location.href;
+    var label = document.getElementById("js-share-t");
+    if (navigator.share) {
+      navigator.share({ title: title, url: url }).catch(function () {});
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () {
+        if (label) { label.textContent = "Link kopiert ✓"; setTimeout(function () { label.textContent = "Teilen"; }, 1800); }
+      }).catch(function () {});
+    }
   });
 
   /* ---------------------------------------------------------------- „Mehr laden" */

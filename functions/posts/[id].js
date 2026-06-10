@@ -3,10 +3,10 @@
 // Volltext: Der öffentliche Feed liefert nur Teaser. Ist das Secret FULLTEXT_FEED_URL
 // gesetzt (authentifizierter Steady-Feed, ~6 jüngste Beiträge mit content:encoded),
 // joinen wir den Volltext per normalisiertem Titel an den Beitrag — die Guids beider
-// Feeds unterscheiden sich, die Titel stimmen überein. Fehler/abgelaufener Token
-// degradieren sauber auf den Teaser-Stub mit Steady-Link.
+// Feeds unterscheiden sich, die Titel stimmen überein. Der Mitglieder-Teil wird beim
+// Rendern mit dem offiziellen Steady-Paywall-Element gegated (siehe render.js).
 import { getItems, normTitle } from "../_lib/feed.js";
-import { buildPageContext } from "../_lib/settings.js";
+import { buildPageContext, getClaps } from "../_lib/settings.js";
 import { htmlResponse } from "../_lib/http.js";
 import { renderPost, render404 } from "../_lib/render.js";
 
@@ -14,24 +14,38 @@ export async function onRequestGet(context) {
   const id = context.params.id;
   const { cfg, cacheControl } = await buildPageContext(context);
 
-  let item = null;
+  let items = [];
   try {
-    item = (await getItems()).find(i => i.guid === id) || null;
+    items = await getItems(cfg.feedUrl);
   } catch (err) {
-    item = null;
+    items = [];
   }
-  if (!item) return htmlResponse(render404(cfg), cacheControl, 404);
+  const idx = items.findIndex(i => i.guid === id);
+  if (idx < 0) return htmlResponse(render404(cfg), cacheControl, 404);
+  const item = items[idx];
 
-  let full = "";
+  // Volltext (best effort) + Clap-Zähler parallel holen
   const fulltextUrl = context.env && context.env.FULLTEXT_FEED_URL;
-  if (fulltextUrl) {
+  const loadFull = async () => {
+    if (!fulltextUrl) return "";
     try {
       const want = normTitle(item.title);
       const match = (await getItems(fulltextUrl)).find(i => normTitle(i.title) === want);
-      if (match && match.content) full = match.content;
+      return (match && match.content) || "";
     } catch (err) {
-      full = "";
+      return "";
     }
-  }
-  return htmlResponse(renderPost(item, cfg, full), cacheControl);
+  };
+  const [full, claps] = await Promise.all([loadFull(), getClaps(context.env, id)]);
+
+  // Nachbar-Posts (Feed ist neueste-zuerst): next = neuer, prev = älter
+  const extras = {
+    claps,
+    next: idx > 0 ? { guid: items[idx - 1].guid, title: items[idx - 1].title } : null,
+    prev: idx < items.length - 1 ? { guid: items[idx + 1].guid, title: items[idx + 1].title } : null,
+  };
+  return htmlResponse(renderPost(item, cfg, full, extras), cacheControl);
 }
+
+// HEAD wie GET behandeln (Crawler/Uptime-Checks); workerd entfernt den Body selbst.
+export const onRequestHead = onRequestGet;

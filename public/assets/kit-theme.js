@@ -310,6 +310,7 @@ window.KIT_LOOKS = [
     if (s.stream) p.push("stream=" + s.stream);
     if (s.header) p.push("header=" + s.header);
     if (s.search) p.push("search=" + s.search);
+    if (s.nl != null) p.push("nl=" + s.nl);
     if (s.rails) p.push("rails=" + s.rails.join(","));
     return p.join("&");
   }
@@ -349,6 +350,18 @@ window.KIT_LOOKS = [
   var C = jget("kitColors");
   for (var ck in C) D.style.setProperty(ck, C[ck]);
   if (C["--color-brand"]) D.style.setProperty("--btn-fg", buttonFg(C["--color-brand"]));
+  // Auto-Dark: System-Schema respektieren, solange weder persönlich noch global Farben
+  // gewählt wurden (nur Anzeige, wird nicht gespeichert).
+  var hasColors = false;
+  for (var hc in C) { hasColors = true; break; }
+  if (!hasColors) {
+    try {
+      if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        var DB = window.KIT_BASES.dark;
+        for (var db in DB) D.style.setProperty(db, DB[db]);
+      }
+    } catch (e) {}
+  }
   var L2 = jget("kitLayout");
   for (var lk in L2) window.kitSetLayout(lk, L2[lk], false);
   var T2 = jget("kitType");

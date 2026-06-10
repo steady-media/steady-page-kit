@@ -3,18 +3,29 @@
 
 import { FEED_URL, MAX_PILLS } from "./config.js";
 
+/** Feed-XML laden (Edge-Cache 10 Min). */
+export async function fetchFeedXml(feedUrl) {
+  const res = await fetch(feedUrl || FEED_URL, {
+    headers: { "user-agent": "BlaupauseKit/1.0 (+cloudflare-pages)" },
+    cf: { cacheTtl: 600, cacheEverything: true },
+  });
+  if (!res.ok) throw new Error("feed HTTP " + res.status);
+  return res.text();
+}
+
 /**
  * Feed laden und parsen. Ohne Argument den öffentlichen Feed (Teaser aller Posts),
  * mit `feedUrl` z. B. den authentifizierten Volltext-Feed.
  * @returns {Promise<Array<FeedItem>>}
  */
 export async function getItems(feedUrl) {
-  const res = await fetch(feedUrl || FEED_URL, {
-    headers: { "user-agent": "BlaupauseKit/1.0 (+cloudflare-pages)" },
-    cf: { cacheTtl: 600, cacheEverything: true }, // Edge-Cache 10 Min
-  });
-  if (!res.ok) throw new Error("feed HTTP " + res.status);
-  return parseFeed(await res.text());
+  return parseFeed(await fetchFeedXml(feedUrl));
+}
+
+/** Channel-Metadaten (Titel/Beschreibung der Publikation) aus bereits geladenem XML. */
+export function parseChannelMeta(xml) {
+  const head = xml.split(/<item\b/)[0]; // nur der Channel-Kopf vor dem ersten Item
+  return { title: tag(head, "title"), description: tag(head, "description") };
 }
 
 /**
@@ -34,7 +45,7 @@ export function parseFeed(xml) {
       title:       tag(b, "title"),
       description: tag(b, "description"),
       categories:  allTags(b, "category"),
-      image:       media ? media[1] : "",
+      image:       media ? media[1].replace(/&amp;/g, "&") : "", // XML-Attribut → echte URL
       link:        tag(b, "link"),
       guid:        tag(b, "guid"),
       pubDate:     tag(b, "pubDate"),

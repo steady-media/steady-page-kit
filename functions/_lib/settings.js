@@ -11,7 +11,7 @@
 /** Default-Struktur = einspaltige Seite mit Split-Hero und flacher Liste. */
 export function parseStruct(cookie) {
   const def = { shell: "single", auf: "klein", stream: "liste", rails: [],
-                headerStyle: "links", search: false, brand: "", nav: null };
+                headerStyle: "links", search: false, newsletter: true, brand: "", nav: null };
   if (!cookie) return def;
 
   // kitstruct=shell=portal&auf=gross&stream=rubrik&rails=neueste,meist,themen&…
@@ -24,6 +24,7 @@ export function parseStruct(cookie) {
       def.stream = q.get("stream") === "rubrik" ? "rubrik" : "liste";
       def.headerStyle = q.get("header") === "zentriert" ? "zentriert" : "links";
       def.search = q.get("search") === "1";
+      def.newsletter = q.get("nl") !== "0"; // Newsletter-CTA auf der Landing (Default: an)
       const allow = ["neueste", "meist", "themen"];
       if (q.has("rails")) def.rails = (q.get("rails") || "").split(",").filter(r => allow.includes(r));
       else def.rails = def.shell === "portal" ? allow.slice() : [];
@@ -61,7 +62,7 @@ export function effectiveCookie(cookie, globalCfg) {
 export async function getConfig(env) {
   try {
     if (!env || !env.KIT_KV) return null;
-    return await env.KIT_KV.get("config", "json");
+    return await env.KIT_KV.get("config", { type: "json", cacheTtl: 60 });
   } catch (e) {
     return null;
   }
@@ -71,9 +72,20 @@ export async function getConfig(env) {
 export async function getLogoMeta(env) {
   try {
     if (!env || !env.KIT_KV) return null;
-    return await env.KIT_KV.get("logo:meta", "json");
+    return await env.KIT_KV.get("logo:meta", { type: "json", cacheTtl: 60 });
   } catch (e) {
     return null;
+  }
+}
+
+/** Clap-Zähler eines Posts (KV, leicht verzögert konsistent). */
+export async function getClaps(env, guid) {
+  try {
+    if (!env || !env.KIT_KV) return 0;
+    const v = await env.KIT_KV.get("react:" + guid, { cacheTtl: 60 });
+    return parseInt(v || "0", 10) || 0;
+  } catch (e) {
+    return 0;
   }
 }
 
@@ -84,14 +96,18 @@ export async function getLogoMeta(env) {
  * Wird von allen HTML-Routen benutzt.
  */
 export async function buildPageContext(context) {
+  const env = context.env || {};
   const cookie = context.request.headers.get("cookie") || "";
-  const [globalCfg, logo] = await Promise.all([
-    getConfig(context.env),
-    getLogoMeta(context.env),
-  ]);
+  const [globalCfg, logo] = await Promise.all([getConfig(env), getLogoMeta(env)]);
   const cfg = parseStruct(effectiveCookie(cookie, globalCfg));
   cfg.skin = globalCfg ? globalCfg.skin : null;
   cfg.logo = logo;
+  // Deployment-Overrides (Portabilität: Kit als Vorlage für andere Publikationen)
+  cfg.feedUrl   = env.FEED_URL || null;            // null = Default aus config.js
+  cfg.site      = env.SITE_ORIGIN || null;
+  cfg.steadyId  = env.STEADY_PUBLICATION_ID || null;
+  cfg.loginUrl  = env.STEADY_LOGIN_URL || null;
+  cfg.analytics = env.ANALYTICS_TOKEN || "";       // Cloudflare Web Analytics Beacon-Token
   const hasPersonalCfg = /(?:^|;\s*)kit(?:struct|chrome)=/.test(cookie);
   return { cfg, cacheControl: hasPersonalCfg ? "no-store" : "public, max-age=300" };
 }

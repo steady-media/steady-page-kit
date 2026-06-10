@@ -6,11 +6,16 @@
 // Die Top-Section verteilt Teaser DISJUNKT (Hero, Lead-Reihe, Neueste, Meistgelesen),
 // damit kein Beitrag oben doppelt erscheint.
 
-import { PUBLICATION, PER_PAGE, PINNED_GUID } from "./config.js";
+import { PUBLICATION, PER_PAGE, PINNED_GUID, MEMBER_HEADING, NEWSLETTER_URL } from "./config.js";
 import { esc, fmtDate, slugify, teaser } from "./util.js";
 import { normTitle, topCategories } from "./feed.js";
-import { ICON_BACK, ICON_CLAP, ICON_EYE, ICON_SHARE } from "./icons.js";
+import { ICON_BACK, ICON_CLAP, ICON_SHARE } from "./icons.js";
 import { head, header, footer } from "./page.js";
+
+// Offizielles Steady-Paywall-Element: Das Smart-Layer-Widget blendet für Nicht-Mitglieder
+// alles UNTERHALB dieses Elements aus und zeigt die (im Steady-Backend konfigurierte)
+// Paywall; zahlende Mitglieder sehen den Inhalt. Quelle: help.steadyhq.com, JS-Paywall.
+const STEADY_PAYWALL_MARKER = `<div id="steady_paywall" style="display: none;"></div>`;
 
 /* ------------------------------------------------------------------ Bausteine */
 
@@ -197,8 +202,22 @@ export function renderLanding(items, page = 1, cfg) {
 </div>`;
   }
 
-  return head(PUBLICATION, cfg) + header({ tabs: true, activePath: "/" }, cfg) + `
-<main>${top}${stream}</main>` + footer();
+  // Newsletter-CTA (per Panel abschaltbar: Layout → Newsletter-Box)
+  const cta = cfg.newsletter !== false
+    ? `<section class="cta-band"><div class="container cta-band__inner">
+  <div><h2 class="cta-band__title">${esc(PUBLICATION)} als Newsletter</h2>
+  <p class="cta-band__text">Neue Ausgaben direkt ins Postfach — jederzeit abbestellbar.</p></div>
+  <a class="btn btn--primary" href="${esc(NEWSLETTER_URL)}" target="_blank" rel="noopener">Newsletter anmelden</a>
+</div></section>`
+    : "";
+
+  const meta = {
+    desc: cfg.channelDesc || `Aktuelle Beiträge von ${PUBLICATION}`,
+    path: "/",
+    image: hero.image ? teaser(hero.image, 1200, 630) : "",
+  };
+  return head(PUBLICATION, cfg, meta) + header({ tabs: true, activePath: "/" }, cfg) + `
+<main id="main">${top}${stream}${cta}</main>` + footer();
 }
 
 /** Rubrik-Seite (/rubrik/:slug): Aufmacher (erster Beitrag) + Raster + „Mehr laden". */
@@ -218,8 +237,13 @@ export function renderSection(category, items, allItems, page = 1, cfg) {
     <p class="section-eyebrow"><a class="post__back" href="/">${ICON_BACK} ${esc(PUBLICATION)}</a><span class="section-chip">${esc(display)}</span></p>
     ${aufmacherArticle(featured, true, true)}
   </div></section>` : "";
-  return head(display + " — " + PUBLICATION, cfg) + header({ tabs: true, activePath: "/rubrik/" + slug }, cfg) + `
-<main>${aufmacher}<div class="container section-body">
+  const meta = {
+    desc: `Alle Beiträge aus der Rubrik ${display} bei ${PUBLICATION}.`,
+    path: "/rubrik/" + slug,
+    image: (featured && featured.image) ? teaser(featured.image, 1200, 630) : "",
+  };
+  return head(display + " — " + PUBLICATION, cfg, meta) + header({ tabs: true, activePath: "/rubrik/" + slug }, cfg) + `
+<main id="main">${aufmacher}<div class="container section-body">
   <div class="grid">${slice.map(card).join("")}</div>
   ${more}
   <div id="memberships"></div>
@@ -227,26 +251,40 @@ export function renderSection(category, items, allItems, page = 1, cfg) {
 }
 
 /**
- * Einzelpost (/posts/:id). `full` = Volltext-HTML aus dem authentifizierten Feed
- * (content:encoded), per Titel gejoint — leer = Teaser-Stub mit Steady-Link.
+ * Volltext-HTML aufbereiten:
+ *  1. führendes <h1> (Titel-Echo) und ggf. die doppelte Lede entfernen — beides
+ *     zeigen wir bereits im Seitenkopf,
+ *  2. Steady-Editor-Tönungen (<mark style="background…">) entfernen — sie markieren
+ *     den Mitglieder-Teil nur visuell und kollidieren mit Dark Mode,
+ *  3. vor der Mitglieder-Überschrift („${MEMBER_HEADING} 🔒") das offizielle
+ *     Steady-Paywall-Element einsetzen → das Widget übernimmt das Gating.
  */
-export function renderPost(item, cfg = {}, full = "") {
-  // Volltext aufbereiten: Steady stellt den Titel als führendes <h1> und die Lede als
-  // erstes <p> voran. Beides zeigen wir bereits im Kopf — aus dem Body entfernen,
-  // damit nichts doppelt erscheint.
-  let fullClean = "";
-  if (full) {
-    fullClean = full.replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>\s*/i, "");
-    if (item.description) {
-      const fp = fullClean.match(/^\s*<p\b[^>]*>([\s\S]*?)<\/p>\s*/i);
-      if (fp) {
-        const pt = normTitle(fp[1].replace(/<[^>]+>/g, " "));
-        const dt = normTitle(item.description);
-        if (pt && dt && (pt.indexOf(dt.slice(0, 36)) === 0 || dt.indexOf(pt.slice(0, 36)) === 0))
-          fullClean = fullClean.slice(fp[0].length);
-      }
+export function prepareFullText(full, description) {
+  let out = full.replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>\s*/i, "");
+  if (description) {
+    const fp = out.match(/^\s*<p\b[^>]*>([\s\S]*?)<\/p>\s*/i);
+    if (fp) {
+      const pt = normTitle(fp[1].replace(/<[^>]+>/g, " "));
+      const dt = normTitle(description);
+      if (pt && dt && (pt.indexOf(dt.slice(0, 36)) === 0 || dt.indexOf(pt.slice(0, 36)) === 0))
+        out = out.slice(fp[0].length);
     }
   }
+  out = out.replace(/<\/?mark\b[^>]*>/gi, "");
+  const memberHeading = new RegExp(`<h[23]\\b[^>]*>(?:(?!</h[23]>)[\\s\\S])*?${MEMBER_HEADING}`, "i");
+  const m = out.search(memberHeading);
+  if (m >= 0) out = out.slice(0, m) + STEADY_PAYWALL_MARKER + out.slice(m);
+  return out;
+}
+
+/**
+ * Einzelpost (/posts/:id). `full` = Volltext-HTML aus dem authentifizierten Feed
+ * (content:encoded), per Titel gejoint — leer = Teaser-Stub mit Steady-Link.
+ * extras = {claps, prev, next}: Clap-Zähler (KV) + Nachbar-Posts in Feed-Reihenfolge.
+ */
+export function renderPost(item, cfg = {}, full = "", extras = {}) {
+  const { claps = 0, prev = null, next = null } = extras;
+  const fullClean = full ? prepareFullText(full, item.description) : "";
   const cat = (item.categories && item.categories.find(c => c && c.trim())) || "Newsletter";
   const heroImg = item.image
     ? `<figure class="post__hero"><img alt="" src="${teaser(item.image, 1600, 1200)}"/></figure>` : "";
@@ -255,8 +293,26 @@ export function renderPost(item, cfg = {}, full = "") {
     : `<div class="post__body"><p>Dieser Beitrag erscheint im Original auf Steady. Den vollständigen Text
          liest du dort — inklusive Mitglieder-Inhalten.</p></div>`;
   const cta = full ? "Auf Steady öffnen" : "Ganzen Beitrag auf Steady lesen";
-  return head(`${item.title} — ${PUBLICATION}`, cfg) + header({ tabs: true, activePath: "" }, cfg) + `
-<main><article class="post">
+
+  // Nachbar-Navigation: next = neuerer, prev = älterer Beitrag (Feed ist neueste zuerst)
+  const navLink = (p, cls, label) => p
+    ? `<a class="post-nav__a ${cls}" href="/posts/${esc(p.guid)}"><em>${label}</em><span>${esc(p.title)}</span></a>`
+    : `<span class="post-nav__spacer"></span>`;
+  const postNav = (prev || next)
+    ? `<nav class="post__col post-nav" aria-label="Weitere Beiträge">
+    ${navLink(next, "post-nav__a--next", "← Neuerer Beitrag")}
+    ${navLink(prev, "post-nav__a--prev", "Älterer Beitrag →")}
+  </nav>`
+    : "";
+
+  const meta = {
+    desc: item.description || "",
+    path: "/posts/" + item.guid,
+    image: item.image ? teaser(item.image, 1200, 630) : "",
+    type: "article",
+  };
+  return head(`${item.title} — ${PUBLICATION}`, cfg, meta) + header({ tabs: true, activePath: "" }, cfg) + `
+<main id="main"><article class="post">
   <div class="post__col">
     <a class="pill post__eyebrow" href="/rubrik/${slugify(cat)}">${esc(cat)}</a>
     <h1 class="post__title">${esc(item.title)}</h1>
@@ -270,26 +326,26 @@ export function renderPost(item, cfg = {}, full = "") {
   </div>
   <div class="post__col post__foot">
     <div class="post__react">
-      <span class="post__live" aria-hidden="true"></span>
-      <span class="ri">${ICON_CLAP}0</span>
-      <span class="ri">${ICON_EYE}0</span>
-      <span class="ri">${ICON_SHARE}Share</span>
+      <button class="post__clap" id="js-clap" type="button" data-guid="${esc(item.guid)}" aria-label="Applaudieren">${ICON_CLAP}<span id="js-clap-n">${claps}</span></button>
+      <button class="post__share" id="js-share" type="button" data-title="${esc(item.title)}">${ICON_SHARE}<span id="js-share-t">Teilen</span></button>
     </div>
   </div>
+  ${postNav}
 </article></main>` + footer();
 }
 
 /** Fallback, wenn der Feed nicht erreichbar ist. */
 export function renderEmpty(cfg = {}) {
-  return head(PUBLICATION, cfg) + header({ tabs: true, activePath: "/" }, cfg) +
-    `<main><div class="container" style="padding:80px 0;color:var(--color-ink-soft)">Inhalte laden gerade nicht. Bitte gleich neu laden.</div></main>` +
+  return head(PUBLICATION, cfg, { noindex: true }) + header({ tabs: true, activePath: "/" }, cfg) +
+    `<main id="main"><div class="container" style="padding:80px 0;color:var(--color-ink-soft)">Inhalte laden gerade nicht. Bitte gleich neu laden.</div></main>` +
     footer();
 }
 
 /** /memberships: Steady rendert den Checkout in den Container (Backend-Checkout-URL). */
 export function renderMemberships(cfg = {}) {
-  return head("Mitglied werden — " + PUBLICATION, cfg) + header({ tabs: true, activePath: "/memberships" }, cfg) + `
-<main><div class="container" style="padding:48px 0 72px">
+  const meta = { desc: `Werde Mitglied von ${PUBLICATION} und unterstütze unabhängigen Journalismus.`, path: "/memberships" };
+  return head("Mitglied werden — " + PUBLICATION, cfg, meta) + header({ tabs: true, activePath: "/memberships" }, cfg) + `
+<main id="main"><div class="container" style="padding:48px 0 72px">
   <h1 style="font-family:var(--font-head);font-size:34px;font-weight:var(--weight-heading);text-align:center;letter-spacing:-.01em;margin:0 0 10px">Mitglied werden</h1>
   <p style="text-align:center;color:var(--color-ink-soft);font-size:18px;margin:0 0 40px">Wähle deine Mitgliedschaft — der Checkout läuft direkt hier auf der Seite.</p>
   <!-- Steady rendert den Checkout in diesen Container (Backend Checkout-URL = /memberships) -->
@@ -298,8 +354,8 @@ export function renderMemberships(cfg = {}) {
 }
 
 export function render404(cfg = {}) {
-  return head("Nicht gefunden — " + PUBLICATION, cfg) + header({ tabs: false }, cfg) +
-    `<main><div class="container" style="padding:80px 0"><h1 style="font-size:32px">Beitrag nicht gefunden</h1>
+  return head("Nicht gefunden — " + PUBLICATION, cfg, { noindex: true }) + header({ tabs: false }, cfg) +
+    `<main id="main"><div class="container" style="padding:80px 0"><h1 style="font-size:32px">Beitrag nicht gefunden</h1>
      <p style="color:var(--color-ink-soft)"><a class="btn btn--primary" href="/" style="margin-top:12px">Zur Startseite</a></p></div></main>` +
     footer();
 }

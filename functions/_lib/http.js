@@ -1,12 +1,16 @@
 // _lib/http.js — Response-Helfer + Admin-Gate für die /api/*-Endpunkte.
 
-/** HTML-Antwort mit Cache-Header (siehe buildPageContext in settings.js). */
+/** HTML-Antwort mit Cache-Header (siehe buildPageContext) + Security-Baseline.
+ *  (public/_headers greift nur für statische Assets, nicht für Function-Antworten.) */
 export function htmlResponse(html, cacheControl, status = 200) {
   return new Response(html, {
     status,
     headers: {
       "content-type": "text/html; charset=utf-8",
       "cache-control": cacheControl || "no-store",
+      "x-content-type-options": "nosniff",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "x-frame-options": "SAMEORIGIN",
     },
   });
 }

@@ -1,0 +1,6 @@
+# Header für STATISCHE Assets (Function-Antworten setzen ihre Header in _lib/http.js).
+# kit-*.js / kit.css werden über ?v=ASSET_VERSION gebustet → lange Cache-Zeit ist sicher.
+
+/assets/*
+  Cache-Control: public, max-age=604800
+  X-Content-Type-Options: nosniff

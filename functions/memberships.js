@@ -9,3 +9,6 @@ export async function onRequestGet(context) {
   const { cfg, cacheControl } = await buildPageContext(context);
   return htmlResponse(renderMemberships(cfg), cacheControl);
 }
+
+// HEAD wie GET behandeln (Crawler/Uptime-Checks); workerd entfernt den Body selbst.
+export const onRequestHead = onRequestGet;

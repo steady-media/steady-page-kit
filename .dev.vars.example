@@ -5,5 +5,14 @@
 # Enthält den pub_auth-Token → niemals committen.
 FULLTEXT_FEED_URL=
 
-# Admin-Code für globales Schreiben (Logo-Upload + „Für alle Besucher speichern").
+# Admin-Code für globales Schreiben (Logo, „Für alle Besucher speichern", Revert).
 KIT_ADMIN_CODE=
+
+# Optional: Cloudflare Web Analytics (Beacon-Token aus dem Dashboard).
+# ANALYTICS_TOKEN=
+
+# Optional (Portabilität): Kit für eine andere Publikation betreiben.
+# FEED_URL=
+# SITE_ORIGIN=
+# STEADY_PUBLICATION_ID=
+# STEADY_LOGIN_URL=
