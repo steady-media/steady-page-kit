@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, rm, readdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createFsKv } from "../server/fs-kv.js";
+import { createFsKv } from "../server/fs-kv.ts";
 
 async function freshKv(t) {
   const dir = await mkdtemp(join(tmpdir(), "kitkv-"));

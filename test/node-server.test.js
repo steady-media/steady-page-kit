@@ -4,10 +4,11 @@
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
+import { checkNodeVersion } from "../server/node.js";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { startServer } from "../server/node.js";
+import { startServer } from "../server/node.ts";
 import { _resetFeedCache } from "../functions/_lib/feed.ts";
 import { IS_CONFIGURED } from "../functions/_lib/config.ts";
 
@@ -163,4 +164,11 @@ test(
   const html = await res.text();
   assert.ok(html.includes("Richte meine Seite ein"));
   assert.ok(html.includes("Set up my page"));
+});
+
+test("Bootstrap: checkNodeVersion akzeptiert >=22.18, lehnt älter ab", () => {
+  assert.equal(checkNodeVersion("22.18.0"), null);
+  assert.equal(checkNodeVersion("24.1.0"), null);
+  assert.match(checkNodeVersion("22.17.1") || "", /22\.18/);
+  assert.match(checkNodeVersion("20.19.0") || "", /Node 24 LTS/);
 });
