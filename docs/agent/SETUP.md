@@ -10,10 +10,11 @@ deployed to the host the user chose, and a final checklist delivered to the user
 
 ## 0 — Preflight
 
-1. `node -v` → must be ≥ 20 (22 recommended). If missing/too old, help the user
-   install Node LTS (nodejs.org or `brew install node`) before continuing.
-2. `npm install` — installs the only dev dependency (wrangler). Strictly needed only
-   for the Cloudflare path, but cheap and safe to run always.
+1. **Node version first**: `node -v` → must be **≥ 22.18** (24 LTS recommended —
+   the server refuses to start below 22.18). If missing/too old, help the user
+   install Node 24 LTS (nodejs.org or `brew install node@24`) before continuing.
+2. `npm install` — installs the dev dependencies (typescript, wrangler). There are
+   no runtime dependencies; production hosts need nothing beyond Node.
 3. `npm run check && npm test` → must pass on a fresh clone. If not, stop and report.
 
 ## 1 — Interview the user
@@ -25,14 +26,21 @@ Ask (in the user's language, conversationally — not as a form):
    The kit normalizes it, but extract the slug yourself for the discovery step.
 2. **Site name**: offer the channel title you'll discover in step 2 as the default.
 3. **Language**: `de` or `en` (UI language of the page).
-4. **Hosting**: where should the site live? Options with trade-offs:
-   - **Cloudflare Pages** — free, fast, built-in KV storage. Needs a Cloudflare account.
-   - **Render / Railway / Fly.io** — Node hosting; needs a persistent disk add-on.
-   - **Docker / own server / Uberspace** — full control.
+4. **Hosting**: where should the site live? Present in this order, one sentence each:
+   - **Railway (recommended)** — the platform runs the machine (OS, TLS, uptime),
+     ~5 €/month, and the agent can deploy everything via CLI.
+   - **Render / Fly.io** — also managed Node hosting; persistent disk/volume add-on.
+   - **Docker / own server (e.g. Hetzner) / Uberspace** — for users who manage
+     their server themselves (OS patches, TLS, backups are on them).
+   - **Vercel** — serverless; needs an Upstash Redis database for storage, and the
+     Hobby plan forbids commercial use (publisher pages → Pro plan).
+   - **Cloudflare Pages** — $0, if budget matters more than independence; still
+     fully supported, just no longer the default recommendation.
    Match the recipe in `docs/agent/deploy/`.
 5. **Admin code**: the password for publishing settings/logo globally. Offer to
-   generate one: `openssl rand -hex 12` (or any 16+ char random string). Tell the
-   user to store it in their password manager.
+   generate one: `openssl rand -base64 24` — use at least 16 random characters
+   (`npm run doctor` warns below 12). Tell the user to store it in their
+   password manager.
 6. **Full-text feed (optional but recommended for paywalled posts)**: In the Steady
    backend the publisher finds the authenticated RSS URL under
    **Settings → RSS feed** (the URL contains an auth token). Without it the site
@@ -89,16 +97,18 @@ Open the recipe for the chosen host and follow it exactly:
 
 | Host | Recipe |
 |---|---|
-| Cloudflare Pages | `docs/agent/deploy/cloudflare.md` |
+| Railway (recommended) | `docs/agent/deploy/railway.md` |
 | Render | `docs/agent/deploy/render.md` |
-| Railway | `docs/agent/deploy/railway.md` |
 | Fly.io | `docs/agent/deploy/fly.md` |
-| Docker / own server | `docs/agent/deploy/docker-vps.md` |
+| Docker / own server (e.g. Hetzner) | `docs/agent/deploy/docker-vps.md` |
 | Uberspace | `docs/agent/deploy/uberspace.md` |
+| Vercel | `docs/agent/deploy/vercel.md` |
+| Cloudflare Pages | `docs/agent/deploy/cloudflare.md` |
 
 All Node hosts need a **persistent disk** mounted at the data directory — without it,
 published settings, the logo and clap counts reset on every redeploy. The recipes
-cover this; never skip that part.
+cover this; never skip that part. (Vercel has no disk and stores in Upstash Redis
+instead; Cloudflare stores in KV — their recipes cover that.)
 
 ## 6 — Post-deploy verification + handover
 

@@ -1,6 +1,9 @@
 # Deploy: Fly.io
 
-Uses the repo's Dockerfile. **Requires a Fly volume** mounted at `/app/data`.
+Uses the repo's Dockerfile (pins `node:24` — the required Node ≥ 22.18 comes for
+free). **Ops:** the platform patches the host OS and terminates TLS — you manage
+the app and the machine count. **Requires a Fly volume** mounted at `/app/data` —
+without it, published settings/logo/claps are lost on every deploy.
 
 1. Install/login: `fly auth login` (CLI: https://fly.io/docs/flyctl/install/).
 2. Create `fly.toml` in the repo root (pick a unique app name + nearby region):

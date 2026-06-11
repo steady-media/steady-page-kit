@@ -1,8 +1,15 @@
-# Deploy: Docker / own server (VPS)
+# Deploy: Docker / own server (VPS, e.g. Hetzner)
 
-Full control. Works on any box with Docker (Hetzner, DigitalOcean, Coolify, …).
-**The `kit-data` volume is the persistence** — without it, published settings/logo/
-claps die with the container.
+Full control. Works on any box with Docker — a Hetzner cloud VPS (from ~4 €/month)
+is the worked example here; DigitalOcean, Coolify, … work the same.
+
+**Ops: on this path YOU are the platform.** You patch the OS, renew TLS
+certificates (Caddy below automates renewal — but it's your box), keep the
+container running and **back up `data/`** (the `kit-data` volume). Without that
+volume, published settings/logo/claps die with the container.
+
+Node version: the repo's Dockerfile pins `node:24` (≥ 22.18 required) — nothing
+to configure on the Docker path.
 
 ## Plain Docker
 
@@ -33,6 +40,9 @@ headers are enough.
 
 ## Without Docker (bare Node)
 
+Install **Node 24 LTS** on the server first (`node -v` must show ≥ 22.18 — the
+server refuses to start below).
+
 ```sh
 npm install --omit=dev   # no runtime deps; this is effectively a no-op
 KIT_ADMIN_CODE=<code> PORT=8788 node server/node.js
@@ -53,6 +63,9 @@ User=www-data
 [Install]
 WantedBy=multi-user.target
 ```
+
+On bare Node the state lives in `/opt/steady-page-kit/data/` — include it in the
+server's backup.
 
 Then set `siteOrigin` in `kit.config.js` to the final https URL and restart.
 Verify per SETUP.md §6.

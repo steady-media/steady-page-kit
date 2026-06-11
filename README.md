@@ -13,7 +13,7 @@ layout, logo — and publish the result for all visitors with one click.
 ```
 Steady (CMS) ──RSS──▶ kit (SSR, 10-min cache) ──HTML──▶ visitors
                         │
-                        ├─ storage: Cloudflare KV  or  data/ on any Node host
+                        ├─ storage: data/ on a Node host · Cloudflare KV · Upstash Redis
                         └─ secrets: KIT_ADMIN_CODE, FULLTEXT_FEED_URL (optional)
 ```
 
@@ -24,11 +24,11 @@ Steady (CMS) ──RSS──▶ kit (SSR, 10-min cache) ──HTML──▶ visi
    Gemini CLI, Amp, … they all find their instructions in this repo.
 3. **Say: "Set up my page."** The agent asks for your Steady publication, fills in
    the config, verifies everything and deploys to the host you choose
-   (Cloudflare, Render, Railway, Fly.io, Docker/your own server, Uberspace).
+   (Railway, Render, Fly.io, your own server, Uberspace, Vercel or Cloudflare).
 
-You need: a Steady publication, an AI coding tool, and an account at the host you
-pick. No terminal knowledge required — the agent does the work and proves it with
-a health check (`npm run doctor`).
+You need: a Steady publication, an AI coding tool, Node ≥ 22.18 (24 LTS
+recommended) and an account at the host you pick. No terminal knowledge required —
+the agent does the work and proves it with a health check (`npm run doctor`).
 
 ## What you get
 
@@ -39,10 +39,31 @@ a health check (`npm run doctor`).
   layouts — publish globally with your admin code, revert anytime
 - **Search, reactions (claps), SEO** (sitemap, canonical, Open Graph), RSS proxy
 - **German or English** UI (`language` in `kit.config.js`)
-- **Two runtimes, one codebase**: Cloudflare Pages (KV) or plain Node 20+ anywhere
-  (filesystem storage) — zero runtime dependencies
+- **One codebase, every host**: TypeScript without a build step on the Node path —
+  the source runs directly (Node ≥ 22.18); Cloudflare and Vercel bundle at deploy
+  time themselves. Zero runtime dependencies.
+
+## Hosting
+
+The kit runs on any Node host with a disk, on Vercel (serverless) and on
+Cloudflare Pages. The **OS/TLS/disk** column says who keeps the machine patched,
+the certificates fresh and the data persistent — the platform, or you.
+
+| Host | OS/TLS/disk | Cost | Note |
+|---|---|---|---|
+| **Railway** — recommended | Platform; you attach a volume once | ~5 €/month | Managed PaaS; the agent deploys it end to end via CLI |
+| Render | Platform; persistent disk add-on | ~7 $/month | Disks are not on the free tier |
+| Fly.io | Platform; volume | a few €/month | Pay as you go; keep it at 1 machine |
+| Hetzner / any Docker VPS | **You**: OS patches, TLS, backups | from ~4 €/month | For everyone who runs their own server |
+| Uberspace | Host patches OS + TLS; you run the app | from 5 €/month | Disk is persistent by default |
+| Vercel | Platform; no disk — storage via Upstash Redis | Pro plan | Hobby tier forbids commercial use; Upstash free tier caps the logo upload at ~700 KB |
+| Cloudflare Pages | Platform; KV included | $0 | Still fully supported, no longer our default recommendation — existing installs keep running unchanged |
+
+Step-by-step recipes for every host: [`docs/agent/deploy/`](docs/agent/deploy/).
 
 ## Manual setup (without an AI tool)
+
+Requirements: Node ≥ 22.18 (24 LTS recommended).
 
 1. Fill in [`kit.config.js`](kit.config.js) — the comments explain every field.
 2. Copy `.env.example` → `.env` and set `KIT_ADMIN_CODE` (plus the optional
@@ -56,6 +77,7 @@ a health check (`npm run doctor`).
 
 Architecture, commands and hard rules: [AGENTS.md](AGENTS.md).
 Setup runbook: [docs/agent/SETUP.md](docs/agent/SETUP.md) ·
-Updates: [docs/agent/UPDATE.md](docs/agent/UPDATE.md)
+Updates & v1→v2 migration: [docs/agent/UPDATE.md](docs/agent/UPDATE.md) ·
+Version history: [CHANGELOG.md](CHANGELOG.md)
 
 License: [MIT](LICENSE). Not an official Steady product — a community kit.

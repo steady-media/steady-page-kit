@@ -1,6 +1,13 @@
 # Deploy: Cloudflare Pages
 
-Storage: Cloudflare KV (no disk needed). Free tier is fine.
+> **Still fully supported — and the only $0 path — but no longer our default
+> recommendation** (that is Railway, `railway.md`). **Existing installations keep
+> running unchanged**: updates deploy into the same Pages project with the same
+> KV binding; no migration, no platform switch.
+
+Storage: Cloudflare KV (no disk needed). Free tier is fine. The functions are
+TypeScript — wrangler bundles them at deploy time; you build nothing.
+**Ops:** the platform patches OS and TLS — you manage only the app.
 Prerequisite: a Cloudflare account (free) — the user signs up at dash.cloudflare.com.
 
 1. **Login** (opens a browser window for the user):

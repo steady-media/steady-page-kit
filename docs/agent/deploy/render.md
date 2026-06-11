@@ -1,8 +1,12 @@
 # Deploy: Render
 
-Runs `npm start` (the Node server). **Requires a persistent disk** mounted at
-`/app/data` — without it, published settings/logo/claps are lost on every deploy.
-Persistent disks are not on Render's free tier — tell the user (Starter plan).
+Runs `npm start` (the Node server). **Ops:** the platform patches OS and TLS —
+you manage only the app. Render reads the Node version from `package.json` →
+`engines` (≥ 22.18, already set in the template — nothing to configure).
+
+**Requires a persistent disk** mounted at `/app/data` — without it, published
+settings/logo/claps are lost on every deploy. Persistent disks are not on
+Render's free tier — tell the user (Starter plan, ~7 $/month).
 
 1. Push the repo to GitHub/GitLab (Render deploys from git). If the user has no
    remote yet, create one (e.g. `gh repo create <name> --private --source . --push`).
