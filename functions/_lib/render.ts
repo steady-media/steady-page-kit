@@ -59,10 +59,10 @@ function readMin(it: FeedItem): number {
 
 // Aufmacher „groß" = gestapelt: Headline + Excerpt + Meta-Leiste + Bild.
 // side=true → Bild links neben dem Text (Rubrik-Seiten).
-function aufmacherArticle(hero: FeedItem, withImage: boolean, side: boolean = false): string {
+function aufmacherArticle(hero: FeedItem, withImage: boolean, side: boolean = false, titleTag: string = "h1"): string {
   const media = withImage ? `<a class="aufmacher__medialink" href="/posts/${esc(hero.guid)}"><img class="aufmacher__media" alt="" src="${teaser(hero.image, 1120, 630)}"/></a>` : "";
   const body = `<div class="aufmacher__body">
-    <h1 class="aufmacher__title"><a href="/posts/${esc(hero.guid)}">${esc(hero.title)}</a></h1>
+    <${titleTag} class="aufmacher__title"><a href="/posts/${esc(hero.guid)}">${esc(hero.title)}</a></${titleTag}>
     ${hero.description ? `<p class="aufmacher__excerpt">${esc(hero.description)}</p>` : ""}
     <div class="aufmacher__meta"><span>${esc(fmtDate(hero.pubDate))}</span><span>${esc(t("read.min", { min: readMin(hero) }))}</span></div>
   </div>`;
@@ -228,7 +228,7 @@ export function renderSection(category: string, items: FeedItem[], allItems: Fee
     : "";
   const aufmacher = featured ? `<section class="aufmacher-band"><div class="container">
     <p class="section-eyebrow"><a class="post__back" href="/">${ICON_BACK} ${esc(PUBLICATION)}</a><span class="section-chip">${esc(display)}</span></p>
-    ${aufmacherArticle(featured, true, true)}
+    ${aufmacherArticle(featured, true, true, "h2")}
   </div></section>` : "";
   const meta = {
     desc: t("rubrik.desc", { category: display, name: PUBLICATION }),
