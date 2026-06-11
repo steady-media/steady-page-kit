@@ -1,6 +1,4 @@
-// _lib/http.ts — Response-Helfer + Admin-Gate für die /api/*-Endpunkte.
-
-import type { KitEnv } from "./types.ts";
+// _lib/http.ts — Response-Helfer für die /api/*-Endpunkte.
 
 /** HTML-Antwort mit Cache-Header (siehe buildPageContext) + Security-Baseline.
  *  (public/_headers greift nur für statische Assets, nicht für Function-Antworten.) */
@@ -28,12 +26,3 @@ export function jsonResponse(obj: unknown, status: number = 200, cacheControl: s
   });
 }
 
-/**
- * true, wenn der x-kit-admin-Header dem Secret KIT_ADMIN_CODE entspricht.
- * Das Panel ist öffentlich — alles, was global schreibt (Logo, Config),
- * MUSS durch dieses Gate.
- */
-export function isAdmin(request: Request, env: KitEnv): boolean {
-  const code = env && env.KIT_ADMIN_CODE;
-  return !!code && (request.headers.get("x-kit-admin") || "") === code;
-}
