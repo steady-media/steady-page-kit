@@ -2,13 +2,14 @@
 // Durchsucht Titel, Teaser und Kategorien aller Feed-Items (normalisiert, alle
 // Suchwörter müssen treffen). Liefert echte Titel + echte Post-URLs — anders als
 // der frühere AutoRAG-Index, dessen Chunks weder Titel noch Links hatten.
+import type { KitContext } from "../_lib/types.ts";
 import { getItems, normTitle } from "../_lib/feed.ts";
 import { fmtDate } from "../_lib/util.ts";
 import { jsonResponse } from "../_lib/http.ts";
 
 const MAX_RESULTS = 12;
 
-export async function onRequestGet(context) {
+export async function onRequestGet(context: KitContext): Promise<Response> {
   const q = (new URL(context.request.url).searchParams.get("q") || "").trim().slice(0, 80);
   if (q.length < 2) return jsonResponse({ results: [] }, 200, "public, max-age=120");
 

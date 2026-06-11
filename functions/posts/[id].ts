@@ -5,19 +5,20 @@
 // joinen wir den Volltext per normalisiertem Titel an den Beitrag — die Guids beider
 // Feeds unterscheiden sich, die Titel stimmen überein. Der Mitglieder-Teil wird beim
 // Rendern mit dem offiziellen Steady-Paywall-Element gegated (siehe render.js).
+import type { KitContext, FeedItem } from "../_lib/types.ts";
 import { getItems, normTitle } from "../_lib/feed.ts";
 import { buildPageContext, getClaps, isConfigured } from "../_lib/settings.ts";
 import { htmlResponse } from "../_lib/http.ts";
 import { renderPost, render404, renderOnboarding } from "../_lib/render.ts";
 
-export async function onRequestGet(context) {
+export async function onRequestGet(context: KitContext): Promise<Response> {
   const id = context.params.id;
   const { cfg, cacheControl } = await buildPageContext(context);
   if (!isConfigured(cfg)) return htmlResponse(renderOnboarding(), "no-store");
 
-  let items = [];
+  let items: FeedItem[] = [];
   try {
-    items = await getItems(cfg.feedUrl);
+    items = await getItems(cfg.feedUrl ?? undefined);
   } catch (err) {
     items = [];
   }

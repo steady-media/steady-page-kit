@@ -1,7 +1,8 @@
 // Route: GET /robots.txt — env-bewusst (SITE_ORIGIN), daher Function statt statischer Datei.
+import type { KitContext } from "./_lib/types.ts";
 import { SITE_ORIGIN } from "./_lib/config.ts";
 
-export async function onRequestGet(context) {
+export async function onRequestGet(context: KitContext): Promise<Response> {
   const origin = (context.env && context.env.SITE_ORIGIN) || SITE_ORIGIN;
   const body = `User-agent: *\nAllow: /\n\nSitemap: ${origin}/sitemap.xml\n`;
   return new Response(body, {

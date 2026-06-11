@@ -16,17 +16,17 @@ import { loadDotEnv } from "./env.js";
 import { createFsKv } from "./fs-kv.js";
 import { IS_CONFIGURED } from "../functions/_lib/config.ts";
 
-import * as routeHome from "../functions/index.js";
-import * as routePost from "../functions/posts/[id].js";
-import * as routeRubrik from "../functions/rubrik/[slug].js";
-import * as routeMemberships from "../functions/memberships.js";
-import * as routeRss from "../functions/rss.js";
-import * as routeSitemap from "../functions/sitemap.xml.js";
-import * as routeRobots from "../functions/robots.txt.js";
-import * as apiConfig from "../functions/api/config.js";
-import * as apiLogo from "../functions/api/logo.js";
-import * as apiSearch from "../functions/api/search.js";
-import * as apiReact from "../functions/api/react.js";
+import * as routeHome from "../functions/index.ts";
+import * as routePost from "../functions/posts/[id].ts";
+import * as routeRubrik from "../functions/rubrik/[slug].ts";
+import * as routeMemberships from "../functions/memberships.ts";
+import * as routeRss from "../functions/rss.ts";
+import * as routeSitemap from "../functions/sitemap.xml.ts";
+import * as routeRobots from "../functions/robots.txt.ts";
+import * as apiConfig from "../functions/api/config.ts";
+import * as apiLogo from "../functions/api/logo.ts";
+import * as apiSearch from "../functions/api/search.ts";
+import * as apiReact from "../functions/api/react.ts";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const PUBLIC_DIR = resolve(ROOT, "public");

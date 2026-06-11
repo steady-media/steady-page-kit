@@ -3,15 +3,17 @@
 //   PUT    → speichert ein neues Logo   (admin, Header x-kit-admin)
 //   DELETE → entfernt das Logo          (admin)
 // KV-Keys: "logo:data" (Bytes) + "logo:meta" ({type, aspect, ts}).
+import type { KitContext, LogoMeta } from "../_lib/types.ts";
 import { jsonResponse, isAdmin } from "../_lib/http.ts";
 
 const MAX_BYTES = 1572864; // 1,5 MB
 
-export async function onRequestGet(context) {
+export async function onRequestGet(context: KitContext): Promise<Response> {
   const kv = context.env && context.env.KIT_KV;
   if (!kv) return new Response("", { status: 404 });
-  const meta = await kv.get("logo:meta", "json");
-  const data = meta ? await kv.get("logo:data", "arrayBuffer") : null;
+  // KVAdapter.get liefert unknown — Cast auf LogoMeta, da das der gespeicherte Shape ist
+  const meta = await kv.get("logo:meta", "json") as LogoMeta | null;
+  const data = meta ? await kv.get("logo:data", "arrayBuffer") as ArrayBuffer | null : null;
   if (!meta || !data) return new Response("", { status: 404 });
   return new Response(data, {
     headers: {
@@ -22,7 +24,7 @@ export async function onRequestGet(context) {
   });
 }
 
-export async function onRequestPut(context) {
+export async function onRequestPut(context: KitContext): Promise<Response> {
   const { request, env } = context;
   if (!env.KIT_KV) return jsonResponse({ error: "kv_unavailable" }, 503);
   if (!isAdmin(request, env)) return jsonResponse({ error: "unauthorized" }, 401);
@@ -41,7 +43,7 @@ export async function onRequestPut(context) {
   return jsonResponse({ ok: true, ts });
 }
 
-export async function onRequestDelete(context) {
+export async function onRequestDelete(context: KitContext): Promise<Response> {
   const { request, env } = context;
   if (!env.KIT_KV) return jsonResponse({ error: "kv_unavailable" }, 503);
   if (!isAdmin(request, env)) return jsonResponse({ error: "unauthorized" }, 401);
