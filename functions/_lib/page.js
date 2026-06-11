@@ -67,6 +67,10 @@ ${tags.join("\n")}
 <link rel="stylesheet" href="/assets/kit.css?v=${v}"/>
 ${kitGlobal}
 <script src="/assets/kit-theme.js?v=${v}"></script>
+<!-- Sicherheitsnetz: scheitert ein Teaser-/Hero-Bild beim Laden (tote URL, 403),
+     auf die generische Marken-Grafik wechseln statt grauer Fläche. Capture-Phase,
+     da error-Events nicht bubblen; data-fb verhindert Endlosschleifen. -->
+<script>addEventListener("error",function(e){var t=e.target;if(t&&t.tagName==="IMG"&&!t.dataset.fb&&(/__media/.test(t.className)||(t.closest&&t.closest(".post__hero")))){t.dataset.fb=1;t.src="/assets/teaser-fallback.svg?v=${v}";}},true);</script>
 <script>window.KIT_DEFAULT_BRAND=${inlineJson(PUBLICATION)};window.KIT_DEFAULT_NAV=${inlineJson(DEFAULT_NAV)};window.KIT_LANG=${inlineJson(LANGUAGE)};window.KIT_LOCALE=${inlineJson(LOCALE.intl)};window.KIT_I18N=${inlineJson(clientStrings())};</script>
 <!-- Steady Smart Layers / Checkout / Paywall — der echte Steady-Layer.
      Ohne Publikations-ID kein Script-Tag (sonst lädt eine kaputte URL). -->

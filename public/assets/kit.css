@@ -210,7 +210,7 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__hero img
 .aufmacher__meta>span+span::before{content:"";position:absolute;left:-14px;top:50%;transform:translateY(-50%);width:1px;height:11px;background:var(--color-line);}
 .aufmacher__media{width:100%;aspect-ratio:var(--card-ar);object-fit:cover;background:var(--color-line);border-radius:var(--radius-card);}
 .aufmacher-band{padding:44px 0 34px;}
-.section-body{border-top:1px solid var(--rule);padding-top:34px;}
+.section-body{border-top:1px solid var(--rule);padding-top:50px;}
 
 /* ------------------------------------------------------------------ Portal-Shell (3-spaltig) */
 .portal-band{padding:40px 0 8px;}
@@ -244,8 +244,10 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__hero img
 .rubrik__more{font-family:var(--font-body);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-brand);}
 .rubrik__chip{transition:color .15s;} .rubrik__chip:hover{color:var(--color-brand);}
 .rubrik__more:hover{text-decoration:underline;}
-.section-eyebrow{display:flex;align-items:center;gap:14px;margin:0 0 22px;}
-.section-chip{font-family:var(--font-body);font-size:14px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-brand);}
+.section-head{margin:0 0 32px;}
+.section-head .post__back{margin-bottom:16px;}
+.section-title{font-family:var(--font-head);font-size:calc(44px*var(--fs));line-height:1.06;font-weight:var(--weight-heading);letter-spacing:var(--track-head);text-transform:var(--case-head);color:var(--color-ink);margin:0;}
+.section-count{font-size:15px;color:var(--color-ink-soft);margin:12px 0 0;}
 /* genau eine Teaser-Zeile zeigen (überzählige Grid-Rows kollabieren) */
 .rubrik__grid{padding-bottom:0;grid-template-rows:max-content;grid-auto-rows:0;row-gap:0;overflow:hidden;}
 /* Feature-Sektion: 1 groß + Liste */

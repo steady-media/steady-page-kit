@@ -58,10 +58,10 @@ function readMin(it) {
 
 // Aufmacher „groß" = gestapelt: Headline + Excerpt + Meta-Leiste + Bild.
 // side=true → Bild links neben dem Text (Rubrik-Seiten).
-function aufmacherArticle(hero, withImage, side) {
+function aufmacherArticle(hero, withImage, side, titleTag = "h1") {
   const media = withImage ? `<a class="aufmacher__medialink" href="/posts/${esc(hero.guid)}"><img class="aufmacher__media" alt="" src="${teaser(hero.image, 1120, 630)}"/></a>` : "";
   const body = `<div class="aufmacher__body">
-    <h1 class="aufmacher__title"><a href="/posts/${esc(hero.guid)}">${esc(hero.title)}</a></h1>
+    <${titleTag} class="aufmacher__title"><a href="/posts/${esc(hero.guid)}">${esc(hero.title)}</a></${titleTag}>
     ${hero.description ? `<p class="aufmacher__excerpt">${esc(hero.description)}</p>` : ""}
     <div class="aufmacher__meta"><span>${esc(fmtDate(hero.pubDate))}</span><span>${esc(t("read.min", { min: readMin(hero) }))}</span></div>
   </div>`;
@@ -225,9 +225,15 @@ export function renderSection(category, items, allItems, page = 1, cfg) {
   const more = p < pages
     ? `<div class="loadmore-wrap"><button class="load-more" id="js-loadmore" data-next="${p + 1}" data-pages="${pages}" data-url="/rubrik/${slug}">${esc(t("loadmore"))}</button></div>`
     : "";
+  const count = items.length;
+  const countLabel = t(count === 1 ? "rubrik.count.one" : "rubrik.count.other", { n: count });
   const aufmacher = featured ? `<section class="aufmacher-band"><div class="container">
-    <p class="section-eyebrow"><a class="post__back" href="/">${ICON_BACK} ${esc(PUBLICATION)}</a><span class="section-chip">${esc(display)}</span></p>
-    ${aufmacherArticle(featured, true, true)}
+    <header class="section-head">
+      <a class="post__back" href="/">${ICON_BACK} ${esc(PUBLICATION)}</a>
+      <h1 class="section-title">${esc(display)}</h1>
+      <p class="section-count">${esc(countLabel)}</p>
+    </header>
+    ${aufmacherArticle(featured, true, true, "h2")}
   </div></section>` : "";
   const meta = {
     desc: t("rubrik.desc", { category: display, name: PUBLICATION }),
