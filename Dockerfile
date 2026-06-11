@@ -7,12 +7,13 @@
 # WICHTIG: /app/data braucht ein Volume/eine persistente Disk — dort liegen
 # veröffentlichte Einstellungen, Logo und Claps (siehe docs/agent/deploy/).
 
-FROM node:22-alpine
+FROM node:24-slim
 
 WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
 COPY . .
 
-# Keine Runtime-Dependencies — npm install ist nicht nötig.
 ENV NODE_ENV=production
 ENV KIT_DATA_DIR=/app/data
 RUN mkdir -p /app/data && chown -R node:node /app

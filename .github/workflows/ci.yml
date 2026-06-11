@@ -1,4 +1,4 @@
-# CI: Syntax-Check + Tests + Doctor (offline) auf beiden unterstützten Node-Majors.
+# CI: Typcheck + Tests + Doctor (offline) + CF-Functions-Build auf beiden Node-Majors.
 # Deploys laufen bewusst manuell (docs/agent/deploy/*) — kein Auto-Deploy aus CI.
 name: CI
 on:
@@ -11,12 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [20, 22]
+        node: [22, 24]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
+      - run: npm ci
       - run: npm run check
       - run: npm test
       - run: node scripts/doctor.js --offline
+      - run: npx wrangler pages functions build --outdir /tmp/kit-fn-build

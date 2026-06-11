@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-check
 // scripts/doctor.js — Gesundheitscheck des Kits. `npm run doctor`
 //
 // Das deterministische Erfolgssignal für Setup-Agents (docs/agent/SETUP.md):
@@ -17,24 +18,30 @@ import { mkdir, writeFile, unlink } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import kit from "../kit.config.js";
-import {
-  STEADY_SLUG, FEED_URL, SITE_ORIGIN, STEADY_PUBLICATION_ID,
-  MEMBER_HEADING, IS_CONFIGURED, LANGUAGE, USER_AGENT,
-} from "../functions/_lib/config.ts";
 import { loadDotEnv } from "../server/env.js";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const OFFLINE = process.argv.includes("--offline");
 
-// Secrets aus beiden lokalen Quellen (Node-Pfad + Cloudflare-Pfad) einsammeln.
-loadDotEnv(join(ROOT, ".env"));
-loadDotEnv(join(ROOT, ".dev.vars"));
-
 let blockers = 0;
-const ok = m => console.log("  ✅ " + m);
-const warn = m => console.log("  ⚠️  " + m);
-const fail = m => { console.log("  ❌ " + m); blockers++; };
+const ok = /** @param {string} m */ m => console.log("  ✅ " + m);
+const warn = /** @param {string} m */ m => console.log("  ⚠️  " + m);
+const fail = /** @param {string} m */ m => { console.log("  ❌ " + m); blockers++; };
 
+/** Druckt Zusammenfassung und beendet den Prozess. */
+function finish() {
+  console.log("");
+  if (blockers) {
+    console.log(`❌ ${blockers} Blocker — siehe oben. / ${blockers} blocker(s), see above.\n`);
+    process.exit(1);
+  }
+  console.log("✅ Bereit. / Ready.\n");
+}
+
+/**
+ * @param {string} url
+ * @param {{ wantBody?: string, label?: string }} [opts]
+ */
 async function probe(url, { wantBody, label } = {}) {
   try {
     const res = await fetch(url, {
@@ -49,7 +56,8 @@ async function probe(url, { wantBody, label } = {}) {
     }
     return { ok: true };
   } catch (e) {
-    return { ok: false, why: e.name === "TimeoutError" ? "Timeout" : (e.cause && e.cause.code) || e.message };
+    const err = /** @type {any} */ (e);
+    return { ok: false, why: err.name === "TimeoutError" ? "Timeout" : (err.cause && err.cause.code) || err.message };
   }
 }
 
@@ -58,9 +66,16 @@ console.log(`\nsteady-page-kit doctor${OFFLINE ? " (--offline)" : ""}\n`);
 /* — 1. Umgebung — */
 console.log("Umgebung / environment");
 const [major, minor] = process.versions.node.split(".").map(Number);
-if (major >= 22) ok(`Node ${process.versions.node}`);
-else if (major >= 20) warn(`Node ${process.versions.node} — funktioniert; empfohlen ist Node 22 LTS`);
-else fail(`Node ${process.versions.node} — zu alt, mindestens Node 20 nötig`);
+if (major > 22 || (major === 22 && minor >= 18)) ok(`Node ${process.versions.node}`);
+else { fail(`Node ${process.versions.node} — zu alt; v2 braucht >= 22.18 (empfohlen: Node 24 LTS)`); finish(); }
+
+const { STEADY_SLUG, FEED_URL, SITE_ORIGIN, STEADY_PUBLICATION_ID,
+        MEMBER_HEADING, IS_CONFIGURED, LANGUAGE, USER_AGENT } =
+  await import("../functions/_lib/config.ts");
+
+// Secrets aus beiden lokalen Quellen (Node-Pfad + Cloudflare-Pfad) einsammeln.
+loadDotEnv(join(ROOT, ".env"));
+loadDotEnv(join(ROOT, ".dev.vars"));
 
 /* — 2. kit.config.js — */
 console.log("\nkit.config.js");
@@ -91,9 +106,11 @@ if (!IS_CONFIGURED && !envFeed) {
 /* — 3. Secrets — */
 console.log("\nSecrets (.env / .dev.vars / Host-Env)");
 const adminCode = (process.env.KIT_ADMIN_CODE || "").trim();
-if (!adminCode) warn("KIT_ADMIN_CODE fehlt → „Für alle Besucher speichern“/Logo-Upload sind deaktiviert");
+if (!adminCode) warn("KIT_ADMIN_CODE fehlt \u2192 \u201eFür alle Besucher speichern\u201c/Logo-Upload sind deaktiviert");
 else if (adminCode.length < 8) warn("KIT_ADMIN_CODE ist sehr kurz — mindestens 8 Zeichen empfohlen");
 else ok("KIT_ADMIN_CODE gesetzt");
+if (process.env.KIT_ADMIN_CODE && process.env.KIT_ADMIN_CODE.length < 12)
+  warn("KIT_ADMIN_CODE ist kürzer als 12 Zeichen — bitte einen langen, zufälligen Code verwenden");
 const fulltext = (process.env.FULLTEXT_FEED_URL || "").trim();
 if (!fulltext) warn("FULLTEXT_FEED_URL fehlt → Posts zeigen Teaser + Steady-Link statt Volltext (optional)");
 
@@ -143,9 +160,4 @@ if (!OFFLINE) {
   }
 }
 
-console.log("");
-if (blockers) {
-  console.log(`❌ ${blockers} Blocker — siehe oben. / ${blockers} blocker(s), see above.\n`);
-  process.exit(1);
-}
-console.log("✅ Bereit. / Ready.\n");
+finish();
