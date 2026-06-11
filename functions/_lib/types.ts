@@ -99,6 +99,8 @@ export interface KitContext {
   request: Request;
   env: KitEnv;
   params: Record<string, string>;
+  data: Record<string, unknown>;
+  waitUntil(p: Promise<unknown>): void;
   /** Nächster Handler in der Middleware-Kette */
   next(): Promise<Response>;
 }
@@ -200,4 +202,6 @@ export interface RenderCfg extends StructCfg {
   loginUrl: string | null;
   /** Cloudflare Web Analytics Beacon-Token (leer = deaktiviert) */
   analytics: string;
+  /** Kanal-Beschreibung (optional) */
+  channelDesc?: string;
 }
