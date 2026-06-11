@@ -8,13 +8,14 @@ import { FEED_URL, MAX_PILLS, USER_AGENT } from "./config.ts";
 // liegt er zusätzlich vor dem Edge-Cache (cf-Option unten) — bewusst doppelt, nicht
 // „reparieren". Bei Fetch-Fehlern servieren wir lieber den letzten Stand als gar nichts.
 const FEED_TTL_MS = 10 * 60 * 1000;
+const FEED_TIMEOUT_MS = 10_000;
 const feedCache = new Map<string, { xml: string; at: number }>(); // url → { xml, at }
 
 /** Cache leeren — nur für Tests. */
 export function _resetFeedCache(): void { feedCache.clear(); }
 
 /** Feed-XML laden (10 Min gecacht; cf-Option wird außerhalb Cloudflares ignoriert). */
-export async function fetchFeedXml(feedUrl?: string | null): Promise<string> {
+export async function fetchFeedXml(feedUrl?: string | null, opts: { timeoutMs?: number } = {}): Promise<string> {
   const url = feedUrl || FEED_URL;
   if (!url) throw new Error("feed URL missing — kit.config.js ist noch nicht konfiguriert");
   const hit = feedCache.get(url);
@@ -22,6 +23,7 @@ export async function fetchFeedXml(feedUrl?: string | null): Promise<string> {
   try {
     const res = await fetch(url, {
       headers: { "user-agent": USER_AGENT },
+      signal: AbortSignal.timeout(opts.timeoutMs ?? FEED_TIMEOUT_MS),
       cf: { cacheTtl: 600, cacheEverything: true },
     } as RequestInit);
     if (!res.ok) throw new Error("feed HTTP " + res.status);

@@ -13,6 +13,7 @@ import { fileURLToPath } from "node:url";
 import { createFsKv } from "./fs-kv.ts";
 import { createRedisRestKv } from "./kv-redis-rest.ts";
 import { handleRequest, MAX_BODY } from "./routes.ts";
+import { logError } from "../functions/_lib/scrub.ts";
 import type { KitEnv } from "../functions/_lib/types.ts";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -131,7 +132,7 @@ function makeHandler(env: KitEnv, serverPort: number) {
       res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
       res.end("Not Found");
     } catch (err) {
-      console.error("[steady-page-kit]", err);
+      logError(err, env);
       if (!res.headersSent) res.writeHead(500, { "content-type": "text/plain; charset=utf-8" });
       res.end("Internal Server Error");
     }
