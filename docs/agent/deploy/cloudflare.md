@@ -39,3 +39,5 @@ Prerequisite: a Cloudflare account (free) — the user signs up at dash.cloudfla
 
 Verify per SETUP.md §6. Note: after changing `kit.config.js` you must redeploy —
 the config is bundled at deploy time.
+
+Hinweis: Functions laufen auf workerd — die Node-Version deines Rechners braucht trotzdem ≥ 22.18 für lokale Checks (`npm run doctor`, `npm test`).

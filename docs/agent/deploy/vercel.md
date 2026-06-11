@@ -36,3 +36,5 @@ statically. **Ops:** the platform patches OS and TLS — you manage only the app
 
 Note: after changing `kit.config.js` you must redeploy — the config is bundled at
 deploy time. Verify per SETUP.md §6.
+
+Hinweis: Vercel liest die Node-Version aus `package.json` engines (≥ 22.18); lokal gilt dasselbe für `npm run doctor`/`npm test`.

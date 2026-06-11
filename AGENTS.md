@@ -73,7 +73,7 @@ repository's existing style.
    `eckig/rund`, `farbe/duotone/graustufen`), `data-v`/`data-fn`/`data-kind` attributes,
    localStorage keys (`kitFontHead`, `kitColors`, …), KV keys (`config`, `config:prev`,
    `logo:data`, `logo:meta`, `react:<guid>`), the `/rubrik/` URL prefix, and the
-   `x-kit-admin` header. UI **labels** live in `functions/_lib/i18n.js` (de + en —
+   `x-kit-admin` header. UI **labels** live in `functions/_lib/i18n.ts` (de + en —
    always add both; `npm test` enforces key parity).
 3. **Both runtimes stay green.** After changes run `npm run check && npm test`.
    If you touched routing, also boot `npm run dev` and curl `/`.
@@ -91,7 +91,7 @@ repository's existing style.
 
 ## Good to know
 
-- **Full text join:** the public feed carries teasers only. `posts/[id].js` joins the
+- **Full text join:** the public feed carries teasers only. `posts/[id].ts` joins the
   authenticated full-text feed **by normalized title** (`normTitle`) — the GUIDs of
   the two feeds differ! The full-text feed only contains the ~6 newest posts; older
   posts render as teaser + "read on Steady" link. That is expected behavior.
@@ -100,7 +100,7 @@ repository's existing style.
   before the member heading; Steady's widget gates everything below it client-side
   (content stays in the HTML — that's how Steady's official JS paywall works).
 - **Adding a panel control:** token in `kit.css` → setter in `kit-theme.js` →
-  control markup in `_lib/panel.js` (data-fn/data-kind/data-v) + labels in `i18n.js`
+  control markup in `_lib/panel.ts` (data-fn/data-kind/data-v) + labels in `i18n.ts`
   (de + en). The generic segment logic in `kit-panel.js` picks it up automatically.
 - **Caching:** HTML 5 min (`no-store` with personal cookies), feed 10 min
   (in-memory everywhere + edge cache on Cloudflare — intentionally doubled, don't

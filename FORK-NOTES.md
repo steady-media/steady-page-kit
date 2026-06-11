@@ -6,7 +6,7 @@ Diese Installation weicht bewusst in folgenden TEMPLATE-Dateien vom Upstream
 
 1. `public/assets/kit.css` → `.brand__logo` nutzt `url(/assets/logo.png)`
    (Blaupause-B) statt des neutralen Markenfarben-Quadrats.
-2. `functions/_lib/page.js` → Favicon-Link zeigt auf `/assets/favicon.png`
+2. `functions/_lib/page.ts` → Favicon-Link zeigt auf `/assets/favicon.png`
    (Blaupause-B) statt `/assets/favicon.svg`.
 3. `public/assets/logo.png` + `public/assets/favicon.png` sind fork-eigene
    Assets (existieren im Template nicht).
