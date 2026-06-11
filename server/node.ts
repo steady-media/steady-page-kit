@@ -11,6 +11,7 @@ import { readFile } from "node:fs/promises";
 import { extname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createFsKv } from "./fs-kv.ts";
+import { createRedisRestKv } from "./kv-redis-rest.ts";
 import { handleRequest, MAX_BODY } from "./routes.ts";
 import type { KitEnv } from "../functions/_lib/types.ts";
 
@@ -89,7 +90,11 @@ async function tryStatic(pathname: string): Promise<{ data: Buffer; type: string
 export function buildEnv(extra?: Record<string, unknown>): KitEnv {
   const env: Record<string, unknown> = { ...process.env, ...extra };
   if (!env.KIT_KV) {
-    env.KIT_KV = createFsKv(String(env.KIT_DATA_DIR || join(ROOT, "data")));
+    if (env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN) {
+      env.KIT_KV = createRedisRestKv(String(env.UPSTASH_REDIS_REST_URL), String(env.UPSTASH_REDIS_REST_TOKEN));
+    } else {
+      env.KIT_KV = createFsKv(String(env.KIT_DATA_DIR || join(ROOT, "data")));
+    }
   }
   return env as KitEnv;
 }
