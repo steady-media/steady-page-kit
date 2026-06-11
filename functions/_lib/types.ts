@@ -40,7 +40,7 @@ export interface KitConfig {
   /** Autor:in (optional; Meta-Daten) */
   author?: string;
   /** Sprache der Oberfläche: "de" oder "en" */
-  language?: "de" | "en";
+  language?: "de" | "en" | (string & {});
   /** Kanonische URL der fertigen Seite, ohne Slash am Ende */
   siteOrigin?: string;
   /** Steady-Slug + Publikations-ID */
@@ -48,7 +48,7 @@ export interface KitConfig {
   /** Überschrift, mit der der Mitglieder-Teil beginnt */
   memberHeading?: string;
   /** Explizite Navigation (überschreibt den Kit-Default) */
-  nav?: KitNavItem[];
+  nav?: Array<{ l: string; h: string; x?: boolean }> | null;
   /** Teaser pro Seite (Default 12) */
   perPage?: number;
   /** Max. Kategorie-Pills (Default 8) */
@@ -64,8 +64,8 @@ export interface KitConfig {
  * und dem Node-Emulator (server/fs-kv.js).
  */
 export interface KVAdapter {
-  get(key: string, options?: { type?: "text" | "json" | "arrayBuffer" | "stream"; cacheTtl?: number }): Promise<unknown>;
-  put(key: string, value: string | ArrayBuffer, options?: { expirationTtl?: number }): Promise<void>;
+  get(key: string, opts?: "text" | "json" | "arrayBuffer" | { type?: "text" | "json" | "arrayBuffer"; cacheTtl?: number }): Promise<unknown>;
+  put(key: string, value: string | ArrayBuffer | ArrayBufferView, options?: { expirationTtl?: number }): Promise<void>;
   delete(key: string): Promise<void>;
 }
 
@@ -102,7 +102,7 @@ export interface KitContext {
   data: Record<string, unknown>;
   waitUntil(p: Promise<unknown>): void;
   /** Nächster Handler in der Middleware-Kette */
-  next(): Promise<Response>;
+  next(): void;
 }
 
 /** Cloudflare-Pages-Functions-Handler-Signatur */
@@ -152,8 +152,8 @@ export interface GlobalConfig {
 export interface LogoMeta {
   /** MIME-Typ des Upload-Bilds (z. B. "image/svg+xml") */
   type: string;
-  /** Seitenverhältnis als String (z. B. "16:9") */
-  aspect?: string;
+  /** Seitenverhältnis als Float (z. B. 4), Default 4. */
+  aspect?: number;
   /** Unix-Timestamp der letzten Speicherung */
   ts?: number;
 }
@@ -180,7 +180,7 @@ export interface StructCfg {
   /** Angepasster Publikations-Titel (aus kitchrome-Cookie) */
   brand: string;
   /** Angepasste Navigation (aus kitchrome-Cookie) oder null = Default */
-  nav: KitNavItem[] | null;
+  nav: Array<{ l: string; h: string; x: boolean }> | null;
 }
 
 /**
