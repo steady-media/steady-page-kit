@@ -90,6 +90,8 @@ export interface KitEnv {
   STEADY_LOGIN_URL?: string;
   /** Cloudflare Web Analytics Beacon-Token (optional) */
   ANALYTICS_TOKEN?: string;
+  /** Weitere Host-/Deployment-Variablen (process.env bzw. CF-Bindings). */
+  [key: string]: unknown;
 }
 
 /**
