@@ -107,10 +107,8 @@ if (!IS_CONFIGURED && !envFeed) {
 console.log("\nSecrets (.env / .dev.vars / Host-Env)");
 const adminCode = (process.env.KIT_ADMIN_CODE || "").trim();
 if (!adminCode) warn("KIT_ADMIN_CODE fehlt \u2192 \u201eFür alle Besucher speichern\u201c/Logo-Upload sind deaktiviert");
-else if (adminCode.length < 8) warn("KIT_ADMIN_CODE ist sehr kurz — mindestens 8 Zeichen empfohlen");
+else if (adminCode.length < 12) warn("KIT_ADMIN_CODE ist kürzer als 12 Zeichen — bitte einen langen, zufälligen Code verwenden");
 else ok("KIT_ADMIN_CODE gesetzt");
-if (process.env.KIT_ADMIN_CODE && process.env.KIT_ADMIN_CODE.length < 12)
-  warn("KIT_ADMIN_CODE ist kürzer als 12 Zeichen — bitte einen langen, zufälligen Code verwenden");
 const fulltext = (process.env.FULLTEXT_FEED_URL || "").trim();
 if (!fulltext) warn("FULLTEXT_FEED_URL fehlt → Posts zeigen Teaser + Steady-Link statt Volltext (optional)");
 
