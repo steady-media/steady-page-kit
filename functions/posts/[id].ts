@@ -18,7 +18,7 @@ export async function onRequestGet(context: KitContext): Promise<Response> {
 
   let items: FeedItem[] = [];
   try {
-    items = await getItems(cfg.feedUrl ?? undefined);
+    items = await getItems(cfg.feedUrl);
   } catch (err) {
     items = [];
   }

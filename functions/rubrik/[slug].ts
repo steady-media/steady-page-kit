@@ -15,7 +15,7 @@ export async function onRequestGet(context: KitContext): Promise<Response> {
 
   let category: string | null = null, items: FeedItem[] = [], all: FeedItem[] = [];
   try {
-    all = await getItems(cfg.feedUrl ?? undefined);
+    all = await getItems(cfg.feedUrl);
     const cats = new Set<string>();
     all.forEach(it => it.categories.forEach(c => { if (c) cats.add(c); }));
     category = [...cats].find(c => slugify(c) === slug) || null;

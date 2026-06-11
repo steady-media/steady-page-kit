@@ -14,7 +14,7 @@ const feedCache = new Map<string, { xml: string; at: number }>(); // url → { x
 export function _resetFeedCache(): void { feedCache.clear(); }
 
 /** Feed-XML laden (10 Min gecacht; cf-Option wird außerhalb Cloudflares ignoriert). */
-export async function fetchFeedXml(feedUrl?: string): Promise<string> {
+export async function fetchFeedXml(feedUrl?: string | null): Promise<string> {
   const url = feedUrl || FEED_URL;
   if (!url) throw new Error("feed URL missing — kit.config.js ist noch nicht konfiguriert");
   const hit = feedCache.get(url);
@@ -40,7 +40,7 @@ export async function fetchFeedXml(feedUrl?: string): Promise<string> {
  * mit `feedUrl` z. B. den authentifizierten Volltext-Feed.
  * @returns {Promise<Array<FeedItem>>}
  */
-export async function getItems(feedUrl?: string): Promise<FeedItem[]> {
+export async function getItems(feedUrl?: string | null): Promise<FeedItem[]> {
   return parseFeed(await fetchFeedXml(feedUrl));
 }
 

@@ -15,7 +15,7 @@ export async function onRequestGet(context: KitContext): Promise<Response> {
 
   let html;
   try {
-    const xml = await fetchFeedXml(cfg.feedUrl ?? undefined);
+    const xml = await fetchFeedXml(cfg.feedUrl);
     cfg.channelDesc = parseChannelMeta(xml).description; // → Meta-Description der Landing
     html = renderLanding(parseFeed(xml), page, cfg);
   } catch (err) {
