@@ -19,7 +19,7 @@
 /* — Kuratierte Font-Auswahl (Bunny-Slugs). n=Name, s=Slug, c=Kategorie,
      g=generische Familie (Default sans-serif), w=verfügbare Gewichte — */
 window.KIT_FONTS = [
-  { n: "Inter", s: "inter", c: "Grotesk" },
+  { n: "Inter", s: "inter", c: "Grotesk", w: "400,500,600,700,900" },
   { n: "Archivo", s: "archivo", c: "Grotesk" },
   { n: "Archivo Narrow", s: "archivo-narrow", c: "Grotesk" },
   { n: "Archivo Black", s: "archivo-black", c: "Grotesk", w: "400,700,900" },
@@ -135,7 +135,7 @@ window.KIT_LOOKS = [
   { n: "Magazin-Portal", d: "3-spaltig, rubriziert", head: "mulish", body: "source-serif-4", base: "light",
     type: { size: "standard", lead: "normal", track: "normal", case: "normal", align: "links" },
     layout: { corner: "eckig", dens: "komfortabel", hero: "split", width: "breit", cols: "4", nav: "figma" },
-    card: { style: "classic", surface: "flat", image: "farbe", aspect: "16:9" },
+    card: { style: "classic", surface: "flat", image: "farbe", aspect: "4:3" },
     colors: { "--color-brand": "#954FCF", "--color-accent": "#954FCF" },
     struct: { shell: "portal", auf: "gross", stream: "rubrik", rails: ["neueste", "meist", "themen"] } },
 ];
