@@ -1,3 +1,4 @@
+// @ts-check
 // kit.config.js — die Einstellungen DEINER Publikation. / YOUR publication's settings.
 //
 // Diese Installation: Blaupause (Deployment-Fork des Templates
@@ -6,6 +7,7 @@
 // Secrets gehören NICHT hierher (Admin-Code, Volltext-Feed-URL) — die liegen in
 // .env (Node) bzw. .dev.vars / Cloudflare-Secrets. Siehe .env.example.
 
+/** @type {import("./functions/_lib/types.ts").KitConfig} */
 export default {
   // Anzeigename der Publikation / display name of your publication.
   publication: "Blaupause",

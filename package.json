@@ -2,19 +2,20 @@
   "name": "steady-page-kit",
   "private": true,
   "type": "module",
-  "engines": {
-    "node": ">=20"
-  },
+  "engines": { "node": ">=22.18" },
   "scripts": {
     "dev": "node --watch server/node.js",
     "start": "node server/node.js",
     "dev:cf": "wrangler pages dev public",
     "deploy:cf": "wrangler pages deploy public --branch main",
     "doctor": "node scripts/doctor.js",
-    "check": "sh -c 'for f in functions/*.js functions/posts/*.js functions/rubrik/*.js functions/_lib/*.js functions/api/*.js public/assets/kit-*.js server/*.js scripts/*.js kit.config.js; do [ -e \"$f\" ] || continue; node --check \"$f\" || exit 1; done; echo \"check: alle Dateien ok\"'",
-    "test": "node --test test/*.test.js"
+    "check": "tsc -p tsconfig.json && tsc -p tsconfig.browser.json",
+    "test": "node --test test/*.test.js",
+    "bump-assets": "node scripts/bump-assets.ts"
   },
   "devDependencies": {
+    "@types/node": "^24.13.2",
+    "typescript": "^5.9.3",
     "wrangler": "^4"
   }
 }
