@@ -3,8 +3,8 @@
 // Inhalt der kit.config.js (Publisher-Datei!) testbar bleibt.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { normalizeSlug, deriveSteady, IS_CONFIGURED, FEED_URL, MEMBER_HEADING, STEADY_SLUG, LANGUAGE } from "../functions/_lib/config.js";
-import { isConfigured } from "../functions/_lib/settings.js";
+import { normalizeSlug, deriveSteady, IS_CONFIGURED, FEED_URL, MEMBER_HEADING, STEADY_SLUG, LANGUAGE } from "../functions/_lib/config.ts";
+import { isConfigured } from "../functions/_lib/settings.ts";
 
 test("normalizeSlug: nackte Slugs, @-Präfix, Whitespace", () => {
   assert.equal(normalizeSlug("sebastian"), "sebastian");

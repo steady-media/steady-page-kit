@@ -1,7 +1,7 @@
 // _lib/page.js — Seitengerüst: <head> (inkl. SEO/OG), Header (Brand + Login + Nav + Suche), Footer.
 // Die Render-Funktionen (render.js) setzen Seiten als head() + header() + Inhalt + footer() zusammen.
 
-import { PUBLICATION, SITE_ORIGIN, STEADY_PUBLICATION_ID, STEADY_LOGIN_URL, DEFAULT_NAV, ASSET_VERSION } from "./config.js";
+import { PUBLICATION, SITE_ORIGIN, STEADY_PUBLICATION_ID, STEADY_LOGIN_URL, DEFAULT_NAV, ASSET_VERSION } from "./config.ts";
 import { LANGUAGE, LOCALE, t, clientStrings } from "./i18n.ts";
 import { esc } from "./util.ts";
 import { ICON_SEARCH } from "./icons.ts";

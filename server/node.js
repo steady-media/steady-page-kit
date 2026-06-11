@@ -14,7 +14,7 @@ import { extname, join, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { loadDotEnv } from "./env.js";
 import { createFsKv } from "./fs-kv.js";
-import { IS_CONFIGURED } from "../functions/_lib/config.js";
+import { IS_CONFIGURED } from "../functions/_lib/config.ts";
 
 import * as routeHome from "../functions/index.js";
 import * as routePost from "../functions/posts/[id].js";

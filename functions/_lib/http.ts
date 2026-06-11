@@ -1,8 +1,10 @@
-// _lib/http.js — Response-Helfer + Admin-Gate für die /api/*-Endpunkte.
+// _lib/http.ts — Response-Helfer + Admin-Gate für die /api/*-Endpunkte.
+
+import type { KitEnv } from "./types.ts";
 
 /** HTML-Antwort mit Cache-Header (siehe buildPageContext) + Security-Baseline.
  *  (public/_headers greift nur für statische Assets, nicht für Function-Antworten.) */
-export function htmlResponse(html, cacheControl, status = 200) {
+export function htmlResponse(html: string, cacheControl?: string, status: number = 200): Response {
   return new Response(html, {
     status,
     headers: {
@@ -16,7 +18,7 @@ export function htmlResponse(html, cacheControl, status = 200) {
 }
 
 /** JSON-Antwort; API-Antworten sind standardmäßig uncached. */
-export function jsonResponse(obj, status = 200, cacheControl = "no-store") {
+export function jsonResponse(obj: unknown, status: number = 200, cacheControl: string = "no-store"): Response {
   return new Response(JSON.stringify(obj), {
     status,
     headers: {
@@ -31,7 +33,7 @@ export function jsonResponse(obj, status = 200, cacheControl = "no-store") {
  * Das Panel ist öffentlich — alles, was global schreibt (Logo, Config),
  * MUSS durch dieses Gate.
  */
-export function isAdmin(request, env) {
+export function isAdmin(request: Request, env: KitEnv): boolean {
   const code = env && env.KIT_ADMIN_CODE;
   return !!code && (request.headers.get("x-kit-admin") || "") === code;
 }

@@ -5,9 +5,9 @@
 // joinen wir den Volltext per normalisiertem Titel an den Beitrag — die Guids beider
 // Feeds unterscheiden sich, die Titel stimmen überein. Der Mitglieder-Teil wird beim
 // Rendern mit dem offiziellen Steady-Paywall-Element gegated (siehe render.js).
-import { getItems, normTitle } from "../_lib/feed.js";
-import { buildPageContext, getClaps, isConfigured } from "../_lib/settings.js";
-import { htmlResponse } from "../_lib/http.js";
+import { getItems, normTitle } from "../_lib/feed.ts";
+import { buildPageContext, getClaps, isConfigured } from "../_lib/settings.ts";
+import { htmlResponse } from "../_lib/http.ts";
 import { renderPost, render404, renderOnboarding } from "../_lib/render.js";
 
 export async function onRequestGet(context) {

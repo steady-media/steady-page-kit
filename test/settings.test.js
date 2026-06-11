@@ -1,7 +1,7 @@
 // test/settings.test.js — Struktur-Cookie-Parsing + Präzedenz persönlich > global.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseStruct, effectiveCookie } from "../functions/_lib/settings.js";
+import { parseStruct, effectiveCookie } from "../functions/_lib/settings.ts";
 
 test("parseStruct ohne Cookie = Default-Seite", () => {
   const s = parseStruct("");

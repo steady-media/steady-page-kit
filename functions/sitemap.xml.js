@@ -1,6 +1,6 @@
 // Route: GET /sitemap.xml — generiert aus dem Feed (Posts, Rubriken, statische Seiten).
-import { getItems, topCategories } from "./_lib/feed.js";
-import { SITE_ORIGIN } from "./_lib/config.js";
+import { getItems, topCategories } from "./_lib/feed.ts";
+import { SITE_ORIGIN } from "./_lib/config.ts";
 import { esc, slugify } from "./_lib/util.ts";
 
 export async function onRequestGet(context) {

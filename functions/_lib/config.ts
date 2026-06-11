@@ -18,7 +18,7 @@ export { LANGUAGE };
  * („https://steady.page/sebastian/rss", „steadyhq.com/de/xyz/about") und „@slug".
  * Locale-Segmente (de/en/…) am Pfadanfang werden übersprungen.
  */
-export function normalizeSlug(input) {
+export function normalizeSlug(input: unknown): string {
   let s = String(input || "").trim().replace(/^@/, "");
   if (!s) return "";
   if (/^https?:\/\//i.test(s) || /^(www\.)?steady(hq)?\.(page|com)\//i.test(s)) {
@@ -32,7 +32,7 @@ export function normalizeSlug(input) {
 }
 
 /** Steady-URLs aus Slug + Sprache ableiten; leerer Slug → leere Strings. */
-export function deriveSteady(slug, language) {
+export function deriveSteady(slug: string, language: string): { feedUrl: string; loginUrl: string; newsletterUrl: string } {
   if (!slug) return { feedUrl: "", loginUrl: "", newsletterUrl: "" };
   return {
     feedUrl: `https://steady.page/${slug}/rss`,
@@ -41,8 +41,8 @@ export function deriveSteady(slug, language) {
   };
 }
 
-function intOr(v, def) {
-  const n = parseInt(v, 10);
+function intOr(v: unknown, def: number): number {
+  const n = parseInt(v as string, 10);
   return Number.isFinite(n) && n > 0 ? n : def;
 }
 
@@ -78,7 +78,7 @@ export const MEMBER_HEADING = String(kit.memberHeading || "").trim() || t("membe
 
 export const PER_PAGE = intOr(kit.perPage, 12);    // Teaser pro Seite
 export const MAX_PILLS = intOr(kit.maxPills, 8);   // max. Kategorie-Pills
-export const PINNED_GUID = kit.pinnedGuid || null; // optional: Post-GUID als Hero
+export const PINNED_GUID: string | null = kit.pinnedGuid || null; // optional: Post-GUID als Hero
 
 /** true, sobald kit.config.js eine Feed-Quelle ergibt. Env-Overrides zählen
  *  zusätzlich zur Request-Zeit — dafür isConfigured(cfg) in settings.js nutzen. */

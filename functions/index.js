@@ -1,9 +1,9 @@
 // Route: GET /  → Landing aus dem Steady-Feed.
 // Die Komposition (Shell/Aufmacher/Stream/Leisten) kommt aus der Render-Config
 // (globale KV-Config + persönlicher Cookie); der Skin wird clientseitig angewandt.
-import { fetchFeedXml, parseFeed, parseChannelMeta } from "./_lib/feed.js";
-import { buildPageContext, isConfigured } from "./_lib/settings.js";
-import { htmlResponse } from "./_lib/http.js";
+import { fetchFeedXml, parseFeed, parseChannelMeta } from "./_lib/feed.ts";
+import { buildPageContext, isConfigured } from "./_lib/settings.ts";
+import { htmlResponse } from "./_lib/http.ts";
 import { renderLanding, renderEmpty, renderOnboarding } from "./_lib/render.js";
 
 export async function onRequestGet(context) {

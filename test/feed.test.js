@@ -1,7 +1,7 @@
 // test/feed.test.js — Feed-Parsing + Titel-Normalisierung (Join-Schlüssel der Volltexte).
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseFeed, parseChannelMeta, normTitle, topCategories } from "../functions/_lib/feed.js";
+import { parseFeed, parseChannelMeta, normTitle, topCategories } from "../functions/_lib/feed.ts";
 
 const XML = `<?xml version="1.0"?><rss><channel>
 <title>Beispiel-Publikation</title><description><![CDATA[Der Newsletter über Medien.]]></description>

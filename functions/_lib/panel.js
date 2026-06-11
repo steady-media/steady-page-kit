@@ -7,7 +7,7 @@
 // i18n: NUR Button-/Label-TEXTE laufen über t(); die data-v-WERTE sind Schema
 // (Cookies/localStorage/KV) und bleiben unverändert deutsch.
 
-import { PUBLICATION } from "./config.js";
+import { PUBLICATION } from "./config.ts";
 import { t } from "./i18n.ts";
 import { esc } from "./util.ts";
 

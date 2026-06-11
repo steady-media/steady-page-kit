@@ -4,7 +4,7 @@
 //   PATCH  → tauscht aktuelle Config und Vorversion (Revert/Redo, admin)
 //   DELETE → setzt auf die eingebauten Defaults zurück (admin)
 // KV-Key "config" = {skin: {<localStorage-Keys>}, kitstruct, kitchrome, ts}.
-import { jsonResponse, isAdmin } from "../_lib/http.js";
+import { jsonResponse, isAdmin } from "../_lib/http.ts";
 
 const MAX_BYTES = 65536; // 64 KB reichen für den Settings-Blob
 

@@ -3,7 +3,7 @@
 //   PUT    → speichert ein neues Logo   (admin, Header x-kit-admin)
 //   DELETE → entfernt das Logo          (admin)
 // KV-Keys: "logo:data" (Bytes) + "logo:meta" ({type, aspect, ts}).
-import { jsonResponse, isAdmin } from "../_lib/http.js";
+import { jsonResponse, isAdmin } from "../_lib/http.ts";
 
 const MAX_BYTES = 1572864; // 1,5 MB
 

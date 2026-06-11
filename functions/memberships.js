@@ -1,8 +1,8 @@
 // Route: GET /memberships → Steady-Checkout-Embed.
 // Die Steady-Backend-Checkout-URL zeigt auf diese Seite; das Smart-Layer-Widget
 // rendert die Mitgliedschaftspakete in den #insert_steady_checkout_here-Container.
-import { buildPageContext, isConfigured } from "./_lib/settings.js";
-import { htmlResponse } from "./_lib/http.js";
+import { buildPageContext, isConfigured } from "./_lib/settings.ts";
+import { htmlResponse } from "./_lib/http.ts";
 import { renderMemberships, renderOnboarding } from "./_lib/render.js";
 
 export async function onRequestGet(context) {

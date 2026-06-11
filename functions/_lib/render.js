@@ -6,10 +6,10 @@
 // Die Top-Section verteilt Teaser DISJUNKT (Hero, Lead-Reihe, Neueste, Meistgelesen),
 // damit kein Beitrag oben doppelt erscheint.
 
-import { PUBLICATION, PER_PAGE, PINNED_GUID, MEMBER_HEADING } from "./config.js";
+import { PUBLICATION, PER_PAGE, PINNED_GUID, MEMBER_HEADING } from "./config.ts";
 import { t } from "./i18n.ts";
 import { esc, fmtDate, slugify, teaser } from "./util.ts";
-import { normTitle, topCategories } from "./feed.js";
+import { normTitle, topCategories } from "./feed.ts";
 import { ICON_BACK, ICON_CLAP, ICON_SHARE } from "./icons.ts";
 import { head, header, footer } from "./page.js";
 

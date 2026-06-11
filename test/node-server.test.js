@@ -8,8 +8,8 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { startServer } from "../server/node.js";
-import { _resetFeedCache } from "../functions/_lib/feed.js";
-import { IS_CONFIGURED } from "../functions/_lib/config.js";
+import { _resetFeedCache } from "../functions/_lib/feed.ts";
+import { IS_CONFIGURED } from "../functions/_lib/config.ts";
 
 const FEED_XML = `<?xml version="1.0"?><rss><channel>
 <title>Test-Publikation</title><description><![CDATA[Testfeed.]]></description>

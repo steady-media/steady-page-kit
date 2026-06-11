@@ -20,7 +20,7 @@ import kit from "../kit.config.js";
 import {
   STEADY_SLUG, FEED_URL, SITE_ORIGIN, STEADY_PUBLICATION_ID,
   MEMBER_HEADING, IS_CONFIGURED, LANGUAGE, USER_AGENT,
-} from "../functions/_lib/config.js";
+} from "../functions/_lib/config.ts";
 import { loadDotEnv } from "../server/env.js";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));

@@ -4,7 +4,7 @@
 // Bewusst ohne Auth (öffentliches Applaudieren). KV ist eventually consistent —
 // bei gleichzeitigen Claps können einzelne Inkremente verloren gehen; für einen
 // Applaus-Zähler ist das akzeptabel (kein Abrechnungs-Datum).
-import { jsonResponse } from "../_lib/http.js";
+import { jsonResponse } from "../_lib/http.ts";
 
 const GUID_RE = /^[a-z0-9-]{8,64}$/i;
 
