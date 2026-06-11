@@ -4,7 +4,7 @@
 import { fetchFeedXml, parseFeed, parseChannelMeta } from "./_lib/feed.ts";
 import { buildPageContext, isConfigured } from "./_lib/settings.ts";
 import { htmlResponse } from "./_lib/http.ts";
-import { renderLanding, renderEmpty, renderOnboarding } from "./_lib/render.js";
+import { renderLanding, renderEmpty, renderOnboarding } from "./_lib/render.ts";
 
 export async function onRequestGet(context) {
   const url = new URL(context.request.url);

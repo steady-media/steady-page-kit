@@ -2,7 +2,7 @@
 // + Smoke-Test, dass renderPost die SEO- und Paywall-Bausteine wirklich ausgibt.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { prepareFullText, renderPost, renderOnboarding } from "../functions/_lib/render.js";
+import { prepareFullText, renderPost, renderOnboarding } from "../functions/_lib/render.ts";
 import { STEADY_PUBLICATION_ID, SITE_ORIGIN } from "../functions/_lib/config.ts";
 
 const FULL = `<h1>Mein Titel</h1><p>Die Lede aus dem Feed.</p><p>Öffentlicher Absatz.</p>

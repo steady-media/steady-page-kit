@@ -5,10 +5,14 @@ import { PUBLICATION, SITE_ORIGIN, STEADY_PUBLICATION_ID, STEADY_LOGIN_URL, DEFA
 import { LANGUAGE, LOCALE, t, clientStrings } from "./i18n.ts";
 import { esc } from "./util.ts";
 import { ICON_SEARCH } from "./icons.ts";
-import { panelHtml } from "./panel.js";
+import { panelHtml } from "./panel.ts";
+import type { RenderCfg, KitNavItem } from "./types.ts";
+
+// Metadaten für SEO/OG-Tags im Dokumentkopf
+type PageMeta = { desc?: string; path?: string; image?: string; type?: string; noindex?: boolean };
 
 // JSON inline ins HTML: "<" escapen, damit kein "</script>" im Datenblob das Tag schließt.
-const inlineJson = obj => JSON.stringify(obj).replace(/</g, "\\u003c");
+const inlineJson = (obj: unknown): string => JSON.stringify(obj).replace(/</g, "\\u003c");
 
 /**
  * Dokumentkopf. Reihenfolge ist bewusst:
@@ -24,7 +28,7 @@ const inlineJson = obj => JSON.stringify(obj).replace(/</g, "\\u003c");
  *        SEO/Social-Metadaten: desc → description/og/twitter, path → canonical + og:url,
  *        image → og:image/twitter:image (absolute URL), type → og:type (Default website).
  */
-export function head(title, cfg = {}, meta = {}) {
+export function head(title: string, cfg: RenderCfg = {} as RenderCfg, meta: PageMeta = {}): string {
   const v = ASSET_VERSION;
   const origin = cfg.site || SITE_ORIGIN;
   const steadyId = cfg.steadyId || STEADY_PUBLICATION_ID;
@@ -77,8 +81,8 @@ ${analytics}
 }
 
 /** Navigations-Links; aktive Route wird markiert, externe öffnen im neuen Tab. */
-function navLinksHtml(nav, activePath) {
-  return nav.map(n => {
+function navLinksHtml(nav: KitNavItem[], activePath: string): string {
+  return nav.map((n: KitNavItem) => {
     const ext = n.x ? ` target="_blank" rel="noopener"` : "";
     const act = (!n.x && n.h === activePath) ? " tab--active" : "";
     return `<a class="tab${act}" href="${esc(n.h)}"${ext}>${esc(n.l)}</a>`;
@@ -91,7 +95,7 @@ function navLinksHtml(nav, activePath) {
  * @param {{tabs?: boolean, activePath?: string}} opts
  * @param {object} cfg  Render-Config aus buildPageContext (settings.js)
  */
-export function header({ tabs = false, activePath = "" } = {}, cfg = {}) {
+export function header({ tabs = false, activePath = "" }: { tabs?: boolean; activePath?: string } = {}, cfg: RenderCfg = {} as RenderCfg): string {
   const center = cfg.headerStyle === "zentriert";
   const brand  = (cfg.brand && cfg.brand.trim()) ? cfg.brand : PUBLICATION;
   const nav    = (cfg.nav && cfg.nav.length) ? cfg.nav : DEFAULT_NAV;
@@ -134,7 +138,7 @@ export function header({ tabs = false, activePath = "" } = {}, cfg = {}) {
 }
 
 /** Seitenende: Anpassen-Button (FAB) + Customizer-Panel + Panel-Logik. */
-export function footer() {
+export function footer(): string {
   return `<button class="cz-fab" id="cz-open" aria-label="${t("fab")}" title="${t("fab")}">✦</button>
 ${panelHtml()}
 <script src="/assets/kit-panel.js?v=${ASSET_VERSION}"></script>

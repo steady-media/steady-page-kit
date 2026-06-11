@@ -11,7 +11,8 @@ import { t } from "./i18n.ts";
 import { esc, fmtDate, slugify, teaser } from "./util.ts";
 import { normTitle, topCategories } from "./feed.ts";
 import { ICON_BACK, ICON_CLAP, ICON_SHARE } from "./icons.ts";
-import { head, header, footer } from "./page.js";
+import { head, header, footer } from "./page.ts";
+import type { FeedItem, RenderCfg } from "./types.ts";
 
 // Offizielles Steady-Paywall-Element: Das Smart-Layer-Widget blendet für Nicht-Mitglieder
 // alles UNTERHALB dieses Elements aus und zeigt die (im Steady-Backend konfigurierte)
@@ -21,10 +22,10 @@ const STEADY_PAYWALL_MARKER = `<div id="steady_paywall" style="display: none;"><
 /* ------------------------------------------------------------------ Bausteine */
 
 // Kategorie-Pill als Link zur Rubrik-Seite
-function pill(c) { return `<a class="pill" href="/rubrik/${slugify(c)}">${esc(c)}</a>`; }
+function pill(c: string): string { return `<a class="pill" href="/rubrik/${slugify(c)}">${esc(c)}</a>`; }
 
 // Teaser-Karte (flache Liste, Rubriken, Lead-Reihe)
-function card(it) {
+function card(it: FeedItem): string {
   return `
     <a class="card" href="/posts/${esc(it.guid)}">
       <img class="card__media" loading="lazy" alt="" src="${teaser(it.image, 800, 450)}"/>
@@ -37,7 +38,7 @@ function card(it) {
 }
 
 // Aufmacher „klein" = Split-Hero (Text links, Bild rechts)
-function heroSplit(hero) {
+function heroSplit(hero: FeedItem): string {
   return `<section class="hero"><div class="container hero__grid">
   <div class="hero__body">
     <h1 class="hero__title"><a href="/posts/${esc(hero.guid)}">${esc(hero.title)}</a></h1>
@@ -51,14 +52,14 @@ function heroSplit(hero) {
 }
 
 // grobe Lesezeit-Schätzung aus dem Teasertext (der Feed liefert keinen Volltext)
-function readMin(it) {
+function readMin(it: FeedItem): number {
   const w = (it.description || "").trim().split(/\s+/).filter(Boolean).length;
   return Math.max(2, Math.round(w / 35));
 }
 
 // Aufmacher „groß" = gestapelt: Headline + Excerpt + Meta-Leiste + Bild.
 // side=true → Bild links neben dem Text (Rubrik-Seiten).
-function aufmacherArticle(hero, withImage, side) {
+function aufmacherArticle(hero: FeedItem, withImage: boolean, side: boolean = false): string {
   const media = withImage ? `<a class="aufmacher__medialink" href="/posts/${esc(hero.guid)}"><img class="aufmacher__media" alt="" src="${teaser(hero.image, 1120, 630)}"/></a>` : "";
   const body = `<div class="aufmacher__body">
     <h1 class="aufmacher__title"><a href="/posts/${esc(hero.guid)}">${esc(hero.title)}</a></h1>
@@ -70,24 +71,24 @@ function aufmacherArticle(hero, withImage, side) {
 
 /* — Portal-Leisten (Module der 3-Spalten-Shell) — */
 
-function railLatest(items) {
+function railLatest(items: FeedItem[]): string {
   return `<div class="rail-module"><h2 class="rail-module__title">${t("rail.latest")}</h2>
     <ul class="rail-list">${items.slice(0, 3).map(it => `<li><a href="/posts/${esc(it.guid)}"><span class="rail-list__t">${esc(it.title)}</span><span class="rail-list__d">${esc(fmtDate(it.pubDate))}</span></a></li>`).join("")}</ul></div>`;
 }
-function railPopular(items) {
+function railPopular(items: FeedItem[]): string {
   return `<div class="rail-module"><h2 class="rail-module__title">${t("rail.popular")}</h2>
     <ol class="rail-num">${items.slice(0, 3).map((it, i) => i === 0
       ? `<li class="rail-num__lead"><a href="/posts/${esc(it.guid)}"><span class="rail-num__n">1</span><img class="rail-num__media" loading="lazy" alt="" src="${teaser(it.image, 420, 236)}"/><span class="rail-num__t">${esc(it.title)}</span></a></li>`
       : `<li><a href="/posts/${esc(it.guid)}"><span class="rail-num__n">${i + 1}</span><span class="rail-num__t">${esc(it.title)}</span></a></li>`).join("")}</ol></div>`;
 }
-function railTopics(cats) {
+function railTopics(cats: string[]): string {
   return `<div class="rail-module"><h2 class="rail-module__title">${t("rail.topics")}</h2>
     <div class="rail-pills">${cats.map(pill).join("")}</div></div>`;
 }
 
 // Portal-Band: Leisten flankieren den Aufmacher (Neueste/Themen links, Meistgelesen rechts).
 // railItems = {latest, popular} — disjunkte Slices aus renderLanding.
-function portalBand(cfg, centerHtml, railItems, cats) {
+function portalBand(cfg: RenderCfg, centerHtml: string, railItems: { latest: FeedItem[]; popular: FeedItem[] }, cats: string[]): string {
   const railL = [];
   if (cfg.rails.includes("neueste")) railL.push(railLatest(railItems.latest));
   if (cfg.rails.includes("themen")) railL.push(railTopics(cats));
@@ -105,14 +106,14 @@ function portalBand(cfg, centerHtml, railItems, cats) {
 /* — Rubrik-Stream (Sektions-Teaser) — */
 
 // Horizontaler Mini-Teaser (Bild links) für die Feature-Liste
-function teaserRow(it) {
+function teaserRow(it: FeedItem): string {
   return `<a class="teaser-row" href="/posts/${esc(it.guid)}">
     <img class="teaser-row__media" loading="lazy" alt="" src="${teaser(it.image, 200, 200)}"/>
     <div><h4 class="teaser-row__title">${esc(it.title)}</h4><div class="card__date">${esc(fmtDate(it.pubDate))}</div></div>
   </a>`;
 }
 // Text-Teaser (ohne Bild) für die Kompakt-Sektion
-function teaserText(it) {
+function teaserText(it: FeedItem): string {
   return `<a class="teaser-text" href="/posts/${esc(it.guid)}">
     <h4 class="teaser-text__title">${esc(it.title)}</h4>
     ${it.description ? `<p class="teaser-text__excerpt">${esc(it.description)}</p>` : ""}
@@ -122,7 +123,7 @@ function teaserText(it) {
 
 // Stream nach Rubriken — das Layout rotiert je Sektion (Feature / Karten / Kompakt, wie im Figma).
 // leadItems = headerlose Teaser-Reihe direkt unter dem Aufmacher, disjunkt zu den Leisten.
-function rubrikStream(rest, cats, leadItems) {
+function rubrikStream(rest: FeedItem[], cats: string[], leadItems: FeedItem[]): string {
   if (!cats.length) return `<div class="grid">${rest.slice(0, PER_PAGE).map(card).join("")}</div>`;
   const MODES = ["feature", "cards", "compact"];
   const lead = (leadItems && leadItems.length)
@@ -158,8 +159,8 @@ function rubrikStream(rest, cats, leadItems) {
 /* ------------------------------------------------------------------ Seiten */
 
 /** Landing (/): Komposition laut cfg — Default ist einspaltig/Split-Hero/Liste. */
-export function renderLanding(items, page = 1, cfg) {
-  cfg = cfg || { shell: "single", auf: "klein", stream: "liste", rails: [] };
+export function renderLanding(items: FeedItem[], page: number = 1, cfg: RenderCfg): string {
+  cfg = cfg || { shell: "single", auf: "klein", stream: "liste", rails: [] } as unknown as RenderCfg;
   if (!items.length) return renderEmpty(cfg);
 
   const heroIdx = PINNED_GUID ? Math.max(0, items.findIndex(i => i.guid === PINNED_GUID)) : 0;
@@ -213,8 +214,8 @@ export function renderLanding(items, page = 1, cfg) {
 }
 
 /** Rubrik-Seite (/rubrik/:slug): Aufmacher (erster Beitrag) + Raster + „Mehr laden". */
-export function renderSection(category, items, allItems, page = 1, cfg) {
-  cfg = cfg || { shell: "single", auf: "klein", stream: "liste", rails: [] };
+export function renderSection(category: string, items: FeedItem[], allItems: FeedItem[], page: number = 1, cfg: RenderCfg): string {
+  cfg = cfg || { shell: "single", auf: "klein", stream: "liste", rails: [] } as unknown as RenderCfg;
   const slug = slugify(category);
   const display = category.charAt(0).toUpperCase() + category.slice(1);
   const featured = items[0];
@@ -244,7 +245,7 @@ export function renderSection(category, items, allItems, page = 1, cfg) {
 
 // String wörtlich in eine RegExp einbetten (die Mitglieder-Überschrift ist
 // Publisher-Input aus kit.config.js — Sonderzeichen dürfen das Muster nicht brechen).
-function escapeRegExp(s) {
+function escapeRegExp(s: string): string {
   return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
@@ -259,7 +260,7 @@ function escapeRegExp(s) {
  * `memberHeading` ist parametrisiert (Default: kit.config.js), damit Tests und
  * abweichende Publikationen unabhängig von der Publisher-Datei bleiben.
  */
-export function prepareFullText(full, description, memberHeading = MEMBER_HEADING) {
+export function prepareFullText(full: string, description: string, memberHeading: string = MEMBER_HEADING): string {
   let out = full.replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>\s*/i, "");
   if (description) {
     const fp = out.match(/^\s*<p\b[^>]*>([\s\S]*?)<\/p>\s*/i);
@@ -282,7 +283,7 @@ export function prepareFullText(full, description, memberHeading = MEMBER_HEADIN
  * (content:encoded), per Titel gejoint — leer = Teaser-Stub mit Steady-Link.
  * extras = {claps, prev, next}: Clap-Zähler (KV) + Nachbar-Posts in Feed-Reihenfolge.
  */
-export function renderPost(item, cfg = {}, full = "", extras = {}) {
+export function renderPost(item: FeedItem, cfg: RenderCfg = {} as RenderCfg, full: string = "", extras: { claps?: number; next?: { guid: string; title: string } | null; prev?: { guid: string; title: string } | null } = {}): string {
   const { claps = 0, prev = null, next = null } = extras;
   const fullClean = full ? prepareFullText(full, item.description) : "";
   const cat = (item.categories && item.categories.find(c => c && c.trim())) || t("post.fallbackCategory");
@@ -294,7 +295,7 @@ export function renderPost(item, cfg = {}, full = "", extras = {}) {
   const cta = full ? t("post.open") : t("post.readfull");
 
   // Nachbar-Navigation: next = neuerer, prev = älterer Beitrag (Feed ist neueste zuerst)
-  const navLink = (p, cls, label) => p
+  const navLink = (p: { guid: string; title: string } | null, cls: string, label: string): string => p
     ? `<a class="post-nav__a ${cls}" href="/posts/${esc(p.guid)}"><em>${esc(label)}</em><span>${esc(p.title)}</span></a>`
     : `<span class="post-nav__spacer"></span>`;
   const postNav = (prev || next)
@@ -334,14 +335,14 @@ export function renderPost(item, cfg = {}, full = "", extras = {}) {
 }
 
 /** Fallback, wenn der Feed nicht erreichbar ist. */
-export function renderEmpty(cfg = {}) {
+export function renderEmpty(cfg: RenderCfg = {} as RenderCfg): string {
   return head(PUBLICATION, cfg, { noindex: true }) + header({ tabs: true, activePath: "/" }, cfg) +
     `<main id="main"><div class="container" style="padding:80px 0;color:var(--color-ink-soft)">${esc(t("empty"))}</div></main>` +
     footer();
 }
 
 /** /memberships: Steady rendert den Checkout in den Container (Backend-Checkout-URL). */
-export function renderMemberships(cfg = {}) {
+export function renderMemberships(cfg: RenderCfg = {} as RenderCfg): string {
   const meta = { desc: t("memberships.desc", { name: PUBLICATION }), path: "/memberships" };
   return head(t("memberships.title") + " — " + PUBLICATION, cfg, meta) + header({ tabs: true, activePath: "/memberships" }, cfg) + `
 <main id="main"><div class="container" style="padding:48px 0 72px">
@@ -352,7 +353,7 @@ export function renderMemberships(cfg = {}) {
 </div></main>` + footer();
 }
 
-export function render404(cfg = {}) {
+export function render404(cfg: RenderCfg = {} as RenderCfg): string {
   return head(t("notfound.pagetitle") + " — " + PUBLICATION, cfg, { noindex: true }) + header({ tabs: false }, cfg) +
     `<main id="main"><div class="container" style="padding:80px 0"><h1 style="font-size:32px">${esc(t("notfound.title"))}</h1>
      <p style="color:var(--color-ink-soft)"><a class="btn btn--primary" href="/" style="margin-top:12px">${esc(t("notfound.home"))}</a></p></div></main>` +
@@ -364,7 +365,7 @@ export function render404(cfg = {}) {
  * kein FEED_URL-Env-Override). Bewusst self-contained — kein head()/header()/Feed,
  * damit sie auch dann rendert, wenn sonst noch gar nichts stimmt.
  */
-export function renderOnboarding() {
+export function renderOnboarding(): string {
   return `<!DOCTYPE html><html lang="de"><head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="robots" content="noindex"/>

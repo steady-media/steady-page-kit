@@ -11,7 +11,7 @@ import { PUBLICATION } from "./config.ts";
 import { t } from "./i18n.ts";
 import { esc } from "./util.ts";
 
-export function panelHtml() {
+export function panelHtml(): string {
   return `<aside class="cz" id="cz-panel" aria-label="${esc(t("panel.title"))}">
   <div class="cz-head"><span>${esc(t("panel.title"))}</span><div><button class="cz-reset" id="cz-reset" title="${esc(t("panel.reset.title"))}">${esc(t("panel.reset"))}</button><button class="cz-x" id="cz-close" aria-label="${esc(t("panel.close.aria"))}">›</button></div></div>
   <div class="cz-pubbar">

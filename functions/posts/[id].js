@@ -8,7 +8,7 @@
 import { getItems, normTitle } from "../_lib/feed.ts";
 import { buildPageContext, getClaps, isConfigured } from "../_lib/settings.ts";
 import { htmlResponse } from "../_lib/http.ts";
-import { renderPost, render404, renderOnboarding } from "../_lib/render.js";
+import { renderPost, render404, renderOnboarding } from "../_lib/render.ts";
 
 export async function onRequestGet(context) {
   const id = context.params.id;

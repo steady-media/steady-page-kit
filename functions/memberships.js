@@ -3,7 +3,7 @@
 // rendert die Mitgliedschaftspakete in den #insert_steady_checkout_here-Container.
 import { buildPageContext, isConfigured } from "./_lib/settings.ts";
 import { htmlResponse } from "./_lib/http.ts";
-import { renderMemberships, renderOnboarding } from "./_lib/render.js";
+import { renderMemberships, renderOnboarding } from "./_lib/render.ts";
 
 export async function onRequestGet(context) {
   const { cfg, cacheControl } = await buildPageContext(context);
