@@ -17,13 +17,29 @@ import kit from "../../kit.config.js";
 
 export const LANGUAGE: "de" | "en" = kit.language === "en" ? "en" : "de";
 
+/** Client-Teilmenge der Strings (wird als window.KIT_I18N in page.ts injiziert).
+ *  Katalog-Arrays sind INDEX-gekoppelt an public/assets/kit-theme.js. */
+interface ClientStrings {
+  cats: Record<string, string>;
+  pairs: string[];
+  looks: Array<{ n: string; d: string }>;
+  palettes: string[];
+  [key: string]: string | string[] | Array<{ n: string; d: string }> | Record<string, string>;
+}
+
+/** Sprach-Tabelle: flache UI-Strings + die client-Teilmenge. */
+interface LangStrings {
+  client: ClientStrings;
+  [key: string]: string | ClientStrings;
+}
+
 export const LOCALES: Record<"de" | "en", { html: string; og: string; intl: string }> = {
   de: { html: "de", og: "de_DE", intl: "de-DE" },
   en: { html: "en", og: "en_US", intl: "en-US" },
 };
 export const LOCALE: { html: string; og: string; intl: string } = LOCALES[LANGUAGE];
 
-const STRINGS: Record<string, Record<string, unknown>> = {
+const STRINGS: Record<string, LangStrings> = {
   de: {
     "publication.fallback": "Meine Publikation",
     "member.headingDefault": "Mitglieder-Bereich",
@@ -424,11 +440,11 @@ export function makeT(lang: string): (key: string, vars?: Record<string, string 
 export const t: (key: string, vars?: Record<string, string | number>) => string = makeT(LANGUAGE);
 
 /** Client-Teilmenge (window.KIT_I18N) für kit-panel.js. */
-export function clientStrings(lang: string = LANGUAGE): unknown {
+export function clientStrings(lang: string = LANGUAGE): ClientStrings {
   return (STRINGS[lang] || STRINGS.de).client;
 }
 
 /** Nur für Tests: kompletter Katalog (Key-Paritätsprüfung de ↔ en). */
-export function _allStrings(): Record<string, Record<string, unknown>> {
+export function _allStrings(): Record<string, LangStrings> {
   return STRINGS;
 }
