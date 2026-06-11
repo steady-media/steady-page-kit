@@ -10,3 +10,6 @@ data/
 # Claude Code local settings
 .claude/
 .gstack/
+
+# Golden-Master-Laufergebnisse
+.gm-report/
