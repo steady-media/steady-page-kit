@@ -18,6 +18,7 @@
   "include": [
     "functions/**/*.ts",
     "server/**/*",
+    "api/**/*",
     "scripts/**/*",
     "test/**/*",
     "kit.config.js"
