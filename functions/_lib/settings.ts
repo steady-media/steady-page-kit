@@ -11,6 +11,8 @@
 import type { GlobalConfig, KitContext, KitEnv, LogoMeta, RenderCfg, StructCfg } from "./types.ts";
 import { FEED_URL } from "./config.ts";
 
+type NavEntry = { l?: unknown; h?: unknown; x?: unknown };
+
 /**
  * Effektiv konfiguriert? Zählt kit.config.js (FEED_URL aus dem Slug abgeleitet)
  * UND den FEED_URL-Env-Override (cfg.feedUrl aus buildPageContext). Unkonfigurierte
@@ -48,8 +50,8 @@ export function parseStruct(cookie: string | null | undefined): StructCfg {
     try {
       const o = JSON.parse(decodeURIComponent(cm[1]));
       if (typeof o.brand === "string") def.brand = o.brand.slice(0, 60);
-      if (Array.isArray(o.nav)) def.nav = o.nav.filter((n: any) => n && n.l).slice(0, 8)
-        .map((n: any) => ({ l: String(n.l).slice(0, 40), h: String(n.h || "#").slice(0, 300), x: !!n.x }));
+      if (Array.isArray(o.nav)) def.nav = o.nav.filter((n: NavEntry) => n && n.l).slice(0, 8)
+        .map((n: NavEntry) => ({ l: String(n.l).slice(0, 40), h: String(n.h || "#").slice(0, 300), x: !!n.x }));
     } catch (e) { /* defekter Cookie → Default-Nav */ }
   }
   return def;
@@ -110,7 +112,7 @@ export async function buildPageContext(context: KitContext): Promise<{ cfg: Rend
   const env = context.env || {};
   const cookie = context.request.headers.get("cookie") || "";
   const [globalCfg, logo] = await Promise.all([getConfig(env), getLogoMeta(env)]);
-  const cfg = parseStruct(effectiveCookie(cookie, globalCfg)) as RenderCfg;
+  const cfg = parseStruct(effectiveCookie(cookie, globalCfg)) as Partial<RenderCfg> & StructCfg;
   cfg.skin = (globalCfg ? globalCfg.skin : null) as Record<string, string> | null;
   cfg.logo = logo;
   // Deployment-Overrides (Portabilität: Kit als Vorlage für andere Publikationen)
@@ -120,5 +122,5 @@ export async function buildPageContext(context: KitContext): Promise<{ cfg: Rend
   cfg.loginUrl  = env.STEADY_LOGIN_URL || null;
   cfg.analytics = env.ANALYTICS_TOKEN || "";       // Cloudflare Web Analytics Beacon-Token
   const hasPersonalCfg = /(?:^|;\s*)kit(?:struct|chrome)=/.test(cookie);
-  return { cfg, cacheControl: hasPersonalCfg ? "no-store" : "public, max-age=300" };
+  return { cfg: cfg as RenderCfg, cacheControl: hasPersonalCfg ? "no-store" : "public, max-age=300" };
 }

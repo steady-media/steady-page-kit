@@ -1,4 +1,4 @@
-// _lib/config.js — zentrale Konstanten des Kits.
+// _lib/config.ts — zentrale Konstanten des Kits.
 //
 // Die Publisher-Identität kommt aus kit.config.js (Repo-Root) — der EINEN Datei,
 // die Publisher anfassen. Hier passiert nur: Validierung, Ableitung der Steady-URLs
@@ -86,7 +86,7 @@ export const IS_CONFIGURED = !!FEED_URL;
 
 // Editierbare Standard-Navigation (überschreibbar via kitchrome-Cookie/globale Config).
 // l = Label, h = href, x = extern (neuer Tab).
-export const DEFAULT_NAV = (Array.isArray(kit.nav) && kit.nav.length)
+export const DEFAULT_NAV: Array<{ l: string; h: string; x?: boolean }> = (Array.isArray(kit.nav) && kit.nav.length)
   ? kit.nav.filter(n => n && n.l && n.h).slice(0, 8)
       .map(n => ({ l: String(n.l).slice(0, 40), h: String(n.h).slice(0, 300), x: !!n.x }))
   : [
