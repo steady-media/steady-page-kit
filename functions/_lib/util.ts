@@ -8,6 +8,7 @@ export function esc(s: unknown): string {
 }
 
 import { LOCALE } from "./i18n.ts";
+import { ASSET_VERSION } from "./config.ts";
 
 // Formatter pro Locale cachen — Intl.DateTimeFormat-Konstruktion ist teuer.
 const dateFmts = new Map<string, Intl.DateTimeFormat>();
@@ -35,9 +36,18 @@ export function slugify(s: unknown): string {
     .replace(/&/g, " und ").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
 
-/** Steady-CDN-Bild-URL mit Resize-Parametern (Crop auf Gesichter), HTML-escaped. */
+// Generische Marken-Grafik für Feed-Items ohne Teaserbild — statt der leeren
+// grauen Fläche. Austauschbares Fork-Asset (public/assets/teaser-fallback.svg).
+const TEASER_FALLBACK = `/assets/teaser-fallback.svg?v=${ASSET_VERSION}`;
+
+/** Steady-Bild-URL fürs Layout aufbereiten, HTML-escaped.
+ *  - ohne url → generische Marken-Grafik (kein leerer grauer Platzhalter),
+ *  - signierte URL (Steadys assets-proxy, Parameter `s=`) → unverändert durchreichen:
+ *    zusätzliche Resize-Parameter brächen die Signatur (403 → graues Bild),
+ *  - sonst Imgix-Resize-Parameter anhängen (Crop auf Gesichter). */
 export function teaser(url: string, w: number, h: number): string {
-  if (!url) return "";
+  if (!url) return TEASER_FALLBACK;
+  if (/[?&]s=/.test(url)) return esc(url);
   const sep = url.includes("?") ? "&" : "?";
   return esc(url + sep + `auto=format&w=${w}&h=${h}&fit=crop&crop=faces`);
 }

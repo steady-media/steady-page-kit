@@ -226,8 +226,14 @@ export function renderSection(category: string, items: FeedItem[], allItems: Fee
   const more = p < pages
     ? `<div class="loadmore-wrap"><button class="load-more" id="js-loadmore" data-next="${p + 1}" data-pages="${pages}" data-url="/rubrik/${slug}">${esc(t("loadmore"))}</button></div>`
     : "";
+  const count = items.length;
+  const countLabel = t(count === 1 ? "rubrik.count.one" : "rubrik.count.other", { n: count });
   const aufmacher = featured ? `<section class="aufmacher-band"><div class="container">
-    <p class="section-eyebrow"><a class="post__back" href="/">${ICON_BACK} ${esc(PUBLICATION)}</a><span class="section-chip">${esc(display)}</span></p>
+    <header class="section-head">
+      <a class="post__back" href="/">${ICON_BACK} ${esc(PUBLICATION)}</a>
+      <h1 class="section-title">${esc(display)}</h1>
+      <p class="section-count">${esc(countLabel)}</p>
+    </header>
     ${aufmacherArticle(featured, true, true, "h2")}
   </div></section>` : "";
   const meta = {
