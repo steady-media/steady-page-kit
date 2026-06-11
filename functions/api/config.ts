@@ -44,10 +44,10 @@ export async function onRequestPatch(context: KitContext): Promise<Response> {
   const { request, env } = context;
   if (!env.KIT_KV) return jsonResponse({ error: "kv_unavailable" }, 503);
   if (!isAdmin(request, env)) return jsonResponse({ error: "unauthorized" }, 401);
-  const [current, prev] = await Promise.all([
-    env.KIT_KV.get("config") as Promise<string | null>,
-    env.KIT_KV.get("config:prev") as Promise<string | null>,
-  ]);
+  const [current, prev] = (await Promise.all([
+    env.KIT_KV.get("config"),
+    env.KIT_KV.get("config:prev"),
+  ])) as [string | null, string | null];
   if (prev == null) return jsonResponse({ error: "no_previous" }, 404);
   await env.KIT_KV.put("config", prev);
   if (current != null) await env.KIT_KV.put("config:prev", current);
