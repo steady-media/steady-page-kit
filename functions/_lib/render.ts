@@ -59,7 +59,7 @@ function readMin(it: FeedItem): number {
 
 // Aufmacher „groß" = gestapelt: Headline + Excerpt + Meta-Leiste + Bild.
 // side=true → Bild links neben dem Text (Rubrik-Seiten).
-function aufmacherArticle(hero: FeedItem, withImage: boolean, side: boolean = false, titleTag: string = "h1"): string {
+function aufmacherArticle(hero: FeedItem, withImage: boolean, side: boolean = false, titleTag: "h1" | "h2" = "h1"): string {
   const media = withImage ? `<a class="aufmacher__medialink" href="/posts/${esc(hero.guid)}"><img class="aufmacher__media" alt="" src="${teaser(hero.image, 1120, 630)}"/></a>` : "";
   const body = `<div class="aufmacher__body">
     <${titleTag} class="aufmacher__title"><a href="/posts/${esc(hero.guid)}">${esc(hero.title)}</a></${titleTag}>
