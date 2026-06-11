@@ -1,6 +1,6 @@
 // Route: GET /rss — eigener Feed-Endpunkt dieser Domain (Proxy des öffentlichen Steady-Feeds).
 import { fetchFeedXml } from "./_lib/feed.js";
-import { t } from "./_lib/i18n.js";
+import { t } from "./_lib/i18n.ts";
 
 export async function onRequestGet(context) {
   try {

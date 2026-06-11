@@ -8,8 +8,8 @@
 // (Cookies/localStorage/KV) und bleiben unverändert deutsch.
 
 import { PUBLICATION } from "./config.js";
-import { t } from "./i18n.js";
-import { esc } from "./util.js";
+import { t } from "./i18n.ts";
+import { esc } from "./util.ts";
 
 export function panelHtml() {
   return `<aside class="cz" id="cz-panel" aria-label="${esc(t("panel.title"))}">

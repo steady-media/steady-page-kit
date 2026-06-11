@@ -7,7 +7,7 @@
 // buildPageContext (settings.js) und gewinnen gegen alles hier.
 
 import kit from "../../kit.config.js";
-import { LANGUAGE, t } from "./i18n.js";
+import { LANGUAGE, t } from "./i18n.ts";
 
 // Sprache wird in i18n.js aus kit.config.js bestimmt; hier nur durchgereicht,
 // damit bestehende Importe (`from "./config.js"`) weiter funktionieren.

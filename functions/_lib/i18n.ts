@@ -1,4 +1,4 @@
-// _lib/i18n.js — alle UI-Strings des Kits in Deutsch und Englisch.
+// _lib/i18n.ts — alle UI-Strings des Kits in Deutsch und Englisch.
 //
 // Die Sprache ist DEPLOYMENT-STATISCH (kit.config.js → language), kein
 // Per-Request-Threading: `t` ist fertig an die Sprache gebunden.
@@ -15,15 +15,15 @@
 
 import kit from "../../kit.config.js";
 
-export const LANGUAGE = kit.language === "en" ? "en" : "de";
+export const LANGUAGE: "de" | "en" = kit.language === "en" ? "en" : "de";
 
-export const LOCALES = {
+export const LOCALES: Record<"de" | "en", { html: string; og: string; intl: string }> = {
   de: { html: "de", og: "de_DE", intl: "de-DE" },
   en: { html: "en", og: "en_US", intl: "en-US" },
 };
-export const LOCALE = LOCALES[LANGUAGE];
+export const LOCALE: { html: string; og: string; intl: string } = LOCALES[LANGUAGE];
 
-const STRINGS = {
+const STRINGS: Record<string, Record<string, unknown>> = {
   de: {
     "publication.fallback": "Meine Publikation",
     "member.headingDefault": "Mitglieder-Bereich",
@@ -409,11 +409,11 @@ const STRINGS = {
 };
 
 /** t-Funktion für eine Sprache bauen; {var}-Interpolation; Fallback: de, dann Key. */
-export function makeT(lang) {
+export function makeT(lang: string): (key: string, vars?: Record<string, string | number>) => string {
   const dict = STRINGS[lang] || STRINGS.de;
-  return function t(key, vars) {
-    let s = dict[key];
-    if (s == null) s = STRINGS.de[key];
+  return function t(key: string, vars?: Record<string, string | number>): string {
+    let s = dict[key] as string | undefined;
+    if (s == null) s = STRINGS.de[key] as string | undefined;
     if (s == null) s = key;
     if (vars) for (const k in vars) s = s.split("{" + k + "}").join(String(vars[k]));
     return s;
@@ -421,14 +421,14 @@ export function makeT(lang) {
 }
 
 /** Das fertig gebundene t des Deployments. */
-export const t = makeT(LANGUAGE);
+export const t: (key: string, vars?: Record<string, string | number>) => string = makeT(LANGUAGE);
 
 /** Client-Teilmenge (window.KIT_I18N) für kit-panel.js. */
-export function clientStrings(lang = LANGUAGE) {
+export function clientStrings(lang: string = LANGUAGE): unknown {
   return (STRINGS[lang] || STRINGS.de).client;
 }
 
 /** Nur für Tests: kompletter Katalog (Key-Paritätsprüfung de ↔ en). */
-export function _allStrings() {
+export function _allStrings(): Record<string, Record<string, unknown>> {
   return STRINGS;
 }

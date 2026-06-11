@@ -3,7 +3,7 @@
 // Suchwörter müssen treffen). Liefert echte Titel + echte Post-URLs — anders als
 // der frühere AutoRAG-Index, dessen Chunks weder Titel noch Links hatten.
 import { getItems, normTitle } from "../_lib/feed.js";
-import { fmtDate } from "../_lib/util.js";
+import { fmtDate } from "../_lib/util.ts";
 import { jsonResponse } from "../_lib/http.js";
 
 const MAX_RESULTS = 12;

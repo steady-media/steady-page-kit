@@ -1,7 +1,7 @@
 // Route: GET /sitemap.xml — generiert aus dem Feed (Posts, Rubriken, statische Seiten).
 import { getItems, topCategories } from "./_lib/feed.js";
 import { SITE_ORIGIN } from "./_lib/config.js";
-import { esc, slugify } from "./_lib/util.js";
+import { esc, slugify } from "./_lib/util.ts";
 
 export async function onRequestGet(context) {
   const origin = (context.env && context.env.SITE_ORIGIN) || SITE_ORIGIN;

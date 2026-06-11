@@ -2,9 +2,9 @@
 // Die Render-Funktionen (render.js) setzen Seiten als head() + header() + Inhalt + footer() zusammen.
 
 import { PUBLICATION, SITE_ORIGIN, STEADY_PUBLICATION_ID, STEADY_LOGIN_URL, DEFAULT_NAV, ASSET_VERSION } from "./config.js";
-import { LANGUAGE, LOCALE, t, clientStrings } from "./i18n.js";
-import { esc } from "./util.js";
-import { ICON_SEARCH } from "./icons.js";
+import { LANGUAGE, LOCALE, t, clientStrings } from "./i18n.ts";
+import { esc } from "./util.ts";
+import { ICON_SEARCH } from "./icons.ts";
 import { panelHtml } from "./panel.js";
 
 // JSON inline ins HTML: "<" escapen, damit kein "</script>" im Datenblob das Tag schließt.

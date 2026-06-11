@@ -2,8 +2,8 @@
 // in einer Sprache, fällt die UI still auf Deutsch zurück), Interpolation, Datum.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { makeT, LOCALES, clientStrings, _allStrings } from "../functions/_lib/i18n.js";
-import { fmtDate } from "../functions/_lib/util.js";
+import { makeT, LOCALES, clientStrings, _allStrings } from "../functions/_lib/i18n.ts";
+import { fmtDate } from "../functions/_lib/util.ts";
 
 function keyPaths(obj, prefix = "") {
   const out = [];

@@ -1,6 +1,6 @@
 // Route: GET /rubrik/:slug → Rubrik-Seite (alle Beiträge einer Feed-Kategorie).
 import { getItems } from "../_lib/feed.js";
-import { slugify } from "../_lib/util.js";
+import { slugify } from "../_lib/util.ts";
 import { buildPageContext, isConfigured } from "../_lib/settings.js";
 import { htmlResponse } from "../_lib/http.js";
 import { renderSection, render404, renderOnboarding } from "../_lib/render.js";
