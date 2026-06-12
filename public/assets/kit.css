@@ -291,88 +291,117 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__hero img
 .footer-link{font-family:var(--font-body);font-size:13px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--color-ink-soft);transition:color .15s;}
 .footer-link:hover{color:var(--color-brand);}
 
-/* ------------------------------------------------------------------ Customizer-Panel */
+/* ------------------------------------------------------------------ Customizer-Panel
+   Gestylt nach den Steady-Backend-Design-Tokens (main_app design_tokens/*):
+   Navy #291E38 (primär), Purple #954FCF (Links/Fokus), Hairline #E7E7E7,
+   Flächen #F7F7F7, Text-sekundär #757776, Fehler #D75A46. Radius-Philosophie:
+   Controls eckig (radius 0), Panel 13px (Sideview), Pills rund. Uppercase-
+   Buttons 12-13px/700/.5px. Schrift bleibt Inter (CircularStd ist Lineto-
+   lizenziert und darf nicht mitgeliefert werden). Der Drawer ist Steady-Chrome
+   und folgt deshalb bewusst NICHT dem Publisher-Theme. */
 /* FAB: dezente, vertikal zentrierte Lasche am rechten Rand (kollidiert nicht mit dem Steady-Layer) */
-.cz-fab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:60;width:34px;height:48px;border-radius:10px 0 0 10px;border:1px solid var(--color-hairline);border-right:0;background:rgba(255,255,255,.9);color:var(--color-ink-soft);font-size:15px;cursor:pointer;box-shadow:-4px 0 16px rgba(41,30,56,.09);backdrop-filter:blur(5px);transition:color .15s,background .15s,box-shadow .15s;}
-.cz-fab:hover{color:var(--color-brand);background:#fff;box-shadow:-5px 0 20px rgba(41,30,56,.14);}
+.cz-fab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:60;width:34px;height:48px;border-radius:13px 0 0 13px;border:1px solid #E7E7E7;border-right:0;background:rgba(255,255,255,.92);color:#291E38;font-size:15px;cursor:pointer;box-shadow:0 2px 25px rgba(41,30,56,.15);backdrop-filter:blur(5px);transition:color .2s,background .2s;}
+.cz-fab:hover{color:#954FCF;background:#fff;}
 html.cz-on .cz-fab{display:none;}
-.cz{position:fixed;top:0;right:0;z-index:61;width:340px;max-width:92vw;height:100vh;background:#fff;border-left:1px solid #ECEAEF;box-shadow:-14px 0 44px rgba(41,30,56,.13);transform:translateX(100%);transition:transform .28s ease;display:flex;flex-direction:column;font-family:Inter,system-ui,sans-serif;color:#291E38;}
+.cz{position:fixed;top:0;right:0;z-index:61;width:340px;max-width:92vw;height:100vh;background:#fff;border-left:1px solid #E7E7E7;border-radius:13px 0 0 13px;box-shadow:0 4px 16px rgba(0,0,0,.17);transform:translateX(100%);transition:transform .25s ease-in-out;display:flex;flex-direction:column;font-family:Inter,system-ui,sans-serif;color:#291E38;}
 html.cz-on .cz{transform:none;}
-.cz-head{display:flex;align-items:center;justify-content:space-between;padding:16px;border-bottom:1px solid #ECEAEF;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;}
+.cz-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #E7E7E7;font-size:15px;font-weight:500;}
 .cz-head>div{display:flex;align-items:center;gap:8px;}
-.cz-reset{font:inherit;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#9A95A6;background:none;border:1px solid #ECEAEF;border-radius:6px;padding:5px 9px;cursor:pointer;}
-.cz-x{width:28px;height:28px;border:1px solid #ECEAEF;border-radius:6px;background:#fff;color:#9A95A6;cursor:pointer;font-size:16px;line-height:1;}
+.cz-reset{font:inherit;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#954FCF;background:none;border:1px solid transparent;border-radius:0;padding:6px 9px;cursor:pointer;transition:background .2s;}
+.cz-reset:hover{background:#F7F7F7;}
+.cz-x{width:28px;height:28px;border:1px solid #E7E7E7;border-radius:0;background:#fff;color:#757776;cursor:pointer;font-size:16px;line-height:1;transition:color .2s;}
+.cz-x:hover{color:#291E38;}
 .cz-body{overflow-y:auto;flex:1;}
-/* „Für alle Besucher speichern" oben — der späte Steady-Bottom-Layer kann ihn nicht verdecken */
-.cz-pubbar{flex:none;padding:12px 16px;border-bottom:1px solid #ECEAEF;background:#fff;}
-.cz-pub{width:100%;font:inherit;font-size:13px;font-weight:700;color:#fff;background:#137EC0;border:0;border-radius:8px;padding:11px;cursor:pointer;transition:background .15s;}
-.cz-pub:hover{background:#0f6ba3;} .cz-pub:disabled{opacity:.6;cursor:default;}
-.cz-pubmeta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;font-size:11px;color:#9A95A6;}
-.cz-pub-undo{font:inherit;font-size:11px;color:#137EC0;background:none;border:0;cursor:pointer;padding:2px 0;}
+/* „Für alle Besucher speichern" oben als Aktions-Leiste (Steady sideview__actions:
+   Fläche #F7F7F7 + Hairline) — der späte Steady-Bottom-Layer kann sie nicht verdecken */
+.cz-pubbar{flex:none;padding:15px 20px;border-bottom:1px solid #E7E7E7;background:#F7F7F7;}
+.cz-pub{width:100%;min-height:36px;font:inherit;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#fff;background:#291E38;border:1px solid #291E38;border-radius:0;padding:9px 10px;cursor:pointer;transition:background .2s;}
+.cz-pub:hover{background:#372C4A;} .cz-pub:disabled{opacity:.6;cursor:default;}
+.cz-pubmeta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;font-size:11px;color:#757776;}
+.cz-pub-undo{font:inherit;font-size:11px;color:#954FCF;background:none;border:0;cursor:pointer;padding:2px 0;transition:color .2s;}
 .cz-pub-undo:hover{text-decoration:underline;} .cz-pub-undo:disabled{opacity:.5;cursor:default;}
-.cz-sec{border-bottom:1px solid #ECEAEF;}
-.cz-sh{width:100%;display:flex;align-items:center;justify-content:space-between;padding:15px 16px;font:inherit;font-size:14px;font-weight:600;background:none;border:0;cursor:pointer;color:#291E38;}
-.cz-cv{color:#9A95A6;transition:transform .2s;} .cz-sec:not(.cz-open) .cz-cv{transform:rotate(-90deg);}
+.cz-sec{border-bottom:1px solid #E7E7E7;}
+.cz-sh{width:100%;display:flex;align-items:center;justify-content:space-between;padding:15px 20px;font:inherit;font-size:15px;font-weight:500;background:none;border:0;cursor:pointer;color:#291E38;}
+.cz-cv{color:#BCB8B8;transition:transform .2s;} .cz-sec:not(.cz-open) .cz-cv{transform:rotate(-90deg);}
 .cz-sec:not(.cz-open) .cz-sb{display:none;}
-.cz-sb{padding:0 16px 18px;}
-.cz-lbl{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#9A95A6;margin:12px 0 6px;}
-.cz-sel{width:100%;border:1px solid #d7d4dd;border-radius:6px;padding:9px 11px;font:inherit;font-size:13px;color:#291E38;background:#fff;cursor:pointer;}
+.cz-sb{padding:0 20px 20px;}
+.cz-lbl{display:block;font-size:13px;font-weight:500;color:#291E38;margin:14px 0 6px;}
+.cz-sel{width:100%;border:1px solid #E7E7E7;border-radius:0;padding:10px 12px;font:inherit;font-size:14px;color:#291E38;background:#fff;cursor:pointer;}
+.cz-sel:focus{outline:none;border-color:#291E38;}
 .cz-font{position:relative;}
-.cz-font-in{width:100%;border:1px solid #d7d4dd;border-radius:6px;padding:9px 11px;font:inherit;font-size:13px;color:#291E38;background:#fff;}
-.cz-font-in:focus{outline:none;border-color:#137EC0;}
-.cz-font-pop{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:6;background:#fff;border:1px solid #d7d4dd;border-radius:8px;box-shadow:0 12px 30px rgba(41,30,56,.16);max-height:248px;overflow-y:auto;}
+.cz-font-in{width:100%;border:1px solid #E7E7E7;border-radius:0;padding:10px 12px;font:inherit;font-size:14px;color:#291E38;background:#fff;}
+.cz-font-in:focus{outline:none;border-color:#291E38;}
+.cz-font-in::placeholder,.cz-inp::placeholder,.cz-nav-row input::placeholder{color:#BCB8B8;}
+.cz-font-pop{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:6;background:#fff;border:1px solid #E7E7E7;border-radius:0;box-shadow:0 4px 16px rgba(0,0,0,.17);max-height:248px;overflow-y:auto;}
 .cz-font-pop.open{display:block;}
-.cz-font-opt{display:flex;align-items:baseline;justify-content:space-between;gap:10px;width:100%;text-align:left;font:inherit;font-size:13px;color:#291E38;background:none;border:0;border-bottom:1px solid #F4F2F7;padding:8px 11px;cursor:pointer;}
-.cz-font-opt:hover{background:#F4F2F7;}
-.cz-font-opt em{font-style:normal;font-size:10px;color:#9A95A6;text-transform:capitalize;flex:none;white-space:nowrap;}
-.cz-more{margin-top:14px;width:100%;display:flex;align-items:center;justify-content:space-between;font:inherit;font-size:12px;font-weight:600;color:#137EC0;background:none;border:0;cursor:pointer;padding:4px 0;}
-.cz-more .cz-cv{color:#137EC0;transition:transform .2s;}
+.cz-font-opt{display:flex;align-items:baseline;justify-content:space-between;gap:10px;width:100%;text-align:left;font:inherit;font-size:13px;color:#291E38;background:none;border:0;border-bottom:1px solid #F7F7F7;padding:9px 12px;cursor:pointer;transition:background .2s;}
+.cz-font-opt:hover{background:#F7F7F7;}
+.cz-font-opt em{font-style:normal;font-size:10px;color:#757776;text-transform:capitalize;flex:none;white-space:nowrap;}
+.cz-more{margin-top:14px;width:100%;display:flex;align-items:center;justify-content:space-between;font:inherit;font-size:12px;font-weight:500;color:#954FCF;background:none;border:0;cursor:pointer;padding:4px 0;}
+.cz-more:hover{text-decoration:underline;}
+.cz-more .cz-cv{color:#954FCF;transition:transform .2s;}
 .cz-more[aria-expanded="false"] .cz-cv{transform:rotate(-90deg);}
 .cz-more-body{display:none;} .cz-more-body.open{display:block;}
 .cz-pal{display:flex;gap:10px;flex-wrap:wrap;}
-.cz-pal button{width:34px;height:34px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #ECEAEF;cursor:pointer;padding:0;}
-.cz-pal button.on{box-shadow:0 0 0 2px #137EC0;}
+.cz-pal button{width:34px;height:34px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #E7E7E7;cursor:pointer;padding:0;}
+.cz-pal button.on{box-shadow:0 0 0 2px #954FCF;}
 .cz-colors{display:grid;grid-template-columns:1fr;gap:8px;margin-top:6px;}
-.cz-color{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:#291E38;border:1px solid #ECEAEF;border-radius:8px;padding:7px 9px;cursor:pointer;}
-.cz-color input{width:30px;height:30px;border:1px solid #ECEAEF;border-radius:6px;padding:0;background:none;cursor:pointer;flex:none;}
+.cz-color{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:#291E38;border:1px solid #E7E7E7;border-radius:0;padding:8px 10px;cursor:pointer;}
+.cz-color input{width:30px;height:30px;border:1px solid #E7E7E7;border-radius:0;padding:0;background:none;cursor:pointer;flex:none;}
 .cz-color-t{display:flex;flex-direction:column;line-height:1.2;}
-.cz-color-t em{font-style:normal;font-weight:400;font-size:10px;color:#9A95A6;margin-top:2px;}
-.cz-lbl-x{text-transform:none;letter-spacing:0;font-weight:400;color:#bdb8c6;}
-.cz-seg{display:flex;gap:6px;}
-.cz-seg button{flex:1;font:inherit;font-size:12px;padding:8px 6px;border:1px solid #d7d4dd;border-radius:6px;background:#fff;color:#291E38;cursor:pointer;}
-.cz-seg button.on{border-color:#137EC0;background:#137EC0;color:#fff;}
-.cz-hint{font-size:11px;color:#9A95A6;margin:2px 0 12px;line-height:1.4;}
+.cz-color-t em{font-style:normal;font-weight:400;font-size:10px;color:#757776;margin-top:2px;}
+.cz-lbl-x{text-transform:none;letter-spacing:0;font-weight:400;color:#757776;}
+/* Segment-Reihen: einzeilig, bei Platzmangel horizontal scrollbar (Scrollbar versteckt,
+   wie Steadys Sidebar-Nav) — statt zu umbrechen oder zu quetschen */
+.cz-seg{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.cz-seg::-webkit-scrollbar{display:none;}
+.cz-seg button{flex:1 0 auto;white-space:nowrap;font:inherit;font-size:12px;padding:9px 12px;border:1px solid #E7E7E7;border-radius:0;background:#fff;color:#291E38;cursor:pointer;transition:background .2s,border-color .2s,color .2s;}
+.cz-seg button:hover{background:#F7F7F7;}
+.cz-seg button.on{border-color:#291E38;background:#291E38;color:#fff;}
+.cz-hint{font-size:12px;color:#757776;margin:2px 0 12px;line-height:1.4;}
 .cz-looks{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.cz-look{text-align:left;font:inherit;border:1px solid #d7d4dd;border-radius:8px;padding:9px 11px;background:#fff;color:#291E38;cursor:pointer;}
-.cz-look:hover{border-color:#137EC0;}
-.cz-look.on{border-color:#137EC0;box-shadow:inset 0 0 0 1px #137EC0;}
-.cz-look b{display:block;font-size:13px;font-weight:600;}
-.cz-look span{display:block;font-size:10px;color:#9A95A6;margin-top:2px;line-height:1.25;}
-.cz-seg--wrap{flex-wrap:wrap;} .cz-seg--wrap button{flex:1 0 28%;}
-.cz-warn{display:none;font-size:11px;color:#C0392B;margin:10px 0 0;line-height:1.4;}
+.cz-look{text-align:left;font:inherit;border:1px solid #E7E7E7;border-radius:0;padding:10px 12px;background:#fff;color:#291E38;cursor:pointer;transition:border-color .2s;}
+.cz-look:hover{border-color:#954FCF;}
+.cz-look.on{border-color:#291E38;box-shadow:inset 0 0 0 1px #291E38;}
+.cz-look b{display:block;font-size:13px;font-weight:500;}
+.cz-look span{display:block;font-size:10px;color:#757776;margin-top:2px;line-height:1.25;}
+.cz-seg--wrap{flex-wrap:nowrap;} .cz-seg--wrap button{flex:1 0 auto;}
+.cz-warn{display:none;font-size:12px;color:#D75A46;margin:10px 0 0;line-height:1.4;}
 .cz-warn.show{display:block;}
-.cz-rails{display:flex;flex-wrap:wrap;gap:6px;}
-.cz-rails button{flex:1 1 30%;font:inherit;font-size:12px;padding:8px 6px;border:1px solid #d7d4dd;border-radius:6px;background:#fff;color:#291E38;cursor:pointer;}
-.cz-rails button.on{border-color:#137EC0;background:#137EC0;color:#fff;}
+.cz-rails{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:none;}
+.cz-rails::-webkit-scrollbar{display:none;}
+.cz-rails button{flex:1 0 auto;white-space:nowrap;font:inherit;font-size:12px;padding:9px 12px;border:1px solid #E7E7E7;border-radius:0;background:#fff;color:#291E38;cursor:pointer;transition:background .2s,border-color .2s,color .2s;}
+.cz-rails button:hover{background:#F7F7F7;}
+.cz-rails button.on{border-color:#291E38;background:#291E38;color:#fff;}
 .cz-rails--off{opacity:.45;pointer-events:none;}
-.cz-inp{width:100%;border:1px solid #d7d4dd;border-radius:6px;padding:9px 11px;font:inherit;font-size:13px;color:#291E38;background:#fff;}
+.cz-inp{width:100%;border:1px solid #E7E7E7;border-radius:0;padding:10px 12px;font:inherit;font-size:14px;color:#291E38;background:#fff;}
+.cz-inp:focus{outline:none;border-color:#291E38;}
 .cz-nav{display:flex;flex-direction:column;gap:6px;}
 .cz-nav-row{display:flex;gap:5px;align-items:center;}
-.cz-nav-row input{min-width:0;border:1px solid #d7d4dd;border-radius:6px;padding:7px 8px;font:inherit;font-size:12px;color:#291E38;background:#fff;}
+.cz-nav-row input{min-width:0;border:1px solid #E7E7E7;border-radius:0;padding:8px 10px;font:inherit;font-size:12px;color:#291E38;background:#fff;}
+.cz-nav-row input:focus{outline:none;border-color:#291E38;}
 .cz-nav-l{flex:0 0 32%;} .cz-nav-h{flex:1;}
-.cz-nav-grip{flex:0 0 20px;height:30px;border:0;background:none;color:#c4bfce;cursor:grab;font-size:13px;line-height:1;padding:0;border-radius:6px;touch-action:none;}
-.cz-nav-grip:hover{color:#291E38;background:#F4F2F7;} .cz-nav-grip:active{cursor:grabbing;}
-.cz-nav-grip:focus-visible{outline:2px solid #137EC0;outline-offset:1px;}
+.cz-nav-grip{flex:0 0 20px;height:30px;border:0;background:none;color:#BCB8B8;cursor:grab;font-size:13px;line-height:1;padding:0;border-radius:0;touch-action:none;}
+.cz-nav-grip:hover{color:#291E38;background:#F7F7F7;} .cz-nav-grip:active{cursor:grabbing;}
 .cz-nav-row--drag{opacity:.55;}
-.cz-nav-x{flex:0 0 26px;height:30px;border:1px solid #ECEAEF;border-radius:6px;background:#fff;color:#9A95A6;cursor:pointer;font-size:15px;line-height:1;}
-.cz-subhead{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9A95A6;margin:18px 0 2px;padding-top:14px;border-top:1px solid #F0EEF3;}
+.cz-nav-x{flex:0 0 26px;height:30px;border:1px solid #E7E7E7;border-radius:0;background:#fff;color:#757776;cursor:pointer;font-size:15px;line-height:1;transition:color .2s;}
+.cz-nav-x:hover{color:#291E38;}
+.cz-subhead{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#757776;margin:18px 0 2px;padding-top:14px;border-top:1px solid #E7E7E7;}
 .cz-subhead:first-child{padding-top:0;border-top:0;margin-top:6px;}
-.cz-nav-add{margin-top:8px;font:inherit;font-size:12px;color:#137EC0;background:none;border:0;cursor:pointer;padding:2px 0;text-align:left;}
-.cz-apply{margin-top:12px;width:100%;font:inherit;font-size:13px;font-weight:600;color:#fff;background:#137EC0;border:0;border-radius:6px;padding:10px;cursor:pointer;}
+.cz-nav-add{margin-top:8px;font:inherit;font-size:12px;font-weight:500;color:#954FCF;background:none;border:0;cursor:pointer;padding:2px 0;text-align:left;}
+.cz-nav-add:hover{text-decoration:underline;}
+.cz-apply{margin-top:12px;width:100%;min-height:36px;font:inherit;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#fff;background:#291E38;border:1px solid #291E38;border-radius:0;padding:9px 10px;cursor:pointer;transition:background .2s;}
+.cz-apply:hover{background:#372C4A;}
 .cz-logo{display:flex;gap:6px;align-items:center;}
-.cz-logo-up{flex:1;text-align:center;font:inherit;font-size:12px;font-weight:600;color:#fff;background:#137EC0;border-radius:6px;padding:9px;cursor:pointer;}
-.cz-logo-rm{font:inherit;font-size:12px;color:#9A95A6;background:#fff;border:1px solid #ECEAEF;border-radius:6px;padding:9px 11px;cursor:pointer;}
-@media (max-width:560px){.cz{width:100%;}}
+.cz-logo-up{flex:1;text-align:center;font:inherit;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#fff;background:#291E38;border:1px solid #291E38;border-radius:0;padding:9px;cursor:pointer;transition:background .2s;}
+.cz-logo-up:hover{background:#372C4A;}
+.cz-logo-rm{font:inherit;font-size:12px;color:#291E38;background:#fff;border:1px solid #E7E7E7;border-radius:0;padding:9px 11px;cursor:pointer;transition:background .2s;}
+.cz-logo-rm:hover{background:#F7F7F7;}
+/* Fokus-Ring wie im Steady-Backend (focus.scss): 2px Purple, 2px Offset — Inputs
+   zeigen Fokus stattdessen über die Navy-Border */
+.cz button:focus-visible,.cz-fab:focus-visible{outline:2px solid #954FCF;outline-offset:2px;}
+/* Steady-Breakpoint 30rem: darunter volle Breite, ohne Panel-Radius */
+@media (max-width:480px){.cz{width:100%;max-width:none;border-radius:0;border-left:0;}}
 
 /* ------------------------------------------------------------------ Responsive */
 @media (max-width:900px){.hero__grid{grid-template-columns:1fr;gap:28px;}.grid{grid-template-columns:repeat(2,1fr);}:root{--text-h1:calc(38px*var(--fs));}}
