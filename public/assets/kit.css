@@ -91,7 +91,7 @@ html.nav-figma .tabs__search svg{width:17px;height:17px;}
 /* ------------------------------------------------------------------ Teaser-Grid */
 .grid{display:grid;grid-template-columns:repeat(var(--grid-cols,3),1fr);gap:36px 30px;padding-bottom:48px;}
 .card__media{width:100%;aspect-ratio:var(--card-ar);background:var(--color-line);border-radius:var(--radius-card);object-fit:cover;}
-.card__title{font-size:var(--text-card-title);font-weight:900;line-height:1.27;margin:12px 0 0;letter-spacing:var(--track-head);text-transform:var(--case-head);transition:color .15s;}
+.card__title{font-size:var(--text-card-title);font-weight:var(--weight-heading);line-height:1.27;margin:12px 0 0;letter-spacing:var(--track-head);text-transform:var(--case-head);transition:color .15s;}
 .card:hover .card__title{color:var(--color-brand);}
 .card__excerpt{font-size:16px;color:var(--color-ink-soft);line-height:1.25;margin:8px 0 0;}
 .card__date{font-size:14px;color:var(--color-ink-soft);margin-top:12px;}
@@ -193,10 +193,15 @@ html.card-list .card__media{display:none;}
 html.surf-soft .card{background:var(--color-bg);border-radius:12px;box-shadow:0 6px 22px rgba(41,30,56,.10);overflow:hidden;}
 html.surf-outline .card{border:1px solid var(--color-hairline);border-radius:10px;overflow:hidden;}
 html.surf-soft .card__body,html.surf-outline .card__body{padding:2px 15px 16px;}
+/* surf-soft: Schatten brauchen Luft — die Row-Kollaps-Grids (overflow:hidden) würden
+   sie sonst hart abschneiden; Padding schafft Platz, Negativ-Margin neutralisiert das Layout */
+html.surf-soft .rubrik__grid,html.surf-soft .rubrik__compact{padding:12px 12px 30px;margin:-12px -12px -30px;}
 html.surf-soft.card-overlay .card__body,html.surf-outline.card-overlay .card__body{padding:16px;}
-html.img-gray .card__media,html.img-gray .hero__media,html.img-gray .post__hero img{filter:grayscale(1);transition:filter .35s;}
+/* Bildlook gilt für ALLE Inhaltsbilder (Karten, Heros, Aufmacher, Feature, Listen, Rails) —
+   nur das Brand-Logo bleibt ungefiltert */
+html.img-gray .card__media,html.img-gray .hero__media,html.img-gray .post__hero img,html.img-gray .aufmacher__media,html.img-gray .feat-main__media,html.img-gray .teaser-row__media,html.img-gray .rail-num__media{filter:grayscale(1);transition:filter .35s;}
 html.img-gray .card:hover .card__media{filter:none;}
-html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__hero img{filter:grayscale(1) contrast(1.05) sepia(.5) hue-rotate(165deg) saturate(2.4) brightness(.96);}
+html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__hero img,html.img-duo .aufmacher__media,html.img-duo .feat-main__media,html.img-duo .teaser-row__media,html.img-duo .rail-num__media{filter:grayscale(1) contrast(1.05) sepia(.5) hue-rotate(165deg) saturate(2.4) brightness(.96);}
 
 /* ------------------------------------------------------------------ Aufmacher (großer Opener) */
 .aufmacher{max-width:none;}
@@ -209,11 +214,13 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__hero img
 .aufmacher__meta>span+span{margin-left:28px;position:relative;}
 .aufmacher__meta>span+span::before{content:"";position:absolute;left:-14px;top:50%;transform:translateY(-50%);width:1px;height:11px;background:var(--color-line);}
 .aufmacher__media{width:100%;aspect-ratio:var(--card-ar);object-fit:cover;background:var(--color-line);border-radius:var(--radius-card);}
-.aufmacher-band{padding:44px 0 34px;}
+.aufmacher-band{padding:44px 0 44px;}
 .section-body{border-top:1px solid var(--rule);padding-top:50px;}
 
 /* ------------------------------------------------------------------ Portal-Shell (3-spaltig) */
-.portal-band{padding:40px 0 8px;}
+/* Bottom 44px = gleicher visueller Abstand wie zwischen den Rubrik-Sektionen
+   (30px Sektions-Padding unten + 14px oben bis zur Trennlinie) */
+.portal-band{padding:40px 0 44px;}
 .portal-grid{max-width:var(--container);margin:0 auto;padding:0 24px;display:grid;gap:28px;align-items:start;}
 .portal-center{padding:0 28px;border-left:1px solid var(--rule);border-right:1px solid var(--rule);}
 .portal-center .aufmacher{max-width:none;margin:0;}
@@ -254,7 +261,7 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__hero img
 /* Feature-Sektion: 1 groß + Liste */
 .rubrik__feature{display:grid;grid-template-columns:1.5fr 1fr;gap:34px;align-items:start;}
 .feat-main__media{width:100%;aspect-ratio:var(--card-ar);object-fit:cover;background:var(--color-line);border-radius:var(--radius-card);}
-.feat-main__title{font-family:var(--font-head);font-size:calc(26px*var(--fs));font-weight:700;line-height:1.2;margin:14px 0 0;letter-spacing:var(--track-head);text-transform:var(--case-head);transition:color .15s;}
+.feat-main__title{font-family:var(--font-head);font-size:calc(26px*var(--fs));font-weight:var(--weight-heading);line-height:1.2;margin:14px 0 0;letter-spacing:var(--track-head);text-transform:var(--case-head);transition:color .15s;}
 .feat-main:hover .feat-main__title{color:var(--color-brand);}
 .feat-main__excerpt{font-size:15px;color:var(--color-ink-soft);line-height:1.5;margin:8px 0 0;max-width:52ch;}
 .feat-list{display:flex;flex-direction:column;gap:18px;}

@@ -176,7 +176,7 @@ _w.KIT_LOOKS = [
     type: { size: "standard", lead: "normal", track: "normal", case: "normal", align: "links" },
     layout: { corner: "rund", dens: "komfortabel", hero: "split", width: "standard" },
     card: { style: "classic", surface: "outline", image: "farbe", aspect: "16:9" } },
-  { n: "Magazin-Portal", d: "3-spaltig, rubriziert", head: "mulish", body: "source-serif-4", base: "light",
+  { n: "Magazin-Portal", d: "3-spaltig, rubriziert", head: "inter", body: "inter", base: "light",
     type: { size: "standard", lead: "normal", track: "normal", case: "normal", align: "links" },
     layout: { corner: "eckig", dens: "komfortabel", hero: "split", width: "breit", cols: "4", nav: "figma" },
     card: { style: "classic", surface: "flat", image: "farbe", aspect: "4:3" },
