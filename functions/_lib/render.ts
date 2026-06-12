@@ -210,7 +210,7 @@ export function renderLanding(items: FeedItem[], page: number = 1, cfg: RenderCf
     image: hero.image ? teaser(hero.image, 1200, 630) : "",
   };
   return head(PUBLICATION, cfg, meta) + header({ tabs: true, activePath: "/" }, cfg) + `
-<main id="main">${top}${stream}</main>` + footer();
+<main id="main">${top}${stream}</main>` + footer(cfg);
 }
 
 /** Rubrik-Seite (/rubrik/:slug): Aufmacher (erster Beitrag) + Raster + „Mehr laden". */
@@ -246,7 +246,7 @@ export function renderSection(category: string, items: FeedItem[], allItems: Fee
   <div class="grid">${slice.map(card).join("")}</div>
   ${more}
   <div id="memberships"></div>
-</div></main>` + footer();
+</div></main>` + footer(cfg);
 }
 
 // String wörtlich in eine RegExp einbetten (die Mitglieder-Überschrift ist
@@ -337,14 +337,14 @@ export function renderPost(item: FeedItem, cfg: RenderCfg = {} as RenderCfg, ful
     </div>
   </div>
   ${postNav}
-</article></main>` + footer();
+</article></main>` + footer(cfg);
 }
 
 /** Fallback, wenn der Feed nicht erreichbar ist. */
 export function renderEmpty(cfg: RenderCfg = {} as RenderCfg): string {
   return head(PUBLICATION, cfg, { noindex: true }) + header({ tabs: true, activePath: "/" }, cfg) +
     `<main id="main"><div class="container" style="padding:80px 0;color:var(--color-ink-soft)">${esc(t("empty"))}</div></main>` +
-    footer();
+    footer(cfg);
 }
 
 /** /memberships: Steady rendert den Checkout in den Container (Backend-Checkout-URL). */
@@ -356,14 +356,14 @@ export function renderMemberships(cfg: RenderCfg = {} as RenderCfg): string {
   <p style="text-align:center;color:var(--color-ink-soft);font-size:18px;margin:0 0 40px">${esc(t("memberships.sub"))}</p>
   <!-- Steady rendert den Checkout in diesen Container (Backend Checkout-URL = /memberships) -->
   <div id="insert_steady_checkout_here" style="display:none;"></div>
-</div></main>` + footer();
+</div></main>` + footer(cfg);
 }
 
 export function render404(cfg: RenderCfg = {} as RenderCfg): string {
   return head(t("notfound.pagetitle") + " — " + PUBLICATION, cfg, { noindex: true }) + header({ tabs: false }, cfg) +
     `<main id="main"><div class="container" style="padding:80px 0"><h1 style="font-size:32px">${esc(t("notfound.title"))}</h1>
      <p style="color:var(--color-ink-soft)"><a class="btn btn--primary" href="/" style="margin-top:12px">${esc(t("notfound.home"))}</a></p></div></main>` +
-    footer();
+    footer(cfg);
 }
 
 /**

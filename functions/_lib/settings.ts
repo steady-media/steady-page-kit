@@ -25,7 +25,7 @@ export function isConfigured(cfg: { feedUrl?: string | null } | null | undefined
 /** Default-Struktur = einspaltige Seite mit Split-Hero und flacher Liste. */
 export function parseStruct(cookie: string | null | undefined): StructCfg {
   const def: StructCfg = { shell: "single", auf: "klein", stream: "liste", rails: [],
-                headerStyle: "links", search: false, brand: "", nav: null };
+                headerStyle: "links", search: false, brand: "", nav: null, foot: null };
   if (!cookie) return def;
 
   // kitstruct=shell=portal&auf=gross&stream=rubrik&rails=neueste,meist,themen&…
@@ -51,6 +51,8 @@ export function parseStruct(cookie: string | null | undefined): StructCfg {
       const o = JSON.parse(decodeURIComponent(cm[1]));
       if (typeof o.brand === "string") def.brand = o.brand.slice(0, 60);
       if (Array.isArray(o.nav)) def.nav = o.nav.filter((n: NavEntry) => n && n.l).slice(0, 8)
+        .map((n: NavEntry) => ({ l: String(n.l).slice(0, 40), h: String(n.h || "#").slice(0, 300), x: !!n.x }));
+      if (Array.isArray(o.foot)) def.foot = o.foot.filter((n: NavEntry) => n && n.l).slice(0, 8)
         .map((n: NavEntry) => ({ l: String(n.l).slice(0, 40), h: String(n.h || "#").slice(0, 300), x: !!n.x }));
     } catch (e) { /* defekter Cookie → Default-Nav */ }
   }

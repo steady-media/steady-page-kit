@@ -94,6 +94,19 @@ function navLinksHtml(nav: KitNavItem[], activePath: string): string {
 }
 
 /**
+ * Brand-Block: globales Logo aus KV oder Icon + Wortmarke (zentrierter Link auf /).
+ * Wird sowohl im Header als auch im Footer verwendet — Markup byte-identisch.
+ */
+function brandBlock(cfg: RenderCfg): string {
+  const brand = (cfg.brand && cfg.brand.trim()) ? cfg.brand : PUBLICATION;
+  const lg = cfg.logo;
+  const brandInner = (lg && lg.ts)
+    ? `<img class="brand__logo-img" src="/api/logo?v=${lg.ts}" alt="${esc(brand)}"/>`
+    : `<span class="brand__logo" role="img" aria-label="${esc(brand)}"></span><span class="brand__name">${esc(brand)}</span>`;
+  return `<a class="brand" href="/" aria-label="${esc(brand)}">${brandInner}</a>`;
+}
+
+/**
  * Header: Brand (globales Logo aus KV oder Icon + Wortmarke), Steady-Login, optional
  * Tab-Navigation und die feed-basierte Suche (eigenes Modal, /api/search).
  * @param {{tabs?: boolean, activePath?: string}} opts
@@ -101,18 +114,12 @@ function navLinksHtml(nav: KitNavItem[], activePath: string): string {
  */
 export function header({ tabs = false, activePath = "" }: { tabs?: boolean; activePath?: string } = {}, cfg: RenderCfg = {} as RenderCfg): string {
   const center = cfg.headerStyle === "zentriert";
-  const brand  = (cfg.brand && cfg.brand.trim()) ? cfg.brand : PUBLICATION;
   const nav    = (cfg.nav && cfg.nav.length) ? cfg.nav : DEFAULT_NAV;
   const loginUrl = cfg.loginUrl || STEADY_LOGIN_URL;
   const search = cfg.search
     ? `<span class="tabs__search" role="button" tabindex="0" aria-label="${t("search.aria")}">${ICON_SEARCH}</span>` : "";
 
-  // Global gespeichertes Logo (KV) gewinnt für ALLE Besucher; sonst Default-Icon + Wortmarke.
-  const lg = cfg.logo;
-  const brandInner = (lg && lg.ts)
-    ? `<img class="brand__logo-img" src="/api/logo?v=${lg.ts}" alt="${esc(brand)}"/>`
-    : `<span class="brand__logo" role="img" aria-label="${esc(brand)}"></span><span class="brand__name">${esc(brand)}</span>`;
-  const brandHtml = `<a class="brand" href="/" aria-label="${esc(brand)}">${brandInner}</a>`;
+  const brandHtml = brandBlock(cfg);
 
   // Echter Steady-Login-Button (Smart Layer) — verhält sich exakt wie auf steady.page
   // (Login-Status, OAuth-Flow). Der Textlink ist Fallback, falls das Widget nicht lädt.
@@ -141,9 +148,17 @@ export function header({ tabs = false, activePath = "" }: { tabs?: boolean; acti
 </div></header>${navBar}${searchDialog}<script>setTimeout(function(){try{var el=document.querySelector("steady-login-button");var ok=el&&el.shadowRoot&&el.shadowRoot.querySelector("a,button");if(!ok){var fb=document.getElementById("js-login");if(fb)fb.className+=" is-on";if(el)el.style.display="none";}}catch(e){}},3000);</script>`;
 }
 
-/** Seitenende: Anpassen-Button (FAB) + Customizer-Panel + Panel-Logik. */
-export function footer(): string {
-  return `<button class="cz-fab" id="cz-open" aria-label="${t("fab")}" title="${t("fab")}">✦</button>
+/** Seitenende: Site-Footer + Anpassen-Button (FAB) + Customizer-Panel + Panel-Logik. */
+export function footer(cfg: RenderCfg = {} as RenderCfg): string {
+  const footLinks = (cfg.foot && cfg.foot.length)
+    ? `<nav class="site-footer__links" aria-label="Footer">${cfg.foot.map(n =>
+        `<a class="footer-link" href="${esc(n.h)}"${n.x ? ' target="_blank" rel="noopener"' : ""}>${esc(n.l)}</a>`
+      ).join("")}</nav>`
+    : "";
+  return `<footer class="site-footer"><div class="container site-footer__inner">
+  ${brandBlock(cfg)}
+  ${footLinks}
+</div></footer><button class="cz-fab" id="cz-open" aria-label="${t("fab")}" title="${t("fab")}">✦</button>
 ${panelHtml()}
 <script src="/assets/kit-panel.js?v=${ASSET_VERSION}"></script>
 </body></html>`;

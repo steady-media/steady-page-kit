@@ -352,13 +352,38 @@ var _w = /** @type {any} */ (window);
 
   /* ---------------------------------------------------------------- Header: Titel + Navigation */
   var navEd = document.getElementById("cz-nav");
+  var footEd = document.getElementById("cz-foot");
   var brandInp = /** @type {HTMLInputElement|null} */ (document.getElementById("cz-brand"));
+
+  /** @type {{ brand?: string, nav?: Array<{l:string,h:string,x:boolean}>, foot?: Array<{l:string,h:string,x:boolean}> }} */
+  var savedChrome = {};
+  try { savedChrome = JSON.parse(localStorage.getItem("kitChrome") || "{}"); } catch (e) {}
+  if (brandInp) brandInp.value = savedChrome.brand || _w.KIT_DEFAULT_BRAND || "";
+
+  /** Liest alle Nav-Zeilen aus einem Editor-Container und gibt das Array zurück. */
+  /** @param {Element} ed */
+  function collectRows(ed) {
+    /** @type {Array<{l:string,h:string,x:boolean}>} */
+    var out = [];
+    ed.querySelectorAll(".cz-nav-row").forEach(function (r) {
+      var lEl = /** @type {HTMLInputElement|null} */ (r.querySelector(".cz-nav-l"));
+      var hEl = /** @type {HTMLInputElement|null} */ (r.querySelector(".cz-nav-h"));
+      var l = lEl ? lEl.value.trim() : "", h = hEl ? hEl.value.trim() : "";
+      if (l) out.push({ l: l, h: h || "#", x: (h.indexOf("http") === 0 && h.indexOf(location.host) < 0) });
+    });
+    return out;
+  }
+
+  /** Sammelt brand + nav + foot aus dem Panel und schreibt kitchrome → Reload. */
+  function writeChrome() {
+    var brand = brandInp ? brandInp.value.trim() : "";
+    var nav = navEd ? collectRows(navEd) : (savedChrome.nav || []);
+    var foot = footEd ? collectRows(footEd) : (savedChrome.foot || []);
+    _w.kitChromeSet({ brand: brand, nav: nav, foot: foot }); // → Reload
+  }
+
   if (navEd) {
     var _navEd = navEd; // nicht-null Alias
-    /** @type {{ brand?: string, nav?: Array<{l:string,h:string,x:boolean}> }} */
-    var savedChrome = {};
-    try { savedChrome = JSON.parse(localStorage.getItem("kitChrome") || "{}"); } catch (e) {}
-    if (brandInp) brandInp.value = savedChrome.brand || _w.KIT_DEFAULT_BRAND || "";
 
     // Initiale Liste: gespeichert > aktuelle Seiten-Nav (DOM) > Default
     /** @type {Array<{l:string,h:string,x?:boolean}>|undefined} */
@@ -379,8 +404,8 @@ var _w = /** @type {any} */ (window);
       if (dir < 0) _navEd.insertBefore(row, sib); else _navEd.insertBefore(sib, row);
     }
     // Eine editierbare Nav-Zeile: Grip (Drag + Pfeiltasten) | Label | URL | Entfernen
-    /** @param {{ l?: string, h?: string, x?: boolean }|undefined} [n] */
-    function navRow(n) {
+    /** @param {Element} container @param {{ l?: string, h?: string, x?: boolean }|undefined} [n] */
+    function navRow(container, n) {
       var row = document.createElement("div"); row.className = "cz-nav-row";
       var grip = document.createElement("button");
       grip.type = "button"; grip.className = "cz-nav-grip"; grip.textContent = "⠿";
@@ -419,25 +444,43 @@ var _w = /** @type {any} */ (window);
         document.addEventListener("pointerup", up);
       });
       row.appendChild(grip); row.appendChild(label); row.appendChild(href); row.appendChild(del);
-      _navEd.appendChild(row);
+      container.appendChild(row);
     }
-    (navInit || []).forEach(navRow);
+    (navInit || []).forEach(function (n) { navRow(_navEd, n); });
 
     var addBtn = document.getElementById("cz-nav-add");
-    if (addBtn) addBtn.addEventListener("click", function () { navRow({ l: "", h: "" }); });
+    if (addBtn) addBtn.addEventListener("click", function () { navRow(_navEd, { l: "", h: "" }); });
 
     var applyBtn = document.getElementById("cz-chrome-apply");
-    if (applyBtn) applyBtn.addEventListener("click", function () {
-      /** @type {Array<{l:string,h:string,x:boolean}>} */
-      var out = [];
-      _navEd.querySelectorAll(".cz-nav-row").forEach(function (r) {
-        var lEl = /** @type {HTMLInputElement|null} */ (r.querySelector(".cz-nav-l"));
-        var hEl = /** @type {HTMLInputElement|null} */ (r.querySelector(".cz-nav-h"));
-        var l = lEl ? lEl.value.trim() : "", h = hEl ? hEl.value.trim() : "";
-        if (l) out.push({ l: l, h: h || "#", x: (h.indexOf("http") === 0 && h.indexOf(location.host) < 0) });
-      });
-      _w.kitChromeSet({ brand: (brandInp ? brandInp.value.trim() : ""), nav: out }); // → Reload
-    });
+    if (applyBtn) applyBtn.addEventListener("click", writeChrome);
+  }
+
+  /* ---------------------------------------------------------------- Footer: Links */
+  if (footEd) {
+    var _footEd = footEd; // nicht-null Alias
+
+    // Initiale Footer-Links aus kitchrome
+    /** @type {Array<{l:string,h:string,x?:boolean}>} */
+    var footInit = savedChrome.foot || [];
+
+    // Footer-Zeile: Label | URL | Entfernen (kein Drag-Grip — Reihenfolge weniger kritisch)
+    /** @param {{ l?: string, h?: string, x?: boolean }|undefined} [n] */
+    function footRow(n) {
+      var row = document.createElement("div"); row.className = "cz-nav-row";
+      var label = document.createElement("input"); label.className = "cz-nav-l"; label.placeholder = T("nav.label.ph", "Label"); label.value = (n && n.l) || "";
+      var href = document.createElement("input"); href.className = "cz-nav-h"; href.placeholder = T("nav.url.ph", "URL"); href.value = (n && n.h) || "";
+      var del = document.createElement("button"); del.type = "button"; del.className = "cz-nav-x"; del.textContent = "×"; del.title = T("nav.remove", "Entfernen");
+      del.addEventListener("click", function () { if (row.parentNode) row.parentNode.removeChild(row); });
+      row.appendChild(label); row.appendChild(href); row.appendChild(del);
+      _footEd.appendChild(row);
+    }
+    footInit.forEach(footRow);
+
+    var footAddBtn = document.getElementById("cz-foot-add");
+    if (footAddBtn) footAddBtn.addEventListener("click", function () { footRow({ l: "", h: "" }); });
+
+    var footApplyBtn = document.getElementById("cz-foot-apply");
+    if (footApplyBtn) footApplyBtn.addEventListener("click", writeChrome);
   }
 
   /* ---------------------------------------------------------------- Suche (feed-basiert, /api/search) */

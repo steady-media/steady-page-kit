@@ -283,6 +283,14 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__hero img
   .rail .rail-module{flex:1 1 240px;}
 }
 
+/* ------------------------------------------------------------------ Footer */
+.site-footer{border-top:1px solid var(--rule);margin-top:44px;padding:44px 0 52px;}
+.site-footer__inner{display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;}
+.site-footer .brand{justify-content:center;}
+.site-footer__links{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 26px;}
+.footer-link{font-family:var(--font-body);font-size:13px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--color-ink-soft);transition:color .15s;}
+.footer-link:hover{color:var(--color-brand);}
+
 /* ------------------------------------------------------------------ Customizer-Panel */
 /* FAB: dezente, vertikal zentrierte Lasche am rechten Rand (kollidiert nicht mit dem Steady-Layer) */
 .cz-fab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:60;width:34px;height:48px;border-radius:10px 0 0 10px;border:1px solid var(--color-hairline);border-right:0;background:rgba(255,255,255,.9);color:var(--color-ink-soft);font-size:15px;cursor:pointer;box-shadow:-4px 0 16px rgba(41,30,56,.09);backdrop-filter:blur(5px);transition:color .15s,background .15s,box-shadow .15s;}

@@ -34,6 +34,11 @@ export function panelHtml(): string {
       <button class="cz-nav-add" id="cz-nav-add" type="button">${esc(t("panel.nav.add"))}</button>
       <button class="cz-apply" id="cz-chrome-apply" type="button">${esc(t("panel.apply"))}</button>
     </div></section>
+    <section class="cz-sec"><button class="cz-sh" data-acc>${t("panel.sec.footer")}<span class="cz-cv">▾</span></button><div class="cz-sb">
+      <label class="cz-lbl">${esc(t("panel.foot.label"))}</label><div class="cz-nav" id="cz-foot"></div>
+      <button class="cz-nav-add" id="cz-foot-add" type="button">${esc(t("panel.foot.add"))}</button>
+      <button class="cz-apply" id="cz-foot-apply" type="button">${esc(t("panel.apply"))}</button>
+    </div></section>
     <section class="cz-sec"><button class="cz-sh" data-acc>${t("panel.sec.colors")}<span class="cz-cv">▾</span></button><div class="cz-sb">
       <p class="cz-hint">${esc(t("panel.colors.hint"))}</p>
       <label class="cz-lbl">${esc(t("panel.mode"))}</label><div class="cz-seg" data-fn="base" data-kind="mode"><button data-v="light">${esc(t("panel.v.hell"))}</button><button data-v="dark">${esc(t("panel.v.dunkel"))}</button></div>

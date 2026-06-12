@@ -17,6 +17,8 @@ proven by a golden-master diff of every route
   hanging Steady feed could block rendering indefinitely; the timeout makes the
   existing stale-cache fallback actually reachable.
 
+- Footer mit zentriertem Logo + konfigurierbaren Links (Drawer-Sektion Footer, kitchrome.foot, additiv)
+
 ### Added
 
 - **Vercel support**: catch-all entry (`api/index.ts` + `vercel.json`); storage

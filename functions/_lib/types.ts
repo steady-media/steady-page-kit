@@ -183,6 +183,8 @@ export interface StructCfg {
   brand: string;
   /** Angepasste Navigation (aus kitchrome-Cookie) oder null = Default */
   nav: Array<{ l: string; h: string; x: boolean }> | null;
+  /** Footer-Links (aus kitchrome-Cookie) oder null = keine Links */
+  foot: Array<{ l: string; h: string; x: boolean }> | null;
 }
 
 /**
