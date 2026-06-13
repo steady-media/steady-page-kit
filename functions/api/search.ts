@@ -4,6 +4,7 @@
 // der frühere AutoRAG-Index, dessen Chunks weder Titel noch Links hatten.
 import type { FeedItem, KitContext } from "../_lib/types.ts";
 import { getItems, normTitle } from "../_lib/feed.ts";
+import { effectiveFeedUrl } from "../_lib/config.ts";
 import { fmtDate } from "../_lib/util.ts";
 import { jsonResponse } from "../_lib/http.ts";
 
@@ -15,7 +16,7 @@ export async function onRequestGet(context: KitContext): Promise<Response> {
 
   let items: FeedItem[] = [];
   try {
-    items = await getItems(context.env && context.env.FEED_URL ? context.env.FEED_URL : undefined);
+    items = await getItems(effectiveFeedUrl(context.env));
   } catch (err) {
     return jsonResponse({ results: [] }, 200, "no-store");
   }

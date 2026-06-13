@@ -3,6 +3,16 @@
 All notable changes to steady-page-kit. How to update an installation:
 [docs/agent/UPDATE.md](docs/agent/UPDATE.md).
 
+## Unreleased
+
+- **Railway one-click template setup.** `railway.json` makes the repo
+  template-ready; a new `STEADY_SLUG` env override derives the feed + login URL
+  so the one-click flow asks only for a slug + a few values instead of full
+  URLs (precedence: `FEED_URL` > `STEADY_SLUG` > `kit.config.js`). New recipe
+  `docs/agent/deploy/railway.md` documents the Deploy-on-Railway button, the
+  template variables, the mandatory volume, and the affiliate/template-kickback
+  setup.
+
 ## 2.0.0 — 2026-06-11
 
 TypeScript in-place port. Same file tree (`.js` → `.ts`), same routes, same KV

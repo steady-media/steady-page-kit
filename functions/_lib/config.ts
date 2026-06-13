@@ -84,6 +84,27 @@ export const PINNED_GUID: string | null = kit.pinnedGuid || null; // optional: P
  *  zusätzlich zur Request-Zeit — dafür isConfigured(cfg) in settings.js nutzen. */
 export const IS_CONFIGURED = !!FEED_URL;
 
+/**
+ * Env-Override aus STEADY_SLUG: leitet Feed-/Login-/Newsletter-URL ab, damit
+ * One-Click-Deploys (Railway u. a.) ohne kit.config.js-Edit auskommen — der
+ * Publisher gibt nur seinen Slug an. null, wenn kein STEADY_SLUG gesetzt ist.
+ */
+export function envSteadyUrls(env: { STEADY_SLUG?: unknown; [k: string]: unknown } | null | undefined): { feedUrl: string; loginUrl: string; newsletterUrl: string } | null {
+  const slug = normalizeSlug(env && env.STEADY_SLUG);
+  return slug ? deriveSteady(slug, LANGUAGE) : null;
+}
+
+/**
+ * Effektive Feed-URL für Routen, die NICHT über buildPageContext laufen
+ * (rss, sitemap, search). Präzedenz: FEED_URL-Env > STEADY_SLUG-Env > kit.config.js.
+ */
+export function effectiveFeedUrl(env: { FEED_URL?: unknown; STEADY_SLUG?: unknown; [k: string]: unknown } | null | undefined): string {
+  const explicit = String((env && env.FEED_URL) || "").trim();
+  if (explicit) return explicit;
+  const bySlug = envSteadyUrls(env);
+  return bySlug ? bySlug.feedUrl : FEED_URL;
+}
+
 // Editierbare Standard-Navigation (überschreibbar via kitchrome-Cookie/globale Config).
 // l = Label, h = href, x = extern (neuer Tab).
 export const DEFAULT_NAV: Array<{ l: string; h: string; x?: boolean }> = (Array.isArray(kit.nav) && kit.nav.length)

@@ -1,14 +1,14 @@
 // Route: GET /sitemap.xml — generiert aus dem Feed (Posts, Rubriken, statische Seiten).
 import type { KitContext, FeedItem } from "./_lib/types.ts";
 import { getItems, topCategories } from "./_lib/feed.ts";
-import { SITE_ORIGIN } from "./_lib/config.ts";
+import { SITE_ORIGIN, effectiveFeedUrl } from "./_lib/config.ts";
 import { esc, slugify } from "./_lib/util.ts";
 
 export async function onRequestGet(context: KitContext): Promise<Response> {
   const origin = (context.env && context.env.SITE_ORIGIN) || SITE_ORIGIN;
   let items: FeedItem[] = [];
   try {
-    items = await getItems(context.env && context.env.FEED_URL ? context.env.FEED_URL : undefined);
+    items = await getItems(effectiveFeedUrl(context.env));
   } catch (err) { /* leere Sitemap ist besser als 500 */ }
 
   const urls: Array<{ loc: string; lastmod?: string }> = [

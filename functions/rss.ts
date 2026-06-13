@@ -1,11 +1,12 @@
 // Route: GET /rss — eigener Feed-Endpunkt dieser Domain (Proxy des öffentlichen Steady-Feeds).
 import type { KitContext } from "./_lib/types.ts";
 import { fetchFeedXml } from "./_lib/feed.ts";
+import { effectiveFeedUrl } from "./_lib/config.ts";
 import { t } from "./_lib/i18n.ts";
 
 export async function onRequestGet(context: KitContext): Promise<Response> {
   try {
-    const xml = await fetchFeedXml(context.env && context.env.FEED_URL ? context.env.FEED_URL : undefined);
+    const xml = await fetchFeedXml(effectiveFeedUrl(context.env));
     return new Response(xml, {
       headers: { "content-type": "application/rss+xml; charset=utf-8", "cache-control": "public, max-age=600" },
     });

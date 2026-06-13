@@ -9,7 +9,7 @@
 // Skin (Fonts/Farben/Karten) wendet der CLIENT an (public/assets/kit-theme.js).
 
 import type { GlobalConfig, KitContext, KitEnv, LogoMeta, RenderCfg, StructCfg } from "./types.ts";
-import { FEED_URL } from "./config.ts";
+import { FEED_URL, envSteadyUrls } from "./config.ts";
 
 type NavEntry = { l?: unknown; h?: unknown; x?: unknown };
 
@@ -117,11 +117,14 @@ export async function buildPageContext(context: KitContext): Promise<{ cfg: Rend
   const cfg = parseStruct(effectiveCookie(cookie, globalCfg)) as Partial<RenderCfg> & StructCfg;
   cfg.skin = (globalCfg ? globalCfg.skin : null) as Record<string, string> | null;
   cfg.logo = logo;
-  // Deployment-Overrides (Portabilität: Kit als Vorlage für andere Publikationen)
-  cfg.feedUrl   = env.FEED_URL || null;            // null = Default aus config.js
+  // Deployment-Overrides (Portabilität: Kit als Vorlage für andere Publikationen).
+  // STEADY_SLUG leitet Feed-/Login-URL ab (One-Click-Deploys ohne kit.config.js-Edit);
+  // explizite FEED_URL/STEADY_LOGIN_URL gewinnen weiterhin.
+  const envSteady = envSteadyUrls(env);
+  cfg.feedUrl   = env.FEED_URL || (envSteady && envSteady.feedUrl) || null;  // null = Default aus config.js
   cfg.site      = env.SITE_ORIGIN || null;
   cfg.steadyId  = env.STEADY_PUBLICATION_ID || null;
-  cfg.loginUrl  = env.STEADY_LOGIN_URL || null;
+  cfg.loginUrl  = env.STEADY_LOGIN_URL || (envSteady && envSteady.loginUrl) || null;
   cfg.analytics = env.ANALYTICS_TOKEN || "";       // Cloudflare Web Analytics Beacon-Token
   const hasPersonalCfg = /(?:^|;\s*)kit(?:struct|chrome)=/.test(cookie);
   return { cfg: cfg as RenderCfg, cacheControl: hasPersonalCfg ? "no-store" : "public, max-age=300" };

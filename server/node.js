@@ -28,7 +28,7 @@ if (isMain) {
   const server = await startServer();
   const { port } = server.address();
   const { IS_CONFIGURED } = await import("../functions/_lib/config.ts");
-  const configured = IS_CONFIGURED || !!process.env.FEED_URL;
+  const configured = IS_CONFIGURED || !!process.env.FEED_URL || !!process.env.STEADY_SLUG;
   const hint = configured ? "" : `  (noch unkonfiguriert → Onboarding-Seite; sage deinem KI-Tool: „Richte meine Seite ein“)`;
   console.log(`steady-page-kit läuft auf http://localhost:${port}${hint}`);
 }

@@ -3,7 +3,7 @@
 // Inhalt der kit.config.js (Publisher-Datei!) testbar bleibt.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { normalizeSlug, deriveSteady, IS_CONFIGURED, FEED_URL, MEMBER_HEADING, STEADY_SLUG, LANGUAGE } from "../functions/_lib/config.ts";
+import { normalizeSlug, deriveSteady, IS_CONFIGURED, FEED_URL, MEMBER_HEADING, STEADY_SLUG, LANGUAGE, envSteadyUrls, effectiveFeedUrl } from "../functions/_lib/config.ts";
 import { isConfigured } from "../functions/_lib/settings.ts";
 
 test("normalizeSlug: nackte Slugs, @-Präfix, Whitespace", () => {
@@ -53,4 +53,25 @@ test("isConfigured: FEED_URL-Env-Override zählt als konfiguriert", () => {
   assert.equal(isConfigured({ feedUrl: "https://steady.page/x/rss" }), true);
   assert.equal(isConfigured({ feedUrl: null }), IS_CONFIGURED);
   assert.equal(isConfigured(null), IS_CONFIGURED);
+});
+
+test("envSteadyUrls: leitet aus STEADY_SLUG ab (One-Click ohne kit.config.js-Edit)", () => {
+  const u = envSteadyUrls({ STEADY_SLUG: "sebastian" });
+  assert.equal(u.feedUrl, deriveSteady("sebastian", LANGUAGE).feedUrl);
+  assert.equal(u.loginUrl, deriveSteady("sebastian", LANGUAGE).loginUrl);
+  // akzeptiert auch eine ganze URL (Publisher pasten gern alles)
+  assert.equal(envSteadyUrls({ STEADY_SLUG: "https://steady.page/acme/rss" }).feedUrl, "https://steady.page/acme/rss");
+  // ohne Slug → null
+  assert.equal(envSteadyUrls({}), null);
+  assert.equal(envSteadyUrls(null), null);
+});
+
+test("effectiveFeedUrl: Präzedenz FEED_URL > STEADY_SLUG > kit.config.js", () => {
+  // explizite FEED_URL gewinnt
+  assert.equal(effectiveFeedUrl({ FEED_URL: "https://x/rss", STEADY_SLUG: "acme" }), "https://x/rss");
+  // sonst aus dem Slug abgeleitet
+  assert.equal(effectiveFeedUrl({ STEADY_SLUG: "acme" }), "https://steady.page/acme/rss");
+  // ohne Env-Override → Default aus kit.config.js (FEED_URL-Konstante)
+  assert.equal(effectiveFeedUrl({}), FEED_URL);
+  assert.equal(effectiveFeedUrl(null), FEED_URL);
 });

@@ -51,7 +51,7 @@ the certificates fresh and the data persistent — the platform, or you.
 
 | Host | OS/TLS/disk | Cost | Note |
 |---|---|---|---|
-| **Railway** — recommended | Platform; you attach a volume once | ~5 €/month | Managed PaaS; the agent deploys it end to end via CLI |
+| **Railway** — recommended | Platform; you attach a volume once | ~5 €/month | Managed PaaS; **one-click via the Railway template** (asks only for your slug + a few values) or end-to-end via CLI — see [docs/agent/deploy/railway.md](docs/agent/deploy/railway.md) |
 | Render | Platform; persistent disk add-on | ~7 $/month | Disks are not on the free tier |
 | Fly.io | Platform; volume | a few €/month | Pay as you go; keep it at 1 machine |
 | Hetzner / any Docker VPS | **You**: OS patches, TLS, backups | from ~4 €/month | For everyone who runs their own server |
