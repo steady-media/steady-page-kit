@@ -284,7 +284,9 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__hero img
 }
 
 /* ------------------------------------------------------------------ Footer */
-.site-footer{border-top:1px solid var(--rule);margin-top:44px;padding:44px 0 52px;}
+/* Bottom-Polster räumt den fixierten Steady-Bottom-Layer (Checkout/Newsletter)
+   frei, damit Logo + Links trotz Overlay sichtbar bleiben; + iOS-Safe-Area. */
+.site-footer{border-top:1px solid var(--rule);margin-top:44px;padding:44px 0 calc(120px + env(safe-area-inset-bottom,0px));}
 .site-footer__inner{display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;}
 .site-footer .brand{justify-content:center;}
 .site-footer__links{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 26px;}

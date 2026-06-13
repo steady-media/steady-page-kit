@@ -65,6 +65,32 @@ test("GET / mit kitchrome foot-Cookie → Footer enthält Impressum-Link mit tar
   assert.ok(html.includes('target="_blank"'), 'target="_blank" fehlt bei externem Link');
 });
 
+test("Footer nutzt das Icon, auch wenn ein KV-Logo hochgeladen ist (Header zeigt das Logo)", async () => {
+  // Logo hochladen (admin-gated)
+  const put = await fetch(base + "/api/logo", {
+    method: "PUT",
+    headers: { "x-kit-admin": "geheim-footer-test", "x-kit-type": "image/png", "x-kit-aspect": "3" },
+    body: new Uint8Array([137, 80, 78, 71, 0, 1, 2, 3]),
+  });
+  assert.equal(put.status, 200);
+
+  const html = await (await fetch(base + "/")).text();
+  const cut = html.indexOf('class="site-footer"');
+  assert.ok(cut > 0, "site-footer fehlt");
+  const headerPart = html.slice(0, cut);
+  const footerPart = html.slice(cut);
+
+  // Header: hochgeladenes Logo
+  assert.ok(headerPart.includes("brand__logo-img"), "Header sollte das hochgeladene Logo zeigen");
+  // Footer: Icon + Wortmarke, NICHT das Upload-Logo
+  assert.ok(footerPart.includes('class="brand__logo"'), "Footer sollte das Icon zeigen");
+  assert.ok(footerPart.includes('class="brand__name"'), "Footer sollte die Wortmarke zeigen");
+  assert.ok(!footerPart.includes("brand__logo-img"), "Footer darf das Upload-Logo NICHT zeigen");
+
+  // aufräumen, damit andere Tests das Logo nicht sehen
+  await fetch(base + "/api/logo", { method: "DELETE", headers: { "x-kit-admin": "geheim-footer-test" } });
+});
+
 test("parseStruct-Unit: foot-Parsing — Label-Limit 40 Zeichen, max. 8 Einträge", () => {
   const longLabel = "A".repeat(50);
   const entries = Array.from({ length: 10 }, (_, i) => ({ l: "Link " + i, h: "/link-" + i }));
