@@ -97,13 +97,19 @@ function navLinksHtml(nav: KitNavItem[], activePath: string): string {
  * Brand-Block: globales Logo aus KV oder Icon + Wortmarke (zentrierter Link auf /).
  * Wird sowohl im Header als auch im Footer verwendet — Markup byte-identisch.
  */
-function brandBlock(cfg: RenderCfg, opts: { forceIcon?: boolean } = {}): string {
+function brandBlock(cfg: RenderCfg, opts: { iconOnly?: boolean } = {}): string {
   const brand = (cfg.brand && cfg.brand.trim()) ? cfg.brand : PUBLICATION;
   const lg = cfg.logo;
-  // opts.forceIcon: immer Icon + Wortmarke (Footer) — auch wenn ein KV-Logo da ist.
-  const brandInner = (lg && lg.ts && !opts.forceIcon)
-    ? `<img class="brand__logo-img" src="/api/logo?v=${lg.ts}" alt="${esc(brand)}"/>`
-    : `<span class="brand__logo" role="img" aria-label="${esc(brand)}"></span><span class="brand__name">${esc(brand)}</span>`;
+  // opts.iconOnly: nur das Marken-Icon, keine Wortmarke, kein KV-Logo (Footer).
+  //   Der Name bleibt als aria-label am Link erhalten (Screenreader).
+  let brandInner;
+  if (opts.iconOnly) {
+    brandInner = `<span class="brand__logo" role="img" aria-label="${esc(brand)}"></span>`;
+  } else if (lg && lg.ts) {
+    brandInner = `<img class="brand__logo-img" src="/api/logo?v=${lg.ts}" alt="${esc(brand)}"/>`;
+  } else {
+    brandInner = `<span class="brand__logo" role="img" aria-label="${esc(brand)}"></span><span class="brand__name">${esc(brand)}</span>`;
+  }
   return `<a class="brand" href="/" aria-label="${esc(brand)}">${brandInner}</a>`;
 }
 
@@ -157,7 +163,7 @@ export function footer(cfg: RenderCfg = {} as RenderCfg): string {
       ).join("")}</nav>`
     : "";
   return `<footer class="site-footer"><div class="container site-footer__inner">
-  ${brandBlock(cfg, { forceIcon: true })}
+  ${brandBlock(cfg, { iconOnly: true })}
   ${footLinks}
 </div></footer><button class="cz-fab" id="cz-open" aria-label="${t("fab")}" title="${t("fab")}">✦</button>
 ${panelHtml()}

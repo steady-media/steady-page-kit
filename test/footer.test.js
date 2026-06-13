@@ -65,7 +65,7 @@ test("GET / mit kitchrome foot-Cookie → Footer enthält Impressum-Link mit tar
   assert.ok(html.includes('target="_blank"'), 'target="_blank" fehlt bei externem Link');
 });
 
-test("Footer nutzt das Icon, auch wenn ein KV-Logo hochgeladen ist (Header zeigt das Logo)", async () => {
+test("Footer zeigt nur das Icon — keine Wortmarke, kein Upload-Logo (Header zeigt das Logo)", async () => {
   // Logo hochladen (admin-gated)
   const put = await fetch(base + "/api/logo", {
     method: "PUT",
@@ -82,9 +82,9 @@ test("Footer nutzt das Icon, auch wenn ein KV-Logo hochgeladen ist (Header zeigt
 
   // Header: hochgeladenes Logo
   assert.ok(headerPart.includes("brand__logo-img"), "Header sollte das hochgeladene Logo zeigen");
-  // Footer: Icon + Wortmarke, NICHT das Upload-Logo
+  // Footer: NUR das Icon — keine Wortmarke, kein Upload-Logo
   assert.ok(footerPart.includes('class="brand__logo"'), "Footer sollte das Icon zeigen");
-  assert.ok(footerPart.includes('class="brand__name"'), "Footer sollte die Wortmarke zeigen");
+  assert.ok(!footerPart.includes('class="brand__name"'), "Footer darf KEINE Wortmarke zeigen");
   assert.ok(!footerPart.includes("brand__logo-img"), "Footer darf das Upload-Logo NICHT zeigen");
 
   // aufräumen, damit andere Tests das Logo nicht sehen
