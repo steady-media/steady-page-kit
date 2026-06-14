@@ -20,7 +20,7 @@ site. No git clone, no file editing.
 The button lives wherever the publisher starts (Steady backend card, README):
 
 ```markdown
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/REPLACE_WITH_TEMPLATE_CODE)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/5UjB3l?referralCode=-TGvVk&utm_medium=integration&utm_source=template&utm_campaign=generic)
 ```
 
 The publisher fills in these template variables during the one-click flow
@@ -47,7 +47,11 @@ published settings/logo/claps survive redeploys.
 5. Publish the template. Railway gives you a `railway.com/deploy/<code>` URL —
    that URL carries your account, so deployments count toward the
    **Template Kickback (25%)** and, paired with your **affiliate link (15%)**,
-   the hosting referral. Replace `REPLACE_WITH_TEMPLATE_CODE` in the button above.
+   the hosting referral.
+
+The live template is `railway.com/deploy/5UjB3l` (owner: Steady, referral
+`-TGvVk`) — already wired into the button above and the READMEs. To point it at a
+different template, replace that code everywhere it appears.
 
 Verify current affiliate/kickback terms at `railway.com/affiliate-program` and
 `docs.railway.com/community/affiliate-program` before relying on them.

@@ -45,6 +45,10 @@ the agent does the work and proves it with a health check (`npm run doctor`).
 
 ## Hosting
 
+Fastest path — one click, then fill in your Steady slug + a few values:
+
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/5UjB3l?referralCode=-TGvVk&utm_medium=integration&utm_source=template&utm_campaign=generic)
+
 The kit runs on any Node host with a disk, on Vercel (serverless) and on
 Cloudflare Pages. The **OS/TLS/disk** column says who keeps the machine patched,
 the certificates fresh and the data persistent — the platform, or you.

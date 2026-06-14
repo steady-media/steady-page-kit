@@ -47,6 +47,10 @@ Agent macht die Arbeit und belegt sie mit einem Gesundheitscheck (`npm run docto
 
 ## Hosting
 
+Schnellster Weg — ein Klick, dann Steady-Slug + ein paar Werte eintragen:
+
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/5UjB3l?referralCode=-TGvVk&utm_medium=integration&utm_source=template&utm_campaign=generic)
+
 Das Kit läuft auf jedem Node-Host mit Disk, auf Vercel (serverless) und auf
 Cloudflare Pages. Die Spalte **OS/TLS/Disk** sagt, wer die Maschine patcht, die
 Zertifikate erneuert und die Daten persistent hält — die Plattform oder du.
