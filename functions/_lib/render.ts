@@ -123,16 +123,19 @@ function teaserText(it: FeedItem): string {
 
 // Stream nach Rubriken — das Layout rotiert je Sektion (Feature / Karten / Kompakt, wie im Figma).
 // leadItems = headerlose Teaser-Reihe direkt unter dem Aufmacher, disjunkt zu den Leisten.
-function rubrikStream(rest: FeedItem[], cats: string[], leadItems: FeedItem[]): string {
+function rubrikStream(rest: FeedItem[], cats: string[], leadItems: FeedItem[], pins: Record<string, string[]>): string {
   if (!cats.length) return `<div class="grid">${rest.slice(0, PER_PAGE).map(card).join("")}</div>`;
   const MODES = ["feature", "cards", "compact"];
   const lead = (leadItems && leadItems.length)
     ? `<section class="rubrik rubrik--lead"><div class="grid rubrik__grid">${leadItems.map(card).join("")}</div></section>`
     : "";
   return lead + cats.map((cat, i) => {
-    const inCat = rest.filter(it => it.categories.includes(cat));
+    const slug = slugify(cat);
+    // Pro Rubrik ein eigener Pin-Bereich (rubrik/<slug>): sortiert diese Sektion und
+    // teilt sich die Pins mit der Rubrik-Seite. data-pin-scope sagt dem Client den Scope.
+    const inCat = applyPins(rest.filter(it => it.categories.includes(cat)), pins && pins["rubrik/" + slug]);
     if (!inCat.length) return "";
-    const head = `<header class="rubrik__head"><a class="rubrik__chip" href="/rubrik/${slugify(cat)}">${esc(cat)}</a><a class="rubrik__more" href="/rubrik/${slugify(cat)}">${esc(t("more.arrow"))}</a></header>`;
+    const head = `<header class="rubrik__head"><a class="rubrik__chip" href="/rubrik/${slug}">${esc(cat)}</a><a class="rubrik__more" href="/rubrik/${slug}">${esc(t("more.arrow"))}</a></header>`;
     const mode = MODES[i % 3];
     let body;
     if (mode === "feature") {
@@ -152,7 +155,7 @@ function rubrikStream(rest: FeedItem[], cats: string[], leadItems: FeedItem[]): 
     } else {
       body = `<div class="grid rubrik__grid">${inCat.slice(0, 4).map(card).join("")}</div>`;
     }
-    return `<section class="rubrik rubrik--${mode}">${head}${body}</section>`;
+    return `<section class="rubrik rubrik--${mode}" data-pin-scope="rubrik/${slug}">${head}${body}</section>`;
   }).join("");
 }
 
@@ -209,7 +212,7 @@ export function renderLanding(items: FeedItem[], page: number = 1, cfg: RenderCf
   // 2) Stream: Rubriken-Sektionen oder flache Liste mit Pills + „Mehr laden"
   let stream;
   if (cfg.stream === "rubrik") {
-    stream = `<div class="container">${rubrikStream(rest, cats, leadItems)}<div id="memberships"></div></div>`;
+    stream = `<div class="container">${rubrikStream(rest, cats, leadItems, cfg.pins)}<div id="memberships"></div></div>`;
   } else {
     const pages = Math.max(1, Math.ceil(rest.length / PER_PAGE));
     const p = Math.min(Math.max(1, page), pages);
