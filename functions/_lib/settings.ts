@@ -87,6 +87,7 @@ export function effectiveCookie(cookie: string | null | undefined, globalCfg: Gl
   if (globalCfg) {
     if (globalCfg.kitstruct && !/(?:^|;\s*)kitstruct=/.test(out)) out += (out ? "; " : "") + "kitstruct=" + globalCfg.kitstruct;
     if (globalCfg.kitchrome && !/(?:^|;\s*)kitchrome=/.test(out)) out += (out ? "; " : "") + "kitchrome=" + globalCfg.kitchrome;
+    if (globalCfg.kitpins && !/(?:^|;\s*)kitpins=/.test(out)) out += (out ? "; " : "") + "kitpins=" + globalCfg.kitpins;
   }
   return out;
 }
@@ -144,6 +145,6 @@ export async function buildPageContext(context: KitContext): Promise<{ cfg: Rend
   cfg.steadyId  = env.STEADY_PUBLICATION_ID || null;
   cfg.loginUrl  = env.STEADY_LOGIN_URL || (envSteady && envSteady.loginUrl) || null;
   cfg.analytics = env.ANALYTICS_TOKEN || "";       // Cloudflare Web Analytics Beacon-Token
-  const hasPersonalCfg = /(?:^|;\s*)kit(?:struct|chrome)=/.test(cookie);
+  const hasPersonalCfg = /(?:^|;\s*)kit(?:struct|chrome|pins)=/.test(cookie);
   return { cfg: cfg as RenderCfg, cacheControl: hasPersonalCfg ? "no-store" : "public, max-age=300" };
 }

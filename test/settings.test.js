@@ -1,7 +1,7 @@
 // test/settings.test.js — Struktur-Cookie-Parsing + Präzedenz persönlich > global.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseStruct, effectiveCookie } from "../functions/_lib/settings.ts";
+import { parseStruct, effectiveCookie, buildPageContext } from "../functions/_lib/settings.ts";
 
 test("parseStruct ohne Cookie = Default-Seite", () => {
   const s = parseStruct("");
@@ -50,4 +50,17 @@ test("parseStruct: ohne kitpins ist pins eine leere Map", () => {
 
 test("parseStruct: defektes kitpins → leere Map", () => {
   assert.deepEqual(parseStruct("kitpins=%7Bkaputt").pins, {});
+});
+
+test("effectiveCookie: globales kitpins greift ohne persönlichen Cookie", () => {
+  const g = { kitpins: encodeURIComponent(JSON.stringify({ "/": ["g1"] })) };
+  assert.match(effectiveCookie("", g), /kitpins=/);
+  const merged = effectiveCookie("kitpins=" + encodeURIComponent(JSON.stringify({ "/": ["x"] })), g);
+  assert.equal((merged.match(/kitpins=/g) || []).length, 1); // persönlich gewinnt
+});
+
+test("buildPageContext: kitpins-Cookie erzwingt no-store", async () => {
+  const ctx = { env: {}, request: new Request("https://example.com/", { headers: { cookie: "kitpins=%7B%7D" } }) };
+  const { cacheControl } = await buildPageContext(/** @type {any} */ (ctx));
+  assert.equal(cacheControl, "no-store");
 });
