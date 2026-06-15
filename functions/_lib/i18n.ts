@@ -215,6 +215,10 @@ const STRINGS: Record<string, LangStrings> = {
       "nav.grip.aria": "Link verschieben",
       "nav.remove": "Entfernen",
       "palette.dark": " (dunkel)",
+      "pin.add": "Nach oben anpinnen",
+      "pin.remove": "Pin entfernen",
+      "pin.label": "Angepinnt",
+      "pin.max": "Maximal 3 Beiträge pro Bereich.",
       // Katalog-Labels (Anzeige) — Werte/Slugs in kit-theme.js bleiben unverändert.
       cats: {
         "Grotesk": "Grotesk", "Humanistisch": "Humanistisch", "Geometrisch": "Geometrisch",
@@ -412,6 +416,10 @@ const STRINGS: Record<string, LangStrings> = {
       "nav.grip.aria": "Move link",
       "nav.remove": "Remove",
       "palette.dark": " (dark)",
+      "pin.add": "Pin to top",
+      "pin.remove": "Remove pin",
+      "pin.label": "Pinned",
+      "pin.max": "Maximum 3 posts per section.",
       cats: {
         "Grotesk": "Grotesque", "Humanistisch": "Humanist", "Geometrisch": "Geometric",
         "Condensed": "Condensed", "Neuer": "New", "Serif Display": "Serif display", "Serif Text": "Serif text",
