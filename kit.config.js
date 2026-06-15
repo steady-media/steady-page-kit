@@ -1,8 +1,11 @@
 // @ts-check
 // kit.config.js — die Einstellungen DEINER Publikation. / YOUR publication's settings.
 //
-// Diese Installation: Blaupause (Deployment-Fork des Templates
-// https://github.com/seboess/steady-page-kit — Updates: docs/agent/UPDATE.md).
+// Dies ist die EINZIGE Datei, die du als Publisher ausfüllen musst. Alternativ
+// kannst du alle Werte beim Deploy per Env setzen (STEADY_SLUG, SITE_ORIGIN,
+// STEADY_PUBLICATION_ID …) und diese Datei generisch lassen — siehe .env.example.
+// Branding (Name, Navigation, Logo, Farben) lässt sich auch im Anpassen-Panel
+// global speichern („Für alle Besucher speichern").
 //
 // Secrets gehören NICHT hierher (Admin-Code, Volltext-Feed-URL) — die liegen in
 // .env (Node) bzw. .dev.vars / Cloudflare-Secrets. Siehe .env.example.
@@ -10,36 +13,32 @@
 /** @type {import("./functions/_lib/types.ts").KitConfig} */
 export default {
   // Anzeigename der Publikation / display name of your publication.
-  publication: "Blaupause",
+  publication: "",
 
   // Autor:in (optional; Meta-Daten) / author (optional; used in meta data).
-  author: "Sebastian Esser",
+  author: "",
 
   // Sprache der Oberfläche: "de" oder "en". / UI language of the site.
   language: "de",
 
   // Kanonische URL der fertigen Seite, ohne Slash am Ende.
-  siteOrigin: "https://neu.blaupause.community",
+  siteOrigin: "",
 
   steady: {
     // Dein Steady-Slug — der Teil hinter steady.page/ in deiner Publikations-URL.
-    slug: "sebastian",
+    slug: "",
 
     // Steady-Publikations-ID (UUID) — lädt das Steady-Widget (Login/Paywall/Checkout).
-    publicationId: "ab2d81e4-59a5-4097-a668-110ad2cd3256",
+    publicationId: "",
   },
 
   // Überschrift, mit der im Steady-Editor der Mitglieder-Teil beginnt.
   // "" = Sprach-Default („Mitglieder-Bereich" / "Members only").
   memberHeading: "",
 
-  // Navigation: explizit gesetzt, um die bisherigen Blaupause-Labels zu erhalten
-  // („Ausgaben" statt Kit-Default „Beiträge").
-  nav: [
-    { l: "Ausgaben", h: "/" },
-    { l: "Mitglied werden", h: "/memberships" },
-    { l: "Newsletter anmelden", h: "https://steady.page/de/sebastian/newsletter/sign_up", x: true },
-  ],
+  // Navigation: null = Kit-Default (Beiträge / Mitglied werden / Newsletter).
+  // Eigene Labels/Links hier setzen — oder im Anpassen-Panel global speichern.
+  nav: null,
 
   // Feinheiten / tuning
   perPage: 12,      // Teaser pro Seite / teasers per page
