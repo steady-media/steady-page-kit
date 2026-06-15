@@ -30,6 +30,7 @@ export async function onRequestPut(context: KitContext): Promise<Response> {
     skin: (body.skin && typeof body.skin === "object") ? body.skin : {},
     kitstruct: typeof body.kitstruct === "string" ? body.kitstruct.slice(0, 2000) : "",
     kitchrome: typeof body.kitchrome === "string" ? body.kitchrome.slice(0, 8000) : "",
+    kitpins: typeof body.kitpins === "string" ? body.kitpins.slice(0, 8000) : "",
     ts: Date.now(),
   });
   if (blob.length > MAX_BYTES) return jsonResponse({ error: "too_large" }, 413);
