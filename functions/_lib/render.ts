@@ -178,13 +178,15 @@ export function applyPins(items: FeedItem[], guids?: string[]): FeedItem[] {
 
 /** Landing (/): Komposition laut cfg — Default ist einspaltig/Split-Hero/Liste. */
 export function renderLanding(items: FeedItem[], page: number = 1, cfg: RenderCfg): string {
-  cfg = cfg || { shell: "single", auf: "klein", stream: "liste", rails: [] } as unknown as RenderCfg;
+  cfg = cfg || { shell: "single", auf: "klein", stream: "liste", rails: [], pins: {} } as unknown as RenderCfg;
   if (!items.length) return renderEmpty(cfg);
 
-  const heroIdx = PINNED_GUID ? Math.max(0, items.findIndex(i => i.guid === PINNED_GUID)) : 0;
-  const hero = items[heroIdx];
-  const rest = items.filter((_, i) => i !== heroIdx);
-  const cats = topCategories(items);
+  const pinList = (cfg.pins && cfg.pins["/"]) || [];
+  const items2 = applyPins(items, pinList);
+  const heroIdx = pinList.length ? 0 : (PINNED_GUID ? Math.max(0, items2.findIndex(i => i.guid === PINNED_GUID)) : 0);
+  const hero = items2[heroIdx];
+  const rest = items2.filter((_, i) => i !== heroIdx);
+  const cats = topCategories(items2);
   // Top-Section-Teaser disjunkt verteilen, damit kein Teaser doppelt erscheint:
   // Lead-Reihe (unter dem Aufmacher) bekommt die frischesten, dann Neueste/Meistgelesen.
   const leadItems    = rest.slice(0, 4);

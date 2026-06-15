@@ -2,7 +2,7 @@
 // + Smoke-Test, dass renderPost die SEO- und Paywall-Bausteine wirklich ausgibt.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { prepareFullText, renderPost, renderOnboarding, applyPins } from "../functions/_lib/render.ts";
+import { prepareFullText, renderPost, renderOnboarding, applyPins, renderLanding } from "../functions/_lib/render.ts";
 import { STEADY_PUBLICATION_ID, SITE_ORIGIN } from "../functions/_lib/config.ts";
 
 const FULL = `<h1>Mein Titel</h1><p>Die Lede aus dem Feed.</p><p>Öffentlicher Absatz.</p>
@@ -82,6 +82,18 @@ test("applyPins: leere/fehlende Liste = No-Op", () => {
 });
 test("applyPins: unbekannte GUIDs übersprungen, Duplikate dedupliziert", () => {
   assert.deepEqual(ids(applyPins(PINITEMS, ["gX", "g2", "g2"])), ["g2", "g1", "g3", "g4"]);
+});
+
+const LANDITEMS = ["g1", "g2", "g3", "g4", "g5"].map((g) => ({
+  title: "Titel-" + g, description: "Teaser " + g, categories: ["x"],
+  image: "", link: "", guid: g, pubDate: "Mon, 17 Mar 2025 08:00:00 +0000", content: "",
+}));
+
+test("renderLanding: Pin 1 wird Hero, Reihenfolge respektiert", () => {
+  const cfg = { shell: "single", auf: "klein", stream: "liste", rails: [], pins: { "/": ["g3", "g1"] } };
+  const html = renderLanding(LANDITEMS, 1, /** @type {any} */ (cfg));
+  assert.match(html, /hero__title[^]*\/posts\/g3/); // g3 ist der Hero
+  assert.ok(html.indexOf("/posts/g3") < html.indexOf("/posts/g1")); // g3 vor g1
 });
 
 test(
