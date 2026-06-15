@@ -235,11 +235,12 @@ export function renderLanding(items: FeedItem[], page: number = 1, cfg: RenderCf
 
 /** Rubrik-Seite (/rubrik/:slug): Aufmacher (erster Beitrag) + Raster + „Mehr laden". */
 export function renderSection(category: string, items: FeedItem[], allItems: FeedItem[], page: number = 1, cfg: RenderCfg): string {
-  cfg = cfg || { shell: "single", auf: "klein", stream: "liste", rails: [] } as unknown as RenderCfg;
+  cfg = cfg || { shell: "single", auf: "klein", stream: "liste", rails: [], pins: {} } as unknown as RenderCfg;
   const slug = slugify(category);
   const display = category.charAt(0).toUpperCase() + category.slice(1);
-  const featured = items[0];
-  const rest = items.slice(1);
+  const ordered = applyPins(items, cfg.pins && cfg.pins["rubrik/" + slug]);
+  const featured = ordered[0];
+  const rest = ordered.slice(1);
   const pages = Math.max(1, Math.ceil(rest.length / PER_PAGE));
   const p = Math.min(Math.max(1, page), pages);
   const slice = rest.slice((p - 1) * PER_PAGE, p * PER_PAGE);
