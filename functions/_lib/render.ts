@@ -183,7 +183,10 @@ export function renderLanding(items: FeedItem[], page: number = 1, cfg: RenderCf
 
   const pinList = (cfg.pins && cfg.pins["/"]) || [];
   const items2 = applyPins(items, pinList);
-  const heroIdx = pinList.length ? 0 : (PINNED_GUID ? Math.max(0, items2.findIndex(i => i.guid === PINNED_GUID)) : 0);
+  // pinsApplied nur, wenn mind. ein Pin wirklich im Feed lag (applyPins gibt sonst
+  // dieselbe Referenz zurück) — sind alle Pins veraltet, greift weiter PINNED_GUID.
+  const pinsApplied = items2 !== items;
+  const heroIdx = pinsApplied ? 0 : (PINNED_GUID ? Math.max(0, items2.findIndex(i => i.guid === PINNED_GUID)) : 0);
   const hero = items2[heroIdx];
   const rest = items2.filter((_, i) => i !== heroIdx);
   const cats = topCategories(items2);
