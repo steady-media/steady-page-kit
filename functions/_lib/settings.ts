@@ -24,7 +24,7 @@ export function isConfigured(cfg: { feedUrl?: string | null } | null | undefined
 
 /** Default-Struktur = einspaltige Seite mit Split-Hero und flacher Liste. */
 export function parseStruct(cookie: string | null | undefined): StructCfg {
-  const def: StructCfg = { shell: "single", auf: "klein", stream: "liste", rails: [],
+  const def: StructCfg = { shell: "single", auf: "klein", stream: "liste", rails: [], pins: {},
                 headerStyle: "links", search: false, brand: "", nav: null, foot: null };
   if (!cookie) return def;
 
@@ -55,6 +55,24 @@ export function parseStruct(cookie: string | null | undefined): StructCfg {
       if (Array.isArray(o.foot)) def.foot = o.foot.filter((n: NavEntry) => n && n.l).slice(0, 8)
         .map((n: NavEntry) => ({ l: String(n.l).slice(0, 40), h: String(n.h || "#").slice(0, 300), x: !!n.x }));
     } catch (e) { /* defekter Cookie → Default-Nav */ }
+  }
+
+  // kitpins = JSON {scope: [guid,…]} — angepinnte Beiträge je Bereich, hart gedeckelt.
+  const pm = cookie.match(/(?:^|;\s*)kitpins=([^;]*)/);
+  if (pm) {
+    try {
+      const o = JSON.parse(decodeURIComponent(pm[1])) as Record<string, unknown>;
+      if (o && typeof o === "object") {
+        let scopes = 0;
+        for (const k in o) {
+          if (scopes++ >= 40) break;
+          const v = o[k];
+          if (!Array.isArray(v)) continue;
+          const list = v.filter((g): g is string => typeof g === "string" && !!g && g.length <= 200).slice(0, 3);
+          if (list.length) def.pins[String(k).slice(0, 120)] = list;
+        }
+      }
+    } catch (e) { /* defekter Cookie → leere Map */ }
   }
   return def;
 }

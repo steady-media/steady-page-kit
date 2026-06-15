@@ -36,3 +36,18 @@ test("effectiveCookie: persönlicher Cookie schlägt globale Struktur", () => {
   assert.equal((merged.match(/kitstruct=/g) || []).length, 1);
   assert.match(merged, /kitchrome=/); // fehlendes kitchrome kommt weiterhin aus global
 });
+
+test("parseStruct: kitpins wird gelesen, je Scope auf 3 gedeckelt", () => {
+  const val = encodeURIComponent(JSON.stringify({ "/": ["g1", "g2", "g3", "g4"], "rubrik/politik": ["a"] }));
+  const s = parseStruct("kitpins=" + val);
+  assert.deepEqual(s.pins["/"], ["g1", "g2", "g3"]);
+  assert.deepEqual(s.pins["rubrik/politik"], ["a"]);
+});
+
+test("parseStruct: ohne kitpins ist pins eine leere Map", () => {
+  assert.deepEqual(parseStruct("").pins, {});
+});
+
+test("parseStruct: defektes kitpins → leere Map", () => {
+  assert.deepEqual(parseStruct("kitpins=%7Bkaputt").pins, {});
+});
