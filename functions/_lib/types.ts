@@ -143,6 +143,8 @@ export interface GlobalConfig {
   kitstruct?: string;
   /** Serialisierter kitchrome-Cookie-Wert (JSON: {brand, nav}) */
   kitchrome?: string;
+  /** Serialisierter kitpins-Cookie-Wert (JSON: {scope: [guid]}) */
+  kitpins?: string;
   /** Unix-Timestamp der letzten Speicherung */
   ts?: number;
 }
@@ -185,6 +187,8 @@ export interface StructCfg {
   nav: Array<{ l: string; h: string; x: boolean }> | null;
   /** Footer-Links (aus kitchrome-Cookie) oder null = keine Links */
   foot: Array<{ l: string; h: string; x: boolean }> | null;
+  /** Angepinnte Beiträge je Bereich: scope ("/" | "rubrik/<slug>") → GUID-Liste (max 3). */
+  pins: Record<string, string[]>;
 }
 
 /**

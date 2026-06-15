@@ -2,7 +2,7 @@
 // + Smoke-Test, dass renderPost die SEO- und Paywall-Bausteine wirklich ausgibt.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { prepareFullText, renderPost, renderOnboarding } from "../functions/_lib/render.ts";
+import { prepareFullText, renderPost, renderOnboarding, applyPins, renderLanding, renderSection } from "../functions/_lib/render.ts";
 import { STEADY_PUBLICATION_ID, SITE_ORIGIN } from "../functions/_lib/config.ts";
 
 const FULL = `<h1>Mein Titel</h1><p>Die Lede aus dem Feed.</p><p>Öffentlicher Absatz.</p>
@@ -66,6 +66,47 @@ test("renderPost: SEO-Meta, echte Reaktionen, Nachbar-Navigation", () => {
   assert.ok(html.includes('id="js-clap-n">7<'));            // Clap-Zähler aus KV
   assert.ok(!html.includes("post__live"));                  // kein Fake-Live-Dot mehr
   assert.ok(html.includes("Älterer Beitrag"));              // Prev-Link
+});
+
+const PINITEMS = ["g1", "g2", "g3", "g4"].map((g) => ({
+  title: g, description: "", categories: [], image: "", link: "", guid: g, pubDate: "", content: "",
+}));
+const ids = (arr) => arr.map((i) => i.guid);
+
+test("applyPins: gepinnte zuerst in Reihenfolge, Rest chronologisch", () => {
+  assert.deepEqual(ids(applyPins(PINITEMS, ["g3", "g1"])), ["g3", "g1", "g2", "g4"]);
+});
+test("applyPins: leere/fehlende Liste = No-Op", () => {
+  assert.deepEqual(ids(applyPins(PINITEMS, [])), ["g1", "g2", "g3", "g4"]);
+  assert.deepEqual(ids(applyPins(PINITEMS, undefined)), ["g1", "g2", "g3", "g4"]);
+});
+test("applyPins: unbekannte GUIDs übersprungen, Duplikate dedupliziert", () => {
+  assert.deepEqual(ids(applyPins(PINITEMS, ["gX", "g2", "g2"])), ["g2", "g1", "g3", "g4"]);
+});
+
+const LANDITEMS = ["g1", "g2", "g3", "g4", "g5"].map((g) => ({
+  title: "Titel-" + g, description: "Teaser " + g, categories: ["x"],
+  image: "", link: "", guid: g, pubDate: "Mon, 17 Mar 2025 08:00:00 +0000", content: "",
+}));
+
+test("renderLanding: Pin 1 wird Hero, Reihenfolge respektiert", () => {
+  const cfg = { shell: "single", auf: "klein", stream: "liste", rails: [], pins: { "/": ["g3", "g1"] } };
+  const html = renderLanding(LANDITEMS, 1, /** @type {any} */ (cfg));
+  assert.match(html, /hero__title[^]*\/posts\/g3/); // g3 ist der Hero
+  assert.ok(html.indexOf("/posts/g3") < html.indexOf("/posts/g1")); // g3 vor g1
+});
+
+test("renderSection: Pin 1 wird Featured der Sektion", () => {
+  const items = ["g1", "g2", "g3"].map((g) => ({
+    title: "T-" + g, description: "", categories: ["politik"], image: "", link: "",
+    guid: g, pubDate: "Mon, 17 Mar 2025 08:00:00 +0000", content: "",
+  }));
+  const cfg = { shell: "single", auf: "klein", stream: "liste", rails: [], pins: { "rubrik/politik": ["g2"] } };
+  const html = renderSection("politik", items, items, 1, /** @type {any} */ (cfg));
+  // Präzise: der Aufmacher-Titel verlinkt g2 (nicht irgendwo im Grid).
+  assert.ok(html.includes('class="aufmacher__title"><a href="/posts/g2"'));
+  // Diskriminierend: Featured (g2) steht im HTML vor dem Grid (g1).
+  assert.ok(html.indexOf("/posts/g2") < html.indexOf("/posts/g1"));
 });
 
 test(

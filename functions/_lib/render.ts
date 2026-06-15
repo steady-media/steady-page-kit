@@ -156,17 +156,40 @@ function rubrikStream(rest: FeedItem[], cats: string[], leadItems: FeedItem[]): 
   }).join("");
 }
 
+/**
+ * Gepinnte Beiträge (in Reihenfolge, nur im Feed vorhandene, dedupliziert) nach vorn
+ * ziehen; der Rest bleibt in Feed-Reihenfolge. Leere/fehlende Liste = unverändert.
+ */
+export function applyPins(items: FeedItem[], guids?: string[]): FeedItem[] {
+  if (!guids || !guids.length) return items;
+  const byGuid = new Map(items.map(it => [it.guid, it]));
+  const seen = new Set<string>();
+  const pinned: FeedItem[] = [];
+  for (const g of guids) {
+    if (seen.has(g)) continue;
+    const it = byGuid.get(g);
+    if (it) { pinned.push(it); seen.add(g); }
+  }
+  if (!pinned.length) return items;
+  return pinned.concat(items.filter(it => !seen.has(it.guid)));
+}
+
 /* ------------------------------------------------------------------ Seiten */
 
 /** Landing (/): Komposition laut cfg — Default ist einspaltig/Split-Hero/Liste. */
 export function renderLanding(items: FeedItem[], page: number = 1, cfg: RenderCfg): string {
-  cfg = cfg || { shell: "single", auf: "klein", stream: "liste", rails: [] } as unknown as RenderCfg;
+  cfg = cfg || { shell: "single", auf: "klein", stream: "liste", rails: [], pins: {} } as unknown as RenderCfg;
   if (!items.length) return renderEmpty(cfg);
 
-  const heroIdx = PINNED_GUID ? Math.max(0, items.findIndex(i => i.guid === PINNED_GUID)) : 0;
-  const hero = items[heroIdx];
-  const rest = items.filter((_, i) => i !== heroIdx);
-  const cats = topCategories(items);
+  const pinList = (cfg.pins && cfg.pins["/"]) || [];
+  const items2 = applyPins(items, pinList);
+  // pinsApplied nur, wenn mind. ein Pin wirklich im Feed lag (applyPins gibt sonst
+  // dieselbe Referenz zurück) — sind alle Pins veraltet, greift weiter PINNED_GUID.
+  const pinsApplied = items2 !== items;
+  const heroIdx = pinsApplied ? 0 : (PINNED_GUID ? Math.max(0, items2.findIndex(i => i.guid === PINNED_GUID)) : 0);
+  const hero = items2[heroIdx];
+  const rest = items2.filter((_, i) => i !== heroIdx);
+  const cats = topCategories(items2);
   // Top-Section-Teaser disjunkt verteilen, damit kein Teaser doppelt erscheint:
   // Lead-Reihe (unter dem Aufmacher) bekommt die frischesten, dann Neueste/Meistgelesen.
   const leadItems    = rest.slice(0, 4);
@@ -215,11 +238,12 @@ export function renderLanding(items: FeedItem[], page: number = 1, cfg: RenderCf
 
 /** Rubrik-Seite (/rubrik/:slug): Aufmacher (erster Beitrag) + Raster + „Mehr laden". */
 export function renderSection(category: string, items: FeedItem[], allItems: FeedItem[], page: number = 1, cfg: RenderCfg): string {
-  cfg = cfg || { shell: "single", auf: "klein", stream: "liste", rails: [] } as unknown as RenderCfg;
+  cfg = cfg || { shell: "single", auf: "klein", stream: "liste", rails: [], pins: {} } as unknown as RenderCfg;
   const slug = slugify(category);
   const display = category.charAt(0).toUpperCase() + category.slice(1);
-  const featured = items[0];
-  const rest = items.slice(1);
+  const ordered = applyPins(items, cfg.pins && cfg.pins["rubrik/" + slug]);
+  const featured = ordered[0];
+  const rest = ordered.slice(1);
   const pages = Math.max(1, Math.ceil(rest.length / PER_PAGE));
   const p = Math.min(Math.max(1, page), pages);
   const slice = rest.slice((p - 1) * PER_PAGE, p * PER_PAGE);

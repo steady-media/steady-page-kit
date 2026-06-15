@@ -655,6 +655,7 @@ var _w = /** @type {any} */ (window);
       .forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
     document.cookie = "kitstruct=;path=/;max-age=0";
     document.cookie = "kitchrome=;path=/;max-age=0";
+    document.cookie = "kitpins=;path=/;max-age=0";
     location.reload();
   });
 
@@ -678,7 +679,7 @@ var _w = /** @type {any} */ (window);
         for (var j = 0; j < parts.length; j++) if (parts[j].indexOf(name + "=") === 0) return parts[j].slice(name.length + 1);
         return "";
       }
-      var payload = { skin: skin, kitstruct: cookieValue("kitstruct"), kitchrome: cookieValue("kitchrome") };
+      var payload = { skin: skin, kitstruct: cookieValue("kitstruct"), kitchrome: cookieValue("kitchrome"), kitpins: cookieValue("kitpins") };
       var orig = _pubBtn.textContent;
       _pubBtn.disabled = true;
       _pubBtn.textContent = T("pub.saving", "Speichert …");
@@ -785,4 +786,88 @@ var _w = /** @type {any} */ (window);
       }).catch(function () { _loadMoreBtn.disabled = false; _loadMoreBtn.textContent = T("loadmore", "Mehr laden"); });
     });
   }
+
+  /* ---------------------------------------------------------------- Beiträge anpinnen */
+  // Nur für Admins (kitAdmin vorhanden) und nur sichtbar im Editing-Modus (html.cz-on,
+  // per CSS). Pins liegen im kitpins-Cookie {scope:[guid]}; Scope = aktuelle Seite.
+  /** @returns {string|null} "/" | "rubrik/<slug>" | null */
+  function pinScope() {
+    var p = location.pathname;
+    if (p === "/" || p === "") return "/";
+    var m = p.match(/^\/rubrik\/([^/]+)\/?$/);
+    return m ? "rubrik/" + decodeURIComponent(m[1]) : null;
+  }
+  /** @returns {Record<string,string[]>} */
+  function pinsRead() {
+    var m = document.cookie.match(/(?:^|;\s*)kitpins=([^;]*)/);
+    if (!m) return {};
+    try { var o = JSON.parse(decodeURIComponent(m[1])); return (o && typeof o === "object") ? o : {}; }
+    catch (e) { return {}; }
+  }
+  /** @param {Record<string,string[]>} map */
+  function pinsWrite(map) {
+    document.cookie = "kitpins=" + encodeURIComponent(JSON.stringify(map)) + ";path=/;max-age=31536000";
+    location.reload();
+  }
+  var PIN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.8V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6.8a2 2 0 0 0 1.1 1.8l1.8.9A2 2 0 0 1 19 15.2V16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-.8a2 2 0 0 1 1.1-1.8l1.8-.9A2 2 0 0 0 9 10.8Z"/></svg>';
+  (function () {
+    var scope = pinScope();
+    var isAdmin = false;
+    try { isAdmin = !!localStorage.getItem("kitAdmin"); } catch (e) {}
+    if (!scope || !isAdmin) return;
+    /** @type {string} */ var activeScope = scope;
+    var list = (function () { var l = pinsRead()[activeScope]; return Array.isArray(l) ? l : []; })();
+    // Pinnbare Elemente: Aufmacher/Hero (dort landet Pin 1 — muss lösbar bleiben) + Karten-Familie.
+    var TARGETS = [
+      { sel: "section.hero", meta: ".hero__date" },
+      { sel: "article.aufmacher", meta: ".aufmacher__meta" },
+      { sel: "a.card", meta: ".card__date" },
+      { sel: "a.teaser-row", meta: ".card__date" },
+      { sel: "a.teaser-text", meta: ".card__date" },
+      { sel: "a.feat-main", meta: ".card__date" }
+    ];
+    var els = [];
+    for (var ti = 0; ti < TARGETS.length; ti++) {
+      var found = document.querySelectorAll(TARGETS[ti].sel);
+      for (var fi = 0; fi < found.length; fi++) els.push({ el: found[fi], metaSel: TARGETS[ti].meta });
+    }
+    for (var i = 0; i < els.length; i++) {
+      (function (cardEl, metaSel) {
+        var a = (cardEl.tagName === "A" && cardEl.getAttribute("href")) ? cardEl : cardEl.querySelector('a[href^="/posts/"]');
+        var href = a ? (a.getAttribute("href") || "") : "";
+        var mm = href.match(/^\/posts\/(.+)$/);
+        if (!mm) return;
+        var guid = decodeURIComponent(mm[1]);
+        var meta = cardEl.querySelector(metaSel);
+        if (!meta || meta.querySelector(".card__pin")) return;
+        var pinned = list.indexOf(guid) >= 0;
+        var btn = document.createElement("span");
+        btn.className = "card__pin" + (pinned ? " is-pinned" : "");
+        btn.setAttribute("role", "button");
+        btn.setAttribute("tabindex", "0");
+        btn.setAttribute("aria-pressed", pinned ? "true" : "false");
+        btn.setAttribute("aria-label", pinned ? T("pin.remove", "Pin entfernen") : T("pin.add", "Nach oben anpinnen"));
+        btn.innerHTML = PIN_SVG + '<span class="card__pin-t">' + T("pin.label", "Angepinnt") + "</span>";
+        /** @param {Event} e */
+        function toggle(e) {
+          e.preventDefault(); e.stopPropagation();
+          var map = pinsRead();
+          var l = Array.isArray(map[activeScope]) ? map[activeScope].slice() : [];
+          var at = l.indexOf(guid);
+          if (at >= 0) { l.splice(at, 1); }
+          else {
+            if (l.length >= 3) { alert(T("pin.max", "Maximal 3 Beiträge pro Bereich.")); return; }
+            l.push(guid);
+          }
+          if (l.length) map[activeScope] = l; else delete map[activeScope];
+          pinsWrite(map);
+        }
+        btn.addEventListener("click", toggle);
+        btn.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") { toggle(e); }
+        });
+        meta.appendChild(btn);
+      })(els[i].el, els[i].metaSel);
+    }
+  })();
 })();

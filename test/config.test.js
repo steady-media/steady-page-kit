@@ -75,3 +75,39 @@ test("effectiveFeedUrl: Präzedenz FEED_URL > STEADY_SLUG > kit.config.js", () =
   assert.equal(effectiveFeedUrl({}), FEED_URL);
   assert.equal(effectiveFeedUrl(null), FEED_URL);
 });
+
+// --- PUT /api/config: kitpins persistieren (admin-gated) ---
+import { onRequestPut } from "../functions/api/config.ts";
+
+function memKV() {
+  const m = new Map();
+  return {
+    get: async (k) => (m.has(k) ? m.get(k) : null),
+    put: async (k, v) => { m.set(k, v); },
+    delete: async (k) => { m.delete(k); },
+  };
+}
+
+test("PUT /api/config speichert kitpins (mit Admin-Code)", async () => {
+  const kv = memKV();
+  const env = { KIT_KV: kv, KIT_ADMIN_CODE: "secret" };
+  const pins = JSON.stringify({ "/": ["g1"] });
+  const req = new Request("https://x/api/config", {
+    method: "PUT",
+    headers: { "x-kit-admin": "secret", "content-type": "application/json" },
+    body: JSON.stringify({ skin: {}, kitstruct: "", kitchrome: "", kitpins: pins }),
+  });
+  const res = await onRequestPut(/** @type {any} */ ({ request: req, env }));
+  assert.equal(res.status, 200);
+  const saved = JSON.parse(await kv.get("config"));
+  assert.equal(saved.kitpins, pins);
+});
+
+test("PUT /api/config ohne Admin-Code → 401", async () => {
+  const env = { KIT_KV: memKV(), KIT_ADMIN_CODE: "secret" };
+  const req = new Request("https://x/api/config", {
+    method: "PUT", headers: { "content-type": "application/json" }, body: "{}",
+  });
+  const res = await onRequestPut(/** @type {any} */ ({ request: req, env }));
+  assert.equal(res.status, 401);
+});
