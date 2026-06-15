@@ -109,6 +109,12 @@ test("renderSection: Pin 1 wird Featured der Sektion", () => {
   assert.ok(html.indexOf("/posts/g2") < html.indexOf("/posts/g1"));
 });
 
+test("renderPost: cfg.brand treibt <title> und og:site_name", () => {
+  const html = renderPost(ITEM, /** @type {any} */ ({ brand: "Marke X" }), "", {});
+  assert.match(html, /<title>[^<]*Marke X<\/title>/);
+  assert.match(html, /property="og:site_name" content="Marke X"/);
+});
+
 test(
   "renderPost: ohne Publikations-ID und Origin kein Widget-Script, kein Canonical",
   // In Publisher-Forks ist kit.config.js gefüllt → Defaults sind gesetzt, der

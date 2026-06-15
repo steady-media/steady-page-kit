@@ -1,7 +1,7 @@
 // _lib/page.js — Seitengerüst: <head> (inkl. SEO/OG), Header (Brand + Login + Nav + Suche), Footer.
 // Die Render-Funktionen (render.js) setzen Seiten als head() + header() + Inhalt + footer() zusammen.
 
-import { PUBLICATION, SITE_ORIGIN, STEADY_PUBLICATION_ID, STEADY_LOGIN_URL, DEFAULT_NAV, ASSET_VERSION } from "./config.ts";
+import { PUBLICATION, SITE_ORIGIN, STEADY_PUBLICATION_ID, STEADY_LOGIN_URL, DEFAULT_NAV, ASSET_VERSION, publicationName } from "./config.ts";
 import { LANGUAGE, LOCALE, t, clientStrings } from "./i18n.ts";
 import { esc } from "./util.ts";
 import { ICON_SEARCH } from "./icons.ts";
@@ -32,6 +32,7 @@ export function head(title: string, cfg: RenderCfg = {} as RenderCfg, meta: Page
   const v = ASSET_VERSION;
   const origin = cfg.site || SITE_ORIGIN;
   const steadyId = cfg.steadyId || STEADY_PUBLICATION_ID;
+  const pub = publicationName(cfg);
 
   const kitGlobal = (cfg.skin && typeof cfg.skin === "object")
     ? `<script>window.KIT_GLOBAL=${inlineJson(cfg.skin)};</script>`
@@ -43,7 +44,7 @@ export function head(title: string, cfg: RenderCfg = {} as RenderCfg, meta: Page
   // canonical/og:url nur mit bekannter Origin (kit.config.js siteOrigin bzw.
   // SITE_ORIGIN-Env) — relative Canonicals stiften mehr Verwirrung als Nutzen.
   if (meta.path && origin) tags.push(`<link rel="canonical" href="${esc(origin + meta.path)}"/>`);
-  tags.push(`<meta property="og:site_name" content="${esc(PUBLICATION)}"/>`);
+  tags.push(`<meta property="og:site_name" content="${esc(pub)}"/>`);
   tags.push(`<meta property="og:locale" content="${LOCALE.og}"/>`);
   tags.push(`<meta property="og:type" content="${esc(meta.type || "website")}"/>`);
   tags.push(`<meta property="og:title" content="${esc(title)}"/>`);
@@ -65,7 +66,7 @@ export function head(title: string, cfg: RenderCfg = {} as RenderCfg, meta: Page
 <title>${esc(title)}</title>
 ${tags.join("\n")}
 <link rel="icon" href="/assets/favicon.svg"/>
-<link rel="alternate" type="application/rss+xml" title="${esc(PUBLICATION)}" href="/rss"/>
+<link rel="alternate" type="application/rss+xml" title="${esc(pub)}" href="/rss"/>
 <link rel="preconnect" href="https://fonts.bunny.net" crossorigin/>
 <link id="kit-font-css" href="https://fonts.bunny.net/css?family=inter:400,500,600,700,900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/assets/kit.css?v=${v}"/>
@@ -75,7 +76,7 @@ ${kitGlobal}
      auf die generische Marken-Grafik wechseln statt grauer Fläche. Capture-Phase,
      da error-Events nicht bubblen; data-fb verhindert Endlosschleifen. -->
 <script>addEventListener("error",function(e){var t=e.target;if(t&&t.tagName==="IMG"&&!t.dataset.fb&&(/__media/.test(t.className)||(t.closest&&t.closest(".post__hero")))){t.dataset.fb=1;t.src="/assets/teaser-fallback.svg?v=${v}";}},true);</script>
-<script>window.KIT_DEFAULT_BRAND=${inlineJson(PUBLICATION)};window.KIT_DEFAULT_NAV=${inlineJson(DEFAULT_NAV)};window.KIT_LANG=${inlineJson(LANGUAGE)};window.KIT_LOCALE=${inlineJson(LOCALE.intl)};window.KIT_I18N=${inlineJson(clientStrings())};</script>
+<script>window.KIT_DEFAULT_BRAND=${inlineJson(pub)};window.KIT_DEFAULT_NAV=${inlineJson(DEFAULT_NAV)};window.KIT_LANG=${inlineJson(LANGUAGE)};window.KIT_LOCALE=${inlineJson(LOCALE.intl)};window.KIT_I18N=${inlineJson(clientStrings())};</script>
 <!-- Steady Smart Layers / Checkout / Paywall — der echte Steady-Layer.
      Ohne Publikations-ID kein Script-Tag (sonst lädt eine kaputte URL). -->
 ${steadyId ? `<script type="text/javascript" src="https://steady.page/widget_loader/${esc(steadyId)}"></script>` : ""}
@@ -98,7 +99,7 @@ function navLinksHtml(nav: KitNavItem[], activePath: string): string {
  * Wird sowohl im Header als auch im Footer verwendet — Markup byte-identisch.
  */
 function brandBlock(cfg: RenderCfg, opts: { iconOnly?: boolean } = {}): string {
-  const brand = (cfg.brand && cfg.brand.trim()) ? cfg.brand : PUBLICATION;
+  const brand = publicationName(cfg);
   const lg = cfg.logo;
   // opts.iconOnly: nur das Marken-Icon, keine Wortmarke, kein KV-Logo (Footer).
   //   Der Name bleibt als aria-label am Link erhalten (Screenreader).

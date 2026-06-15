@@ -53,6 +53,12 @@ const derived = deriveSteady(STEADY_SLUG, LANGUAGE);
 export const PUBLICATION = String(kit.publication || "").trim() || t("publication.fallback");
 export const AUTHOR = String(kit.author || "").trim();
 
+/** Effektiver Anzeigename: veröffentlichtes Brand (KV/Cookie, cfg.brand) vor kit.config-Default. */
+export function publicationName(cfg?: { brand?: string | null } | null): string {
+  const b = cfg && cfg.brand ? String(cfg.brand).trim() : "";
+  return b || PUBLICATION;
+}
+
 // Kanonische Origin dieser Installation (canonical/OG-URLs, Sitemap, robots).
 // Leer = Links bleiben relativ sinnvoll, doctor warnt. env-überschreibbar: SITE_ORIGIN
 export const SITE_ORIGIN = String(kit.siteOrigin || "").trim().replace(/\/+$/, "");

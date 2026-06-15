@@ -6,7 +6,7 @@
 // Die Top-Section verteilt Teaser DISJUNKT (Hero, Lead-Reihe, Neueste, Meistgelesen),
 // damit kein Beitrag oben doppelt erscheint.
 
-import { PUBLICATION, PER_PAGE, PINNED_GUID, MEMBER_HEADING } from "./config.ts";
+import { PUBLICATION, PER_PAGE, PINNED_GUID, MEMBER_HEADING, publicationName } from "./config.ts";
 import { t } from "./i18n.ts";
 import { esc, fmtDate, slugify, teaser } from "./util.ts";
 import { normTitle, topCategories } from "./feed.ts";
@@ -228,11 +228,11 @@ export function renderLanding(items: FeedItem[], page: number = 1, cfg: RenderCf
   }
 
   const meta = {
-    desc: cfg.channelDesc || t("landing.desc", { name: PUBLICATION }),
+    desc: cfg.channelDesc || t("landing.desc", { name: publicationName(cfg) }),
     path: "/",
     image: hero.image ? teaser(hero.image, 1200, 630) : "",
   };
-  return head(PUBLICATION, cfg, meta) + header({ tabs: true, activePath: "/" }, cfg) + `
+  return head(publicationName(cfg), cfg, meta) + header({ tabs: true, activePath: "/" }, cfg) + `
 <main id="main">${top}${stream}</main>` + footer(cfg);
 }
 
@@ -254,18 +254,18 @@ export function renderSection(category: string, items: FeedItem[], allItems: Fee
   const countLabel = t(count === 1 ? "rubrik.count.one" : "rubrik.count.other", { n: count });
   const aufmacher = featured ? `<section class="aufmacher-band"><div class="container">
     <header class="section-head">
-      <a class="post__back" href="/">${ICON_BACK} ${esc(PUBLICATION)}</a>
+      <a class="post__back" href="/">${ICON_BACK} ${esc(publicationName(cfg))}</a>
       <h1 class="section-title">${esc(display)}</h1>
       <p class="section-count">${esc(countLabel)}</p>
     </header>
     ${aufmacherArticle(featured, true, true, "h2")}
   </div></section>` : "";
   const meta = {
-    desc: t("rubrik.desc", { category: display, name: PUBLICATION }),
+    desc: t("rubrik.desc", { category: display, name: publicationName(cfg) }),
     path: "/rubrik/" + slug,
     image: (featured && featured.image) ? teaser(featured.image, 1200, 630) : "",
   };
-  return head(display + " — " + PUBLICATION, cfg, meta) + header({ tabs: true, activePath: "/rubrik/" + slug }, cfg) + `
+  return head(display + " — " + publicationName(cfg), cfg, meta) + header({ tabs: true, activePath: "/rubrik/" + slug }, cfg) + `
 <main id="main">${aufmacher}<div class="container section-body">
   <div class="grid">${slice.map(card).join("")}</div>
   ${more}
@@ -341,7 +341,7 @@ export function renderPost(item: FeedItem, cfg: RenderCfg = {} as RenderCfg, ful
     image: item.image ? teaser(item.image, 1200, 630) : "",
     type: "article",
   };
-  return head(`${item.title} — ${PUBLICATION}`, cfg, meta) + header({ tabs: true, activePath: "" }, cfg) + `
+  return head(`${item.title} — ${publicationName(cfg)}`, cfg, meta) + header({ tabs: true, activePath: "" }, cfg) + `
 <main id="main"><article class="post">
   <div class="post__col">
     <a class="pill post__eyebrow" href="/rubrik/${slugify(cat)}">${esc(cat)}</a>
@@ -366,15 +366,15 @@ export function renderPost(item: FeedItem, cfg: RenderCfg = {} as RenderCfg, ful
 
 /** Fallback, wenn der Feed nicht erreichbar ist. */
 export function renderEmpty(cfg: RenderCfg = {} as RenderCfg): string {
-  return head(PUBLICATION, cfg, { noindex: true }) + header({ tabs: true, activePath: "/" }, cfg) +
+  return head(publicationName(cfg), cfg, { noindex: true }) + header({ tabs: true, activePath: "/" }, cfg) +
     `<main id="main"><div class="container" style="padding:80px 0;color:var(--color-ink-soft)">${esc(t("empty"))}</div></main>` +
     footer(cfg);
 }
 
 /** /memberships: Steady rendert den Checkout in den Container (Backend-Checkout-URL). */
 export function renderMemberships(cfg: RenderCfg = {} as RenderCfg): string {
-  const meta = { desc: t("memberships.desc", { name: PUBLICATION }), path: "/memberships" };
-  return head(t("memberships.title") + " — " + PUBLICATION, cfg, meta) + header({ tabs: true, activePath: "/memberships" }, cfg) + `
+  const meta = { desc: t("memberships.desc", { name: publicationName(cfg) }), path: "/memberships" };
+  return head(t("memberships.title") + " — " + publicationName(cfg), cfg, meta) + header({ tabs: true, activePath: "/memberships" }, cfg) + `
 <main id="main"><div class="container" style="padding:48px 0 72px">
   <h1 style="font-family:var(--font-head);font-size:34px;font-weight:var(--weight-heading);text-align:center;letter-spacing:-.01em;margin:0 0 10px">${esc(t("memberships.title"))}</h1>
   <p style="text-align:center;color:var(--color-ink-soft);font-size:18px;margin:0 0 40px">${esc(t("memberships.sub"))}</p>
@@ -384,7 +384,7 @@ export function renderMemberships(cfg: RenderCfg = {} as RenderCfg): string {
 }
 
 export function render404(cfg: RenderCfg = {} as RenderCfg): string {
-  return head(t("notfound.pagetitle") + " — " + PUBLICATION, cfg, { noindex: true }) + header({ tabs: false }, cfg) +
+  return head(t("notfound.pagetitle") + " — " + publicationName(cfg), cfg, { noindex: true }) + header({ tabs: false }, cfg) +
     `<main id="main"><div class="container" style="padding:80px 0"><h1 style="font-size:32px">${esc(t("notfound.title"))}</h1>
      <p style="color:var(--color-ink-soft)"><a class="btn btn--primary" href="/" style="margin-top:12px">${esc(t("notfound.home"))}</a></p></div></main>` +
     footer(cfg);
