@@ -817,15 +817,29 @@ var _w = /** @type {any} */ (window);
     if (!scope || !isAdmin) return;
     /** @type {string} */ var activeScope = scope;
     var list = (function () { var l = pinsRead()[activeScope]; return Array.isArray(l) ? l : []; })();
-    var cards = document.querySelectorAll("a.card, a.teaser-row, a.teaser-text, a.feat-main");
-    for (var i = 0; i < cards.length; i++) {
-      (function (cardEl) {
-        var href = cardEl.getAttribute("href") || "";
+    // Pinnbare Elemente: Aufmacher/Hero (dort landet Pin 1 — muss lösbar bleiben) + Karten-Familie.
+    var TARGETS = [
+      { sel: "section.hero", meta: ".hero__date" },
+      { sel: "article.aufmacher", meta: ".aufmacher__meta" },
+      { sel: "a.card", meta: ".card__date" },
+      { sel: "a.teaser-row", meta: ".card__date" },
+      { sel: "a.teaser-text", meta: ".card__date" },
+      { sel: "a.feat-main", meta: ".card__date" }
+    ];
+    var els = [];
+    for (var ti = 0; ti < TARGETS.length; ti++) {
+      var found = document.querySelectorAll(TARGETS[ti].sel);
+      for (var fi = 0; fi < found.length; fi++) els.push({ el: found[fi], metaSel: TARGETS[ti].meta });
+    }
+    for (var i = 0; i < els.length; i++) {
+      (function (cardEl, metaSel) {
+        var a = (cardEl.tagName === "A" && cardEl.getAttribute("href")) ? cardEl : cardEl.querySelector('a[href^="/posts/"]');
+        var href = a ? (a.getAttribute("href") || "") : "";
         var mm = href.match(/^\/posts\/(.+)$/);
         if (!mm) return;
         var guid = decodeURIComponent(mm[1]);
-        var meta = cardEl.querySelector(".card__date");
-        if (!meta) return;
+        var meta = cardEl.querySelector(metaSel);
+        if (!meta || meta.querySelector(".card__pin")) return;
         var pinned = list.indexOf(guid) >= 0;
         var btn = document.createElement("span");
         btn.className = "card__pin" + (pinned ? " is-pinned" : "");
@@ -853,7 +867,7 @@ var _w = /** @type {any} */ (window);
           if (e.key === "Enter" || e.key === " ") { toggle(e); }
         });
         meta.appendChild(btn);
-      })(cards[i]);
+      })(els[i].el, els[i].metaSel);
     }
   })();
 })();
