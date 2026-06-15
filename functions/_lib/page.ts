@@ -4,7 +4,7 @@
 import { PUBLICATION, SITE_ORIGIN, STEADY_PUBLICATION_ID, STEADY_LOGIN_URL, DEFAULT_NAV, ASSET_VERSION, publicationName } from "./config.ts";
 import { LANGUAGE, LOCALE, t, clientStrings } from "./i18n.ts";
 import { esc } from "./util.ts";
-import { ICON_SEARCH } from "./icons.ts";
+import { ICON_SEARCH, ICON_PANEL } from "./icons.ts";
 import { panelHtml } from "./panel.ts";
 import type { RenderCfg, KitNavItem } from "./types.ts";
 
@@ -166,7 +166,7 @@ export function footer(cfg: RenderCfg = {} as RenderCfg): string {
   return `<footer class="site-footer"><div class="container site-footer__inner">
   ${brandBlock(cfg, { iconOnly: true })}
   ${footLinks}
-</div></footer><button class="cz-fab" id="cz-open" aria-label="${t("fab")}" title="${t("fab")}">✦</button>
+</div></footer><button class="cz-fab" id="cz-open" aria-label="${t("fab")}" title="${t("fab")}">${ICON_PANEL}</button>
 ${panelHtml()}
 <script src="/assets/kit-panel.js?v=${ASSET_VERSION}"></script>
 </body></html>`;

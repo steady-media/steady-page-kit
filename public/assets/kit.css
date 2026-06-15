@@ -306,7 +306,8 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__hero img
 /* FAB: dezente, vertikal zentrierte Lasche am rechten Rand (kollidiert nicht mit dem Steady-Layer) */
 :root{--cz-w:340px;}
 @media (min-width:960px){html.cz-on body{padding-right:var(--cz-w);transition:padding-right .25s ease-in-out;}}
-.cz-fab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:60;width:34px;height:48px;border-radius:13px 0 0 13px;border:1px solid #E7E7E7;border-right:0;background:rgba(255,255,255,.92);color:#291E38;font-size:15px;cursor:pointer;box-shadow:0 2px 25px rgba(41,30,56,.15);backdrop-filter:blur(5px);transition:color .2s,background .2s;}
+.cz-fab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:60;width:34px;height:48px;border-radius:13px 0 0 13px;border:1px solid #E7E7E7;border-right:0;background:rgba(255,255,255,.92);color:#291E38;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 25px rgba(41,30,56,.15);backdrop-filter:blur(5px);transition:color .2s,background .2s;}
+.cz-fab svg{width:19px;height:19px;}
 .cz-fab:hover{color:#954FCF;background:#fff;}
 html.cz-on .cz-fab{display:none;}
 .cz{position:fixed;top:0;right:0;z-index:61;width:var(--cz-w);max-width:92vw;height:100vh;background:#fff;border-left:1px solid #E7E7E7;border-radius:13px 0 0 13px;box-shadow:0 4px 16px rgba(0,0,0,.17);transform:translateX(100%);transition:transform .25s ease-in-out;display:flex;flex-direction:column;font-family:Inter,system-ui,sans-serif;color:#291E38;}
