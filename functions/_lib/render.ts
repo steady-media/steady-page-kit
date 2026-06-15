@@ -156,6 +156,24 @@ function rubrikStream(rest: FeedItem[], cats: string[], leadItems: FeedItem[]): 
   }).join("");
 }
 
+/**
+ * Gepinnte Beiträge (in Reihenfolge, nur im Feed vorhandene, dedupliziert) nach vorn
+ * ziehen; der Rest bleibt in Feed-Reihenfolge. Leere/fehlende Liste = unverändert.
+ */
+export function applyPins(items: FeedItem[], guids?: string[]): FeedItem[] {
+  if (!guids || !guids.length) return items;
+  const byGuid = new Map(items.map(it => [it.guid, it]));
+  const seen = new Set<string>();
+  const pinned: FeedItem[] = [];
+  for (const g of guids) {
+    if (seen.has(g)) continue;
+    const it = byGuid.get(g);
+    if (it) { pinned.push(it); seen.add(g); }
+  }
+  if (!pinned.length) return items;
+  return pinned.concat(items.filter(it => !seen.has(it.guid)));
+}
+
 /* ------------------------------------------------------------------ Seiten */
 
 /** Landing (/): Komposition laut cfg — Default ist einspaltig/Split-Hero/Liste. */
