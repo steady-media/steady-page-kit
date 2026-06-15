@@ -103,7 +103,10 @@ test("renderSection: Pin 1 wird Featured der Sektion", () => {
   }));
   const cfg = { shell: "single", auf: "klein", stream: "liste", rails: [], pins: { "rubrik/politik": ["g2"] } };
   const html = renderSection("politik", items, items, 1, /** @type {any} */ (cfg));
-  assert.match(html, /aufmacher__title[^]*\/posts\/g2/); // g2 ist Featured
+  // Präzise: der Aufmacher-Titel verlinkt g2 (nicht irgendwo im Grid).
+  assert.ok(html.includes('class="aufmacher__title"><a href="/posts/g2"'));
+  // Diskriminierend: Featured (g2) steht im HTML vor dem Grid (g1).
+  assert.ok(html.indexOf("/posts/g2") < html.indexOf("/posts/g1"));
 });
 
 test(
