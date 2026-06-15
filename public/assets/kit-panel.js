@@ -788,8 +788,9 @@ var _w = /** @type {any} */ (window);
   }
 
   /* ---------------------------------------------------------------- Beiträge anpinnen */
-  // Nur für Admins (kitAdmin vorhanden) und nur sichtbar im Editing-Modus (html.cz-on,
-  // per CSS). Pins liegen im kitpins-Cookie {scope:[guid]}; Scope = aktuelle Seite.
+  // Sichtbar im Editing-Modus (Panel offen → html.cz-on, per CSS). Pinnen schreibt einen
+  // persönlichen kitpins-Cookie {scope:[guid]}; global wird erst per „Für alle speichern"
+  // (admin-gated). Scope = aktuelle Seite.
   /** @returns {string|null} "/" | "rubrik/<slug>" | null */
   function pinScope() {
     var p = location.pathname;
@@ -812,9 +813,7 @@ var _w = /** @type {any} */ (window);
   var PIN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.8V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6.8a2 2 0 0 0 1.1 1.8l1.8.9A2 2 0 0 1 19 15.2V16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-.8a2 2 0 0 1 1.1-1.8l1.8-.9A2 2 0 0 0 9 10.8Z"/></svg>';
   (function () {
     var scope = pinScope();
-    var isAdmin = false;
-    try { isAdmin = !!localStorage.getItem("kitAdmin"); } catch (e) {}
-    if (!scope || !isAdmin) return;
+    if (!scope) return;
     /** @type {string} */ var activeScope = scope;
     var list = (function () { var l = pinsRead()[activeScope]; return Array.isArray(l) ? l : []; })();
     // Pinnbare Elemente: Aufmacher/Hero (dort landet Pin 1 — muss lösbar bleiben) + Karten-Familie.
