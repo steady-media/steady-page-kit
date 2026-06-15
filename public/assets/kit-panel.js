@@ -778,6 +778,7 @@ var _w = /** @type {any} */ (window);
         var doc = new DOMParser().parseFromString(html, "text/html");
         var grid = document.querySelector(".grid");
         if (grid) { var _grid = grid; doc.querySelectorAll(".grid .card").forEach(function (c) { _grid.appendChild(document.importNode(c, true)); }); }
+        injectPins(); // nachgeladene Karten ebenfalls pinnbar machen
         next++;
         _loadMoreBtn.setAttribute("data-next", String(next));
         _loadMoreBtn.disabled = false;
@@ -811,62 +812,63 @@ var _w = /** @type {any} */ (window);
     location.reload();
   }
   var PIN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.8V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6.8a2 2 0 0 0 1.1 1.8l1.8.9A2 2 0 0 1 19 15.2V16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-.8a2 2 0 0 1 1.1-1.8l1.8-.9A2 2 0 0 0 9 10.8Z"/></svg>';
-  (function () {
-    var scope = pinScope();
-    if (!scope) return;
-    /** @type {string} */ var activeScope = scope;
-    var list = (function () { var l = pinsRead()[activeScope]; return Array.isArray(l) ? l : []; })();
-    // Pinnbare Elemente: Aufmacher/Hero (dort landet Pin 1 — muss lösbar bleiben) + Karten-Familie.
-    var TARGETS = [
-      { sel: "section.hero", meta: ".hero__date" },
-      { sel: "article.aufmacher", meta: ".aufmacher__meta" },
-      { sel: "a.card", meta: ".card__date" },
-      { sel: "a.teaser-row", meta: ".card__date" },
-      { sel: "a.teaser-text", meta: ".card__date" },
-      { sel: "a.feat-main", meta: ".card__date" }
-    ];
-    var els = [];
-    for (var ti = 0; ti < TARGETS.length; ti++) {
-      var found = document.querySelectorAll(TARGETS[ti].sel);
-      for (var fi = 0; fi < found.length; fi++) els.push({ el: found[fi], metaSel: TARGETS[ti].meta });
-    }
-    for (var i = 0; i < els.length; i++) {
-      (function (cardEl, metaSel) {
-        var a = (cardEl.tagName === "A" && cardEl.getAttribute("href")) ? cardEl : cardEl.querySelector('a[href^="/posts/"]');
-        var href = a ? (a.getAttribute("href") || "") : "";
-        var mm = href.match(/^\/posts\/(.+)$/);
-        if (!mm) return;
-        var guid = decodeURIComponent(mm[1]);
-        var meta = cardEl.querySelector(metaSel);
-        if (!meta || meta.querySelector(".card__pin")) return;
-        var pinned = list.indexOf(guid) >= 0;
-        var btn = document.createElement("span");
-        btn.className = "card__pin" + (pinned ? " is-pinned" : "");
-        btn.setAttribute("role", "button");
-        btn.setAttribute("tabindex", "0");
-        btn.setAttribute("aria-pressed", pinned ? "true" : "false");
-        btn.setAttribute("aria-label", pinned ? T("pin.remove", "Pin entfernen") : T("pin.add", "Nach oben anpinnen"));
-        btn.innerHTML = PIN_SVG + '<span class="card__pin-t">' + T("pin.label", "Angepinnt") + "</span>";
-        /** @param {Event} e */
-        function toggle(e) {
-          e.preventDefault(); e.stopPropagation();
-          var map = pinsRead();
-          var l = Array.isArray(map[activeScope]) ? map[activeScope].slice() : [];
-          var at = l.indexOf(guid);
-          if (at >= 0) { l.splice(at, 1); }
-          else {
-            if (l.length >= 3) { alert(T("pin.max", "Maximal 3 Beiträge pro Bereich.")); return; }
-            l.push(guid);
+  // Pinnbare Elemente: Aufmacher/Hero (dort landet Pin 1) + Karten-Familie.
+  var PIN_TARGETS = [
+    { sel: "section.hero", meta: ".hero__date" },
+    { sel: "article.aufmacher", meta: ".aufmacher__meta" },
+    { sel: "a.card", meta: ".card__date" },
+    { sel: "a.teaser-row", meta: ".card__date" },
+    { sel: "a.teaser-text", meta: ".card__date" },
+    { sel: "a.feat-main", meta: ".card__date" }
+  ];
+  // Idempotent + erneut aufrufbar (z. B. nach „Mehr laden"). Scope je Karte: nächstes
+  // [data-pin-scope] (Rubrik-Sektion = eigener Bereich), sonst der Seiten-Scope.
+  function injectPins() {
+    var pageScope = pinScope();
+    if (!pageScope) return;
+    var pins = pinsRead();
+    for (var ti = 0; ti < PIN_TARGETS.length; ti++) {
+      var found = document.querySelectorAll(PIN_TARGETS[ti].sel);
+      var metaSel = PIN_TARGETS[ti].meta;
+      for (var fi = 0; fi < found.length; fi++) {
+        (function (cardEl, metaSel) {
+          var a = (cardEl.tagName === "A" && cardEl.getAttribute("href")) ? cardEl : cardEl.querySelector('a[href^="/posts/"]');
+          var href = a ? (a.getAttribute("href") || "") : "";
+          var mm = href.match(/^\/posts\/(.+)$/);
+          if (!mm) return;
+          var guid = decodeURIComponent(mm[1]);
+          var meta = cardEl.querySelector(metaSel);
+          if (!meta || meta.querySelector(".card__pin")) return;
+          var scopeEl = cardEl.closest("[data-pin-scope]");
+          var cardScope = scopeEl ? (scopeEl.getAttribute("data-pin-scope") || pageScope) : pageScope;
+          var pinned = (Array.isArray(pins[cardScope]) ? pins[cardScope] : []).indexOf(guid) >= 0;
+          var btn = document.createElement("span");
+          btn.className = "card__pin" + (pinned ? " is-pinned" : "");
+          btn.setAttribute("role", "button");
+          btn.setAttribute("tabindex", "0");
+          btn.setAttribute("aria-pressed", pinned ? "true" : "false");
+          btn.setAttribute("aria-label", pinned ? T("pin.remove", "Pin entfernen") : T("pin.add", "Nach oben anpinnen"));
+          btn.innerHTML = PIN_SVG + '<span class="card__pin-t">' + T("pin.label", "Angepinnt") + "</span>";
+          /** @param {Event} e */
+          function toggle(e) {
+            e.preventDefault(); e.stopPropagation();
+            var map = pinsRead();
+            var l = Array.isArray(map[cardScope]) ? map[cardScope].slice() : [];
+            var at = l.indexOf(guid);
+            if (at >= 0) { l.splice(at, 1); }
+            else {
+              if (l.length >= 3) { alert(T("pin.max", "Maximal 3 Beiträge pro Bereich.")); return; }
+              l.push(guid);
+            }
+            if (l.length) map[cardScope] = l; else delete map[cardScope];
+            pinsWrite(map);
           }
-          if (l.length) map[activeScope] = l; else delete map[activeScope];
-          pinsWrite(map);
-        }
-        btn.addEventListener("click", toggle);
-        btn.addEventListener("keydown", function (e) {
-          if (e.key === "Enter" || e.key === " ") { toggle(e); }
-        });
-        meta.appendChild(btn);
-      })(els[i].el, els[i].metaSel);
+          btn.addEventListener("click", toggle);
+          btn.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { toggle(e); } });
+          meta.appendChild(btn);
+        })(found[fi], metaSel);
+      }
     }
-  })();
+  }
+  injectPins();
 })();

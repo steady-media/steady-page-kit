@@ -109,6 +109,16 @@ test("renderSection: Pin 1 wird Featured der Sektion", () => {
   assert.ok(html.indexOf("/posts/g2") < html.indexOf("/posts/g1"));
 });
 
+test("renderLanding (rubrik): jede Rubrik-Sektion ist eigener Pin-Bereich (data-pin-scope + Reorder)", () => {
+  const mk = (g) => ({ title: "T-" + g, description: "d", categories: ["storys"], image: "",
+    link: "", guid: g, pubDate: "Mon, 17 Mar 2025 08:00:00 +0000", content: "" });
+  const items = ["s1", "s2", "s3", "s4", "s5", "s6"].map(mk);
+  const cfg = { shell: "single", auf: "klein", stream: "rubrik", rails: [], pins: { "rubrik/storys": ["s3"] } };
+  const html = renderLanding(items, 1, /** @type {any} */ (cfg));
+  assert.ok(html.includes('data-pin-scope="rubrik/storys"'));     // Sektion = eigener Bereich
+  assert.ok(html.includes('class="feat-main" href="/posts/s3"')); // Sektions-Pin sortiert die Sektion
+});
+
 test("renderPost: cfg.brand treibt <title> und og:site_name", () => {
   const html = renderPost(ITEM, /** @type {any} */ ({ brand: "Marke X" }), "", {});
   assert.match(html, /<title>[^<]*Marke X<\/title>/);
