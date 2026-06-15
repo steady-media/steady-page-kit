@@ -64,7 +64,7 @@ export function head(title: string, cfg: RenderCfg = {} as RenderCfg, meta: Page
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>${esc(title)}</title>
 ${tags.join("\n")}
-<link rel="icon" href="/assets/favicon.png"/>
+<link rel="icon" href="/assets/favicon.svg"/>
 <link rel="alternate" type="application/rss+xml" title="${esc(PUBLICATION)}" href="/rss"/>
 <link rel="preconnect" href="https://fonts.bunny.net" crossorigin/>
 <link id="kit-font-css" href="https://fonts.bunny.net/css?family=inter:400,500,600,700,900&display=swap" rel="stylesheet"/>
