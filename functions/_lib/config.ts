@@ -96,10 +96,10 @@ function asMode(v: unknown, def: EngagementMode): EngagementMode {
 
 // kit.config.js-Defaults (env gewinnt zur Request-Zeit, siehe effectiveEngagement)
 const kitEng = (kit.engagement || {}) as Partial<EngagementCfg>;
-export const ENGAGEMENT_MODE: EngagementMode = asMode(kitEng.mode, "claps");
-export const TCHOP_ORG: string = String(kitEng.org || "").trim();
-export const TCHOP_CHANNEL_ID: number | null = kitEng.channelId ? Number(kitEng.channelId) : null;
-export const TCHOP_APP_URL: string = String(kitEng.appUrl || "").trim().replace(/\/+$/, "");
+const ENGAGEMENT_MODE: EngagementMode = asMode(kitEng.mode, "claps");
+const TCHOP_ORG: string = String(kitEng.org || "").trim();
+const TCHOP_CHANNEL_ID: number | null = kitEng.channelId ? Number(kitEng.channelId) : null;
+const TCHOP_APP_URL: string = String(kitEng.appUrl || "").trim().replace(/\/+$/, "");
 
 /**
  * Effektive Engagement-Config: env-Overrides > kit.config.js. Der Secret-Token
@@ -117,7 +117,8 @@ export function effectiveEngagement(env: { [k: string]: unknown } | null | undef
 
 /** Per-Card-Deeplink (öffnet App, Web-Fallback). Format verifiziert 2026-06-16. */
 export function cardDeepLink(org: string, channelId: number, storyId: number, cardId: number): string {
-  return `https://${org}.tchop.io/apps/posts/${channelId}/${storyId}/${cardId}`;
+  const safeOrg = String(org).replace(/[^a-z0-9-]/gi, ""); // Subdomain — nur erlaubte Zeichen
+  return `https://${safeOrg}.tchop.io/apps/posts/${channelId}/${storyId}/${cardId}`;
 }
 
 /** true as soon as kit.config.js yields a feed source. Env overrides also count
