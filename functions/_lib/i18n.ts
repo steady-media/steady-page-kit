@@ -83,6 +83,14 @@ const STRINGS: Record<string, LangStrings> = {
     "notfound.home": "Zur Startseite",
     "feed.unavailable": "Feed derzeit nicht erreichbar.",
 
+    "engage.cta": "In der Steady App mitdiskutieren",
+    "engage.cta.empty": "Sei die erste Stimme in der App",
+    "engage.comments.one": "{n} Kommentar",
+    "engage.comments.other": "{n} Kommentare",
+    "engage.reactions": "{n} Reaktionen",
+    "engage.highlighted": "Hervorgehoben",
+    "engage.loaderr": "Kommentare konnten nicht geladen werden.",
+
     "panel.title": "Anpassen",
     "panel.reset": "Reset",
     "panel.reset.title": "Alles zurücksetzen",
@@ -283,6 +291,14 @@ const STRINGS: Record<string, LangStrings> = {
     "notfound.title": "Post not found",
     "notfound.home": "Back to the start page",
     "feed.unavailable": "Feed temporarily unavailable.",
+
+    "engage.cta": "Join the discussion in the Steady App",
+    "engage.cta.empty": "Be the first voice in the app",
+    "engage.comments.one": "{n} comment",
+    "engage.comments.other": "{n} comments",
+    "engage.reactions": "{n} reactions",
+    "engage.highlighted": "Highlighted",
+    "engage.loaderr": "Couldn't load comments.",
 
     "panel.title": "Customize",
     "panel.reset": "Reset",
