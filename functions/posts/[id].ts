@@ -38,7 +38,7 @@ export async function onRequestGet(context: KitContext): Promise<Response> {
       return "";
     }
   };
-  // Clap-Counter nur im claps-Modus aus KV lesen — spart einen KV-Zugriff in anderen Modi
+  // Read the clap counter from KV only in claps mode — saves a KV round-trip in other modes
   const wantClaps = !cfg.engagement || cfg.engagement.mode === "claps";
   const [full, claps] = await Promise.all([loadFull(), wantClaps ? getClaps(context.env, id) : Promise.resolve(0)]);
 

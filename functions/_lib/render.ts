@@ -347,7 +347,7 @@ export function renderPost(item: FeedItem, cfg: RenderCfg = {} as RenderCfg, ful
   </nav>`
     : "";
 
-  // Engagement-Modus bestimmt den Inhalt des Post-Fußes (Clap, App-Container oder nichts)
+  // Engagement mode determines the post footer content (clap, app container, or nothing)
   const mode = (cfg.engagement && cfg.engagement.mode) || "claps";
   const shareBtn =
     `<button class="post__share" id="js-share" type="button" data-title="${esc(item.title)}">${ICON_SHARE}<span id="js-share-t">${esc(t("post.share"))}</span></button>`;
@@ -360,13 +360,13 @@ export function renderPost(item: FeedItem, cfg: RenderCfg = {} as RenderCfg, ful
       ` data-l-comments="${esc(t("engage.comments.other", { n: "{n}" }))}" data-l-comments-one="${esc(t("engage.comments.one", { n: "{n}" }))}"` +
       ` data-l-reactions="${esc(t("engage.reactions", { n: "{n}" }))}"` +
       ` data-l-hi="${esc(t("engage.highlighted"))}" data-l-err="${esc(t("engage.loaderr"))}"></div>`;
-    // Teilen sitzt in einer eigenen Leiste ÜBER dem Thread — nicht mittig neben der langen Kommentarspalte.
+    // Share sits in its own bar ABOVE the thread — not centered beside a long comment column.
     foot = `<div class="post__col post__foot"><div class="post__engage-bar">${shareBtn}</div>${engageBox}</div>`;
   } else if (mode === "none") {
-    // Nur Teilen-Button, kein Clap-Button
+    // Share button only, no clap button
     foot = `<div class="post__col post__foot"><div class="post__react">${shareBtn}</div></div>`;
   } else {
-    // Standardmodus: Clap-Button + Teilen-Button
+    // Default mode: clap button + share button
     const clapBtn = `<button class="post__clap" id="js-clap" type="button" data-guid="${esc(item.guid)}" aria-label="${esc(t("post.clap.aria"))}">${ICON_CLAP}<span id="js-clap-n">${claps}</span></button>`;
     foot = `<div class="post__col post__foot"><div class="post__react">${clapBtn}${shareBtn}</div></div>`;
   }

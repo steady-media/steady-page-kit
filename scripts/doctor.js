@@ -114,11 +114,11 @@ else ok("KIT_ADMIN_CODE set");
 const fulltext = (process.env.FULLTEXT_FEED_URL || "").trim();
 if (!fulltext) warn("FULLTEXT_FEED_URL missing → posts show teaser + Steady link instead of full text (optional)");
 
-// Engagement-Check: nur relevant wenn engagement.mode=steady-app
+// Engagement check: only relevant when engagement.mode=steady-app
 const eng = effectiveEngagement(process.env);
 if (eng.mode === "steady-app") {
-  if (!eng.org || !eng.channelId) warn("engagement.mode=steady-app, aber org/channelId fehlen → Engagement-Proxy antwortet mit 400");
-  if (!(process.env.TCHOP_TOKEN || "").trim()) note("kein TCHOP_TOKEN gesetzt → Engagement zeigt nur den App-CTA (kein Feed-Proxy)");
+  if (!eng.org || !eng.channelId) warn("engagement.mode=steady-app but org/channelId are missing → engagement proxy will respond with 400");
+  if (!(process.env.TCHOP_TOKEN || "").trim()) note("no TCHOP_TOKEN set → engagement shows the app CTA only (no feed proxy)");
 }
 
 /* — 4. Cloudflare configuration (only relevant for deploy:cf) — */

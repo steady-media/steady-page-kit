@@ -55,7 +55,7 @@ export interface KitConfig {
   maxPills?: number;
   /** Pin a post GUID as the lead story */
   pinnedGuid?: string | null;
-  /** Engagement-Konfiguration (Modus + Tchop-Parameter, optional) */
+  /** Engagement configuration (mode + Tchop parameters, optional) */
   engagement?: Partial<EngagementCfg>;
 }
 
@@ -168,15 +168,15 @@ export interface LogoMeta {
 
 // ──────────────────────────────────────────────── Engagement ───────────────────
 
-/** Post-Engagement-Quelle je Installation. Protokoll-Werte — nicht übersetzen. */
+/** Post engagement source per installation. Protocol values — do not translate. */
 export type EngagementMode = "none" | "claps" | "steady-app";
 
-/** Engagement-Konfiguration (kit.config.js / env). Kein Secret — der Token lebt in env. */
+/** Engagement configuration (kit.config.js / env). Not a secret — the token lives in env. */
 export interface EngagementCfg {
   mode: EngagementMode;
-  org: string;              // Tchop-Org-Subdomain, z. B. "steady" → https://steady.tchop.io/…
-  channelId: number | null; // Tchop-Channel-ID der Publikation (steady-app)
-  appUrl: string;           // Fallback-Ziel für den „in der App"-CTA ohne Per-Card-Deeplink
+  org: string;              // Tchop org subdomain, e.g. "steady" → https://steady.tchop.io/…
+  channelId: number | null; // Tchop channel ID of the publication (steady-app)
+  appUrl: string;           // fallback target for the "open in app" CTA without a per-card deep link
 }
 
 // ──────────────────────────────────────────────── Render config ────────────────
@@ -229,6 +229,6 @@ export interface RenderCfg extends StructCfg {
   analytics: string;
   /** Channel description (optional) */
   channelDesc?: string;
-  /** Engagement-Konfiguration (Modus + Tchop-Parameter) */
+  /** Engagement configuration (mode + Tchop parameters) */
   engagement: EngagementCfg;
 }

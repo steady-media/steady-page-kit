@@ -1,32 +1,32 @@
-// _lib/tchop.ts — Adapter für die Steady-App-Engagement-Quelle (Tchop).
-// Eine Schnittstelle, zwei Backends (Stub + real). Der reale HTTP-Backend folgt
-// in Phase 3, sobald ein read-scoped Token + Endpoint vorliegen — bis dahin liefert
-// die Factory bei vorhandenem TCHOP_TOKEN noch null (Graceful Degradation).
+// _lib/tchop.ts — adapter for the Steady-App engagement source (Tchop).
+// One interface, two backends (stub + real). The real HTTP backend follows in
+// phase 3 once a read-scoped token + endpoint are available — until then the
+// factory returns null even when TCHOP_TOKEN is present (graceful degradation).
 import { cardDeepLink } from "./config.ts";
 import type { EngagementCfg } from "./types.ts";
 
-/** Normalisierter Kommentar — NUR unbedenkliche Felder (keine PII). */
+/** Normalized comment — ONLY safe fields (no PII). */
 export interface EngComment {
   id: number;
   author: { name: string; avatar: string | null };
   text: string;
   ts: string;
   highlighted: boolean;
-  reactions: number;        // Summe aller Reaktionen
+  reactions: number;        // sum of all reactions
   replies: EngComment[];
 }
 
-/** Normalisiertes Engagement eines Posts. */
+/** Normalized engagement data for a post. */
 export interface Engagement {
-  hasCard: boolean;         // false = Artikel (noch) nicht in der App gesynct
-  deepLink: string;         // Per-Card- oder Fallback-Deeplink
-  reactions: number;        // Summe aller Card-Reaktionen
+  hasCard: boolean;         // false = article not yet synced to the app
+  deepLink: string;         // per-card or fallback deep link
+  reactions: number;        // sum of all card reactions
   commentCount: number;
   comments: EngComment[];
 }
 
 export interface TchopClient {
-  /** canonicalUrl = die Steady-Post-URL (RSS-<link>), Join-Key auf card.content.url. */
+  /** canonicalUrl = the Steady post URL (RSS <link>), join key on card.content.url. */
   getEngagement(canonicalUrl: string): Promise<Engagement | null>;
 }
 
@@ -36,9 +36,9 @@ function sumReactions(rs: unknown): number {
 }
 
 /**
- * Rohen Tchop-Kommentar auf den sicheren EngComment reduzieren. Verwirft bewusst
- * author.email/location/roleId/links (PII) — siehe Spec §14.5.
- * Rekursiv: auch verschachtelte Replies werden normalisiert.
+ * Reduce a raw Tchop comment to the safe EngComment shape. Deliberately drops
+ * author.email/location/roleId/links (PII) — see spec §14.5.
+ * Recursive: nested replies are normalized as well.
  */
 export function normalizeComment(raw: { [k: string]: unknown }, depth: number = 0): EngComment {
   const a = (raw.author || {}) as { [k: string]: unknown };
@@ -58,7 +58,7 @@ export function normalizeComment(raw: { [k: string]: unknown }, depth: number = 
   };
 }
 
-/** Stub-Backend: feste, realistische Fixtures — für Dev/Tests und als UI-Build-Ziel. */
+/** Stub backend: fixed, realistic fixtures — for dev/tests and as a UI build target. */
 export function makeStubClient(): TchopClient {
   return {
     async getEngagement(_canonicalUrl: string): Promise<Engagement> {
@@ -66,7 +66,7 @@ export function makeStubClient(): TchopClient {
         id: 765086, content: "🐕 musste gerade Fährten verfolgen",
         createdAt: "2025-10-27T21:43:18.000Z", isHighlighted: true,
         reactions: [{ name: "like", count: 1 }],
-        // Demo-Avatare (nur Stub/Preview, nie Produktion) — echte Bild-URLs, damit die Vorschau realistisch aussieht.
+        // Demo avatars (stub/preview only, never production) — real image URLs to make the preview realistic.
         author: { screenName: "Sebastian", avatar: { thumb: "https://i.pravatar.cc/48?img=12" } },
         replies: [{
           id: 765090, content: "Sehr gut 😄", createdAt: "2025-10-27T22:00:00.000Z",
@@ -86,10 +86,10 @@ export function makeStubClient(): TchopClient {
 }
 
 /**
- * Factory: wählt das Backend per Env.
- *  - TCHOP_STUB=1            → Stub (Dev/Tests)
- *  - TCHOP_TOKEN + channelId → real (Phase 3; bis dahin null)
- *  - sonst                   → null (Graceful Degradation: nur CTA)
+ * Factory: selects the backend via env.
+ *  - TCHOP_STUB=1            → stub (dev/tests)
+ *  - TCHOP_TOKEN + channelId → real (phase 3; null until then)
+ *  - otherwise               → null (graceful degradation: CTA only)
  */
 export function getTchopClient(
   env: { TCHOP_STUB?: unknown; TCHOP_TOKEN?: unknown; [k: string]: unknown } | null | undefined,

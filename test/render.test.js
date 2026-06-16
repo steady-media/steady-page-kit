@@ -137,7 +137,7 @@ test(
   }
 );
 
-// --- Engagement-Modus-Tests ---
+// --- engagement mode tests ---
 
 const ENGAGE_ITEM = {
   guid: "g1", title: "T", description: "d", link: "https://steady.page/p/posts/u1",
