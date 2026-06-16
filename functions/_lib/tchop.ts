@@ -40,7 +40,7 @@ function sumReactions(rs: unknown): number {
  * author.email/location/roleId/links (PII) — siehe Spec §14.5.
  * Rekursiv: auch verschachtelte Replies werden normalisiert.
  */
-export function normalizeComment(raw: { [k: string]: unknown }): EngComment {
+export function normalizeComment(raw: { [k: string]: unknown }, depth: number = 0): EngComment {
   const a = (raw.author || {}) as { [k: string]: unknown };
   const avatar = (a.avatar || {}) as { [k: string]: unknown };
   const replies = Array.isArray(raw.replies) ? raw.replies : [];
@@ -54,7 +54,7 @@ export function normalizeComment(raw: { [k: string]: unknown }): EngComment {
     ts: String(raw.createdAt || ""),
     highlighted: !!raw.isHighlighted,
     reactions: sumReactions(raw.reactions),
-    replies: replies.map(r => normalizeComment(r as { [k: string]: unknown })),
+    replies: depth >= 1 ? [] : replies.map(r => normalizeComment(r as { [k: string]: unknown }, depth + 1)),
   };
 }
 

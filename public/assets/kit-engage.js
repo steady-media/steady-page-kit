@@ -19,8 +19,10 @@
   }
   /** @param {string} href @param {string} label */
   function cta(href, label) {
+    var url = href || appUrl || "#";
+    var safe = /^https?:\/\//i.test(url) ? url : "#";
     var a = el("a", "engage__cta", label);
-    a.setAttribute("href", href || appUrl || "#");
+    a.setAttribute("href", safe);
     a.setAttribute("target", "_blank");
     a.setAttribute("rel", "noopener");
     return a;
@@ -37,7 +39,7 @@
     if (c.highlighted) head.appendChild(el("span", "engage__badge", box.getAttribute("data-l-hi") || "★"));
     wrap.appendChild(head);
     wrap.appendChild(el("p", "engage__text", c.text || ""));
-    if (Array.isArray(c.replies)) c.replies.forEach(function (r) { wrap.appendChild(comment(r, true)); });
+    if (!isReply && Array.isArray(c.replies)) c.replies.forEach(function (r) { wrap.appendChild(comment(r, true)); });
     return wrap;
   }
 
@@ -48,11 +50,17 @@
       if (!data || !data.configured || !data.hasCard) {
         box.appendChild(cta(appUrl, box.getAttribute("data-l-empty") || "")); return;
       }
-      var meta = el("div", "engage__meta",
-        (box.getAttribute("data-l-comments") || "{n}").replace("{n}", String(data.commentCount || 0)));
+      var oneTpl = box.getAttribute("data-l-comments-one") || "";
+      var otherTpl = box.getAttribute("data-l-comments") || "{n}";
+      var tpl = (data.commentCount === 1 && oneTpl) ? oneTpl : otherTpl;
+      var meta = el("div", "engage__meta", tpl.replace("{n}", String(data.commentCount || 0)));
       box.appendChild(meta);
       (data.comments || []).forEach(function (c) { box.appendChild(comment(c, false)); });
       box.appendChild(cta(data.deepLink, box.getAttribute("data-l-cta") || ""));
     })
-    .catch(function () { box.appendChild(cta(appUrl, box.getAttribute("data-l-cta") || "")); });
+    .catch(function () {
+      box.textContent = "";
+      box.appendChild(el("div", "engage__meta", box.getAttribute("data-l-err") || ""));
+      box.appendChild(cta(appUrl, box.getAttribute("data-l-cta") || ""));
+    });
 })();
