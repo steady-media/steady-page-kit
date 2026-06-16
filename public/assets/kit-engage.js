@@ -32,7 +32,9 @@
     var wrap = el("div", isReply ? "engage__c engage__c--reply" : "engage__c");
     var head = el("div", "engage__c-head");
     if (c.author && c.author.avatar) {
-      var img = el("img", "engage__avatar"); img.setAttribute("src", c.author.avatar); img.setAttribute("alt", "");
+      var img = el("img", "engage__avatar"); img.setAttribute("alt", "");
+      img.onerror = function () { img.remove(); }; // Fehlt das Bild, lieber nichts zeigen als ein Broken-Icon
+      img.setAttribute("src", c.author.avatar);
       head.appendChild(img);
     }
     head.appendChild(el("span", "engage__name", (c.author && c.author.name) || ""));

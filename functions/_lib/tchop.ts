@@ -66,11 +66,12 @@ export function makeStubClient(): TchopClient {
         id: 765086, content: "🐕 musste gerade Fährten verfolgen",
         createdAt: "2025-10-27T21:43:18.000Z", isHighlighted: true,
         reactions: [{ name: "like", count: 1 }],
-        author: { screenName: "Sebastian", avatar: { thumb: "https://cdn.example/a.jpg" } },
+        // Demo-Avatare (nur Stub/Preview, nie Produktion) — echte Bild-URLs, damit die Vorschau realistisch aussieht.
+        author: { screenName: "Sebastian", avatar: { thumb: "https://i.pravatar.cc/48?img=12" } },
         replies: [{
           id: 765090, content: "Sehr gut 😄", createdAt: "2025-10-27T22:00:00.000Z",
           isHighlighted: false, reactions: [],
-          author: { screenName: "Kai", avatar: { thumb: "https://cdn.example/k.jpg" } },
+          author: { screenName: "Kai", avatar: { thumb: "https://i.pravatar.cc/48?img=32" } },
         }],
       });
       return {
