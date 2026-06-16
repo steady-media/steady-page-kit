@@ -110,7 +110,27 @@
           .catch(function () {});
       });
     }, { rootMargin: "200px" });
-    var teasers = document.querySelectorAll("a[data-engage-key]");
-    for (var i = 0; i < teasers.length; i++) io.observe(teasers[i]);
+    function observeTeasers() {
+      var teasers = main.querySelectorAll("a[data-engage-key]");
+      for (var i = 0; i < teasers.length; i++) io.observe(teasers[i]); // observe() is idempotent
+    }
+    observeTeasers();
+    // "Mehr laden" appends more cards into .grid — pick those up too.
+    if ("MutationObserver" in window) {
+      new MutationObserver(function (muts) {
+        for (var i = 0; i < muts.length; i++) {
+          var added = muts[i].addedNodes;
+          for (var j = 0; j < added.length; j++) {
+            if (added[j].nodeType !== 1) continue;
+            var node = /** @type {Element} */ (added[j]);
+            if ((node.matches && node.matches("a[data-engage-key]")) ||
+                (node.querySelector && node.querySelector("a[data-engage-key]"))) {
+              observeTeasers();
+              return;
+            }
+          }
+        }
+      }).observe(main, { childList: true, subtree: true });
+    }
   }
 })();
