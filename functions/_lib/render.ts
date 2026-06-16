@@ -349,6 +349,7 @@ export function renderPost(item: FeedItem, cfg: RenderCfg = {} as RenderCfg, ful
       `<div class="post__engage" data-engage-key="${esc(item.link)}" data-engage-app="${esc(app)}"` +
       ` data-l-cta="${esc(t("engage.cta"))}" data-l-empty="${esc(t("engage.cta.empty"))}"` +
       ` data-l-comments="${esc(t("engage.comments.other", { n: "{n}" }))}" data-l-comments-one="${esc(t("engage.comments.one", { n: "{n}" }))}"` +
+      ` data-l-reactions="${esc(t("engage.reactions", { n: "{n}" }))}"` +
       ` data-l-hi="${esc(t("engage.highlighted"))}" data-l-err="${esc(t("engage.loaderr"))}"></div>${shareBtn}`;
   } else if (mode === "none") {
     // Nur Teilen-Button, kein Clap-Button

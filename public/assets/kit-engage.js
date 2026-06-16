@@ -55,6 +55,10 @@
       var tpl = (data.commentCount === 1 && oneTpl) ? oneTpl : otherTpl;
       var meta = el("div", "engage__meta", tpl.replace("{n}", String(data.commentCount || 0)));
       box.appendChild(meta);
+      if (data.reactions > 0) {
+        var rTpl = box.getAttribute("data-l-reactions") || "{n}";
+        box.appendChild(el("div", "engage__meta", rTpl.replace("{n}", String(data.reactions))));
+      }
       (data.comments || []).forEach(function (c) { box.appendChild(comment(c, false)); });
       box.appendChild(cta(data.deepLink, box.getAttribute("data-l-cta") || ""));
     })
