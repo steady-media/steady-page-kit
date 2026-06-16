@@ -14,6 +14,9 @@
     return n;
   }
 
+  // Tchop's reaction types → matching emoji (shown like the app's reaction strip).
+  var RX_EMOJI = { like: "👍", love: "❤️", haha: "😄", wow: "😮", sad: "😢", angry: "😠" };
+
   // --- Post page: full read-only comment thread --------------------------------------
   var box = document.querySelector(".post__engage");
   if (box) {
@@ -58,9 +61,14 @@
           var otherTpl = box.getAttribute("data-l-comments") || "{n}";
           var tpl = (data.commentCount === 1 && oneTpl) ? oneTpl : otherTpl;
           box.appendChild(el("div", "engage__meta", tpl.replace("{n}", String(data.commentCount || 0))));
-          if (data.reactions > 0) {
-            var rTpl = box.getAttribute("data-l-reactions") || "{n}";
-            box.appendChild(el("div", "engage__meta", rTpl.replace("{n}", String(data.reactions))));
+          if (Array.isArray(data.reactionTypes) && data.reactionTypes.length) {
+            var rxRow = el("div", "engage__reactions");
+            // localized total as the accessible label; the emoji strip is the visual
+            rxRow.setAttribute("aria-label", (box.getAttribute("data-l-reactions") || "{n}").replace("{n}", String(data.reactions || 0)));
+            data.reactionTypes.forEach(function (rt) {
+              rxRow.appendChild(el("span", "engage__rx", (RX_EMOJI[rt.name] || "•") + " " + rt.count));
+            });
+            box.appendChild(rxRow);
           }
           (data.comments || []).forEach(function (c) { box.appendChild(comment(c, false)); });
           box.appendChild(cta(data.deepLink, box.getAttribute("data-l-cta") || ""));

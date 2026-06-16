@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { normalizeComment, makeStubClient } from "../functions/_lib/tchop.ts";
+import { normalizeComment, makeStubClient, normalizeReactions } from "../functions/_lib/tchop.ts";
 
 const RAW = {
   id: 765086,
@@ -39,4 +39,18 @@ test("stub client returns a configured engagement with threaded comments", async
   assert.ok(eng.deepLink.startsWith("https://"));
   assert.ok(eng.commentCount >= 1);
   assert.ok(Array.isArray(eng.comments[0].replies));
+  // per-type reaction breakdown for the emoji strip
+  assert.ok(Array.isArray(eng.reactionTypes) && eng.reactionTypes.length >= 1);
+  assert.equal(eng.reactions, eng.reactionTypes.reduce((s, r) => s + r.count, 0));
+});
+
+test("normalizeReactions keeps count>0 types in canonical order and totals them", () => {
+  const out = normalizeReactions([
+    { name: "love", count: 4 }, { name: "like", count: 2 },
+    { name: "haha", count: 0 }, { name: "angry", count: 1 },
+  ]);
+  assert.equal(out.total, 7);
+  assert.deepEqual(out.types.map(t => t.name), ["like", "love", "angry"]); // canonical order, zeros dropped
+  assert.equal(normalizeReactions(null).total, 0);
+  assert.deepEqual(normalizeReactions(undefined).types, []);
 });

@@ -21,6 +21,7 @@ export interface Engagement {
   hasCard: boolean;         // false = article not yet synced to the app
   deepLink: string;         // per-card or fallback deep link
   reactions: number;        // sum of all card reactions
+  reactionTypes: { name: string; count: number }[]; // per type (count>0), canonical order
   commentCount: number;
   comments: EngComment[];
 }
@@ -33,6 +34,22 @@ export interface TchopClient {
 function sumReactions(rs: unknown): number {
   if (!Array.isArray(rs)) return 0;
   return rs.reduce((n, r) => n + (Number((r as { count?: unknown }).count) || 0), 0);
+}
+
+// Canonical Tchop reaction order (matches the app).
+const REACTION_ORDER = ["like", "love", "haha", "wow", "sad", "angry"];
+
+/** Split a raw reactions array into a total + per-type list (count>0, canonical order). */
+export function normalizeReactions(rs: unknown): { total: number; types: { name: string; count: number }[] } {
+  const arr = Array.isArray(rs) ? rs : [];
+  const byName: { [k: string]: number } = {};
+  for (const r of arr) {
+    const o = r as { name?: unknown; count?: unknown };
+    const n = String(o.name || "");
+    if (n) byName[n] = (byName[n] || 0) + (Number(o.count) || 0);
+  }
+  const types = REACTION_ORDER.filter(n => byName[n] > 0).map(n => ({ name: n, count: byName[n] }));
+  return { total: sumReactions(arr), types };
 }
 
 /**
@@ -74,10 +91,12 @@ export function makeStubClient(): TchopClient {
           author: { screenName: "Kai", avatar: { thumb: "https://i.pravatar.cc/48?img=32" } },
         }],
       });
+      const rx = normalizeReactions([{ name: "like", count: 4 }, { name: "love", count: 4 }]);
       return {
         hasCard: true,
         deepLink: cardDeepLink("steady", 290638, 618856, 46576451),
-        reactions: 8,
+        reactions: rx.total,
+        reactionTypes: rx.types,
         commentCount: 2,
         comments: [top],
       };

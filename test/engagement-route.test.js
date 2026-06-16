@@ -32,15 +32,18 @@ test("stub backend → configured:true with comments, short cache, no PII", asyn
   const body = await res.json();
   assert.equal(body.configured, true);
   assert.ok(body.comments.length >= 1);
+  assert.ok(Array.isArray(body.reactionTypes) && body.reactionTypes.length >= 1); // per-type breakdown for the emoji strip
   assert.ok(!JSON.stringify(body).includes("email"));
 });
 
-test("counts=1 → counts only, no comment thread (teaser indicator)", async () => {
+test("counts=1 → counts only, no thread or reaction breakdown (teaser indicator)", async () => {
   const res = await onRequestGet(ctx("https://x/api/engagement?counts=1&key=" + encodeURIComponent(KEY),
     { TCHOP_STUB: "1", TCHOP_ORG: "steady", TCHOP_CHANNEL_ID: "290638" }));
   assert.equal(res.status, 200);
   const body = await res.json();
   assert.equal(body.configured, true);
   assert.equal(typeof body.commentCount, "number");
-  assert.equal(body.comments, undefined); // thread omitted in counts-only mode
+  assert.equal(typeof body.reactions, "number"); // total still present
+  assert.equal(body.comments, undefined);        // thread omitted in counts-only mode
+  assert.equal(body.reactionTypes, undefined);   // breakdown omitted too
 });
