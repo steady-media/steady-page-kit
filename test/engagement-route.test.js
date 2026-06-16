@@ -1,0 +1,31 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { onRequestGet } from "../functions/api/engagement.ts";
+
+const KEY = "https://steady.page/ab2d81e4/posts/49481338-16c5-4d18-9f2d-20b0821fe408";
+const ctx = (url, env) => ({ request: new Request(url), env: env || {} });
+
+test("rejects a missing/invalid key", async () => {
+  const res = await onRequestGet(ctx("https://x/api/engagement"));
+  assert.equal(res.status, 400);
+});
+
+test("no token configured → configured:false + fallback deepLink, public cache", async () => {
+  const res = await onRequestGet(ctx("https://x/api/engagement?key=" + encodeURIComponent(KEY),
+    { TCHOP_ORG: "steady", TCHOP_CHANNEL_ID: "290638", TCHOP_APP_URL: "https://sebastian-steady.tchop.io/webapp" }));
+  assert.equal(res.status, 200);
+  const body = await res.json();
+  assert.equal(body.configured, false);
+  assert.equal(body.deepLink, "https://sebastian-steady.tchop.io/webapp");
+});
+
+test("stub backend → configured:true with comments, short cache, no PII", async () => {
+  const res = await onRequestGet(ctx("https://x/api/engagement?key=" + encodeURIComponent(KEY),
+    { TCHOP_STUB: "1", TCHOP_ORG: "steady", TCHOP_CHANNEL_ID: "290638" }));
+  assert.equal(res.status, 200);
+  assert.match(res.headers.get("cache-control") || "", /max-age=60/);
+  const body = await res.json();
+  assert.equal(body.configured, true);
+  assert.ok(body.comments.length >= 1);
+  assert.ok(!JSON.stringify(body).includes("email"));
+});
