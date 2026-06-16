@@ -1,14 +1,10 @@
-// kit-engage.js — hydratisiert .post__engage (nur steady-app-Modus).
-// Holt /api/engagement?key=… und rendert Reaktionen + Kommentar-Thread read-only,
-// plus „in der App"-CTA. Alle Nutzer-Inhalte via textContent (XSS-sicher).
+// kit-engage.js — steady-app mode only.
+// On a post page: hydrates .post__engage with the read-only comment thread + "open in app" CTA.
+// On a list page (main[data-engage="1"]): lazy-loads comment counts for visible teasers.
+// All user-generated content is rendered via textContent (XSS-safe).
 // @ts-check
 (function () {
   "use strict";
-  var box = document.querySelector(".post__engage");
-  if (!box) return;
-  var key = box.getAttribute("data-engage-key") || "";
-  var appUrl = box.getAttribute("data-engage-app") || "";
-  if (!key) return;
 
   /** @param {string} tag @param {string=} cls @param {string=} text */
   function el(tag, cls, text) {
@@ -17,56 +13,96 @@
     if (text != null) n.textContent = text;
     return n;
   }
-  /** @param {string} href @param {string} label */
-  function cta(href, label) {
-    var url = href || appUrl || "#";
-    var safe = /^https?:\/\//i.test(url) ? url : "#";
-    var a = el("a", "engage__cta", label);
-    a.setAttribute("href", safe);
-    a.setAttribute("target", "_blank");
-    a.setAttribute("rel", "noopener");
-    return a;
-  }
-  /** @param {any} c @param {boolean} isReply */
-  function comment(c, isReply) {
-    var wrap = el("div", isReply ? "engage__c engage__c--reply" : "engage__c");
-    var head = el("div", "engage__c-head");
-    if (c.author && c.author.avatar) {
-      var img = el("img", "engage__avatar"); img.setAttribute("alt", "");
-      img.onerror = function () { img.remove(); }; // Fehlt das Bild, lieber nichts zeigen als ein Broken-Icon
-      img.setAttribute("src", c.author.avatar);
-      head.appendChild(img);
+
+  // --- Post page: full read-only comment thread --------------------------------------
+  var box = document.querySelector(".post__engage");
+  if (box) {
+    var key = box.getAttribute("data-engage-key") || "";
+    var appUrl = box.getAttribute("data-engage-app") || "";
+    if (key) {
+      /** @param {string} href @param {string} label */
+      var cta = function (href, label) {
+        var url = href || appUrl || "#";
+        var safe = /^https?:\/\//i.test(url) ? url : "#";
+        var a = el("a", "engage__cta", label);
+        a.setAttribute("href", safe);
+        a.setAttribute("target", "_blank");
+        a.setAttribute("rel", "noopener");
+        return a;
+      };
+      /** @param {any} c @param {boolean} isReply */
+      var comment = function (c, isReply) {
+        var wrap = el("div", isReply ? "engage__c engage__c--reply" : "engage__c");
+        var head = el("div", "engage__c-head");
+        if (c.author && c.author.avatar) {
+          var img = el("img", "engage__avatar"); img.setAttribute("alt", "");
+          img.onerror = function () { img.remove(); }; // missing image: show nothing rather than a broken icon
+          img.setAttribute("src", c.author.avatar);
+          head.appendChild(img);
+        }
+        head.appendChild(el("span", "engage__name", (c.author && c.author.name) || ""));
+        if (c.highlighted) head.appendChild(el("span", "engage__badge", box.getAttribute("data-l-hi") || "★"));
+        wrap.appendChild(head);
+        wrap.appendChild(el("p", "engage__text", c.text || ""));
+        if (!isReply && Array.isArray(c.replies)) c.replies.forEach(function (r) { wrap.appendChild(comment(r, true)); });
+        return wrap;
+      };
+      fetch("/api/engagement?key=" + encodeURIComponent(key))
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          box.textContent = "";
+          if (!data || !data.configured || !data.hasCard) {
+            box.appendChild(cta(appUrl, box.getAttribute("data-l-empty") || "")); return;
+          }
+          var oneTpl = box.getAttribute("data-l-comments-one") || "";
+          var otherTpl = box.getAttribute("data-l-comments") || "{n}";
+          var tpl = (data.commentCount === 1 && oneTpl) ? oneTpl : otherTpl;
+          box.appendChild(el("div", "engage__meta", tpl.replace("{n}", String(data.commentCount || 0))));
+          if (data.reactions > 0) {
+            var rTpl = box.getAttribute("data-l-reactions") || "{n}";
+            box.appendChild(el("div", "engage__meta", rTpl.replace("{n}", String(data.reactions))));
+          }
+          (data.comments || []).forEach(function (c) { box.appendChild(comment(c, false)); });
+          box.appendChild(cta(data.deepLink, box.getAttribute("data-l-cta") || ""));
+        })
+        .catch(function () {
+          box.textContent = "";
+          box.appendChild(el("div", "engage__meta", box.getAttribute("data-l-err") || ""));
+          box.appendChild(cta(appUrl, box.getAttribute("data-l-cta") || ""));
+        });
     }
-    head.appendChild(el("span", "engage__name", (c.author && c.author.name) || ""));
-    if (c.highlighted) head.appendChild(el("span", "engage__badge", box.getAttribute("data-l-hi") || "★"));
-    wrap.appendChild(head);
-    wrap.appendChild(el("p", "engage__text", c.text || ""));
-    if (!isReply && Array.isArray(c.replies)) c.replies.forEach(function (r) { wrap.appendChild(comment(r, true)); });
-    return wrap;
   }
 
-  fetch("/api/engagement?key=" + encodeURIComponent(key))
-    .then(function (r) { return r.ok ? r.json() : null; })
-    .then(function (data) {
-      box.textContent = "";
-      if (!data || !data.configured || !data.hasCard) {
-        box.appendChild(cta(appUrl, box.getAttribute("data-l-empty") || "")); return;
-      }
-      var oneTpl = box.getAttribute("data-l-comments-one") || "";
-      var otherTpl = box.getAttribute("data-l-comments") || "{n}";
-      var tpl = (data.commentCount === 1 && oneTpl) ? oneTpl : otherTpl;
-      var meta = el("div", "engage__meta", tpl.replace("{n}", String(data.commentCount || 0)));
-      box.appendChild(meta);
-      if (data.reactions > 0) {
-        var rTpl = box.getAttribute("data-l-reactions") || "{n}";
-        box.appendChild(el("div", "engage__meta", rTpl.replace("{n}", String(data.reactions))));
-      }
-      (data.comments || []).forEach(function (c) { box.appendChild(comment(c, false)); });
-      box.appendChild(cta(data.deepLink, box.getAttribute("data-l-cta") || ""));
-    })
-    .catch(function () {
-      box.textContent = "";
-      box.appendChild(el("div", "engage__meta", box.getAttribute("data-l-err") || ""));
-      box.appendChild(cta(appUrl, box.getAttribute("data-l-cta") || ""));
-    });
+  // --- List page: lazy comment counts on teasers -------------------------------------
+  var main = document.querySelector('main[data-engage="1"]');
+  if (main && "IntersectionObserver" in window) {
+    var cOne = main.getAttribute("data-l-comments-one") || "{n}";
+    var cOther = main.getAttribute("data-l-comments") || "{n}";
+    /** @type {{[k: string]: number}} */
+    var seen = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var a = /** @type {Element} */ (entry.target);
+        io.unobserve(a);
+        var k = a.getAttribute("data-engage-key") || "";
+        if (!k || seen[k]) return;
+        seen[k] = 1;
+        fetch("/api/engagement?counts=1&key=" + encodeURIComponent(k))
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            if (!d || !d.configured || !d.hasCard) return;
+            var c = d.commentCount || 0;
+            if (c <= 0) return;                       // only show when there's a conversation
+            var meta = a.querySelector(".card__date");
+            if (!meta) return;
+            var tpl = (c === 1 ? cOne : cOther);
+            meta.appendChild(el("span", "card__engage", tpl.replace("{n}", String(c))));
+          })
+          .catch(function () {});
+      });
+    }, { rootMargin: "200px" });
+    var teasers = document.querySelectorAll("a[data-engage-key]");
+    for (var i = 0; i < teasers.length; i++) io.observe(teasers[i]);
+  }
 })();

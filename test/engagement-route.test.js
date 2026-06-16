@@ -34,3 +34,13 @@ test("stub backend → configured:true with comments, short cache, no PII", asyn
   assert.ok(body.comments.length >= 1);
   assert.ok(!JSON.stringify(body).includes("email"));
 });
+
+test("counts=1 → counts only, no comment thread (teaser indicator)", async () => {
+  const res = await onRequestGet(ctx("https://x/api/engagement?counts=1&key=" + encodeURIComponent(KEY),
+    { TCHOP_STUB: "1", TCHOP_ORG: "steady", TCHOP_CHANNEL_ID: "290638" }));
+  assert.equal(res.status, 200);
+  const body = await res.json();
+  assert.equal(body.configured, true);
+  assert.equal(typeof body.commentCount, "number");
+  assert.equal(body.comments, undefined); // thread omitted in counts-only mode
+});
