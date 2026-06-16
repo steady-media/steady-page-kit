@@ -338,6 +338,24 @@ export function renderPost(item: FeedItem, cfg: RenderCfg = {} as RenderCfg, ful
   </nav>`
     : "";
 
+  // Engagement-Modus bestimmt den Inhalt des Post-Fußes (Clap, App-Container oder nichts)
+  const mode = (cfg.engagement && cfg.engagement.mode) || "claps";
+  const shareBtn =
+    `<button class="post__share" id="js-share" type="button" data-title="${esc(item.title)}">${ICON_SHARE}<span id="js-share-t">${esc(t("post.share"))}</span></button>`;
+  let engageInner: string;
+  if (mode === "steady-app") {
+    // Leerer Container, der vom Client-JS befüllt wird; trägt die kanonische Post-URL
+    const app = (cfg.engagement && cfg.engagement.appUrl) || "";
+    engageInner = `<div class="post__engage" data-engage-key="${esc(item.link)}" data-engage-app="${esc(app)}"></div>${shareBtn}`;
+  } else if (mode === "none") {
+    // Nur Teilen-Button, kein Clap-Button
+    engageInner = shareBtn;
+  } else {
+    // Standardmodus: Clap-Button + Teilen-Button
+    engageInner = `<button class="post__clap" id="js-clap" type="button" data-guid="${esc(item.guid)}" aria-label="${esc(t("post.clap.aria"))}">${ICON_CLAP}<span id="js-clap-n">${claps}</span></button>${shareBtn}`;
+  }
+  const foot = `<div class="post__col post__foot"><div class="post__react">${engageInner}</div></div>`;
+
   const meta = {
     desc: item.description || "",
     path: "/posts/" + item.guid,
@@ -357,12 +375,7 @@ export function renderPost(item: FeedItem, cfg: RenderCfg = {} as RenderCfg, ful
     ${bodyInner}
     <p class="post__readon"><a class="btn btn--primary" href="${esc(item.link)}">${cta}</a></p>
   </div>
-  <div class="post__col post__foot">
-    <div class="post__react">
-      <button class="post__clap" id="js-clap" type="button" data-guid="${esc(item.guid)}" aria-label="${esc(t("post.clap.aria"))}">${ICON_CLAP}<span id="js-clap-n">${claps}</span></button>
-      <button class="post__share" id="js-share" type="button" data-title="${esc(item.title)}">${ICON_SHARE}<span id="js-share-t">${esc(t("post.share"))}</span></button>
-    </div>
-  </div>
+  ${foot}
   ${postNav}
 </article></main>` + footer(cfg);
 }

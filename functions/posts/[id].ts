@@ -38,7 +38,9 @@ export async function onRequestGet(context: KitContext): Promise<Response> {
       return "";
     }
   };
-  const [full, claps] = await Promise.all([loadFull(), getClaps(context.env, id)]);
+  // Clap-Counter nur im claps-Modus aus KV lesen — spart einen KV-Zugriff in anderen Modi
+  const wantClaps = cfg.engagement && cfg.engagement.mode === "claps";
+  const [full, claps] = await Promise.all([loadFull(), wantClaps ? getClaps(context.env, id) : Promise.resolve(0)]);
 
   // Neighbor posts (feed is newest-first): next = newer, prev = older
   const extras = {
