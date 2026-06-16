@@ -344,9 +344,11 @@ export function renderPost(item: FeedItem, cfg: RenderCfg = {} as RenderCfg, ful
     `<button class="post__share" id="js-share" type="button" data-title="${esc(item.title)}">${ICON_SHARE}<span id="js-share-t">${esc(t("post.share"))}</span></button>`;
   let engageInner: string;
   if (mode === "steady-app") {
-    // Leerer Container, der vom Client-JS befüllt wird; trägt die kanonische Post-URL
-    const app = (cfg.engagement && cfg.engagement.appUrl) || "";
-    engageInner = `<div class="post__engage" data-engage-key="${esc(item.link)}" data-engage-app="${esc(app)}"></div>${shareBtn}`;
+    const app = cfg.engagement.appUrl || "";
+    engageInner =
+      `<div class="post__engage" data-engage-key="${esc(item.link)}" data-engage-app="${esc(app)}"` +
+      ` data-l-cta="${esc(t("engage.cta"))}" data-l-empty="${esc(t("engage.cta.empty"))}"` +
+      ` data-l-comments="${esc(t("engage.comments.other", { n: "{n}" }))}" data-l-hi="${esc(t("engage.highlighted"))}"></div>${shareBtn}`;
   } else if (mode === "none") {
     // Nur Teilen-Button, kein Clap-Button
     engageInner = shareBtn;

@@ -158,6 +158,7 @@ test("steady-app mode renders the engagement container with the key, no clap but
   const html = renderPost(ENGAGE_ITEM, { ...baseCfg, engagement: { mode: "steady-app", org: "steady", channelId: 290638, appUrl: "https://x/webapp" } });
   assert.match(html, /class="post__engage"/);
   assert.match(html, /data-engage-key="https:\/\/steady\.page\/p\/posts\/u1"/);
+  assert.match(html, /data-engage-app="https:\/\/x\/webapp"/);
   assert.doesNotMatch(html, /id="js-clap"/);
 });
 

@@ -169,5 +169,6 @@ export function footer(cfg: RenderCfg = {} as RenderCfg): string {
 </div></footer><button class="cz-fab" id="cz-open" aria-label="${t("fab")}" title="${t("fab")}">${ICON_PANEL}</button>
 ${panelHtml()}
 <script src="/assets/kit-panel.js?v=${ASSET_VERSION}"></script>
+<script defer src="/assets/kit-engage.js?v=${ASSET_VERSION}"></script>
 </body></html>`;
 }

@@ -163,4 +163,4 @@ export const DEFAULT_NAV: Array<{ l: string; h: string; x?: boolean }> = (Array.
 export const USER_AGENT = "SteadyPageKit/1.0";
 
 // Cache buster for public/assets/kit.css + kit-*.js — bump on asset changes.
-export const ASSET_VERSION = "2026-06-16b";
+export const ASSET_VERSION = "2026-06-16c";
