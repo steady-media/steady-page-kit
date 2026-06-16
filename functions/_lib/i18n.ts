@@ -1,24 +1,24 @@
-// _lib/i18n.ts — alle UI-Strings des Kits in Deutsch und Englisch.
+// _lib/i18n.ts — all of the kit's UI strings in German and English.
 //
-// Die Sprache ist DEPLOYMENT-STATISCH (kit.config.js → language), kein
-// Per-Request-Threading: `t` ist fertig an die Sprache gebunden.
+// The language is DEPLOYMENT-STATIC (kit.config.js → language), no per-request
+// threading: `t` is bound to the language up front.
 //
-// WICHTIG (Schema-Stabilität): Übersetzt werden NUR Labels. Interne Werte —
-// Cookie-/KV-/localStorage-Enums wie "klein/gross", "liste/rubrik", rails
-// "neueste/meist/themen", data-v-Attribute, localStorage-Keys und das
-// URL-Schema /rubrik/ — sind Schnittstellen-Schema und bleiben unangetastet.
+// IMPORTANT (schema stability): ONLY labels get translated. Internal values —
+// cookie/KV/localStorage enums like "klein/gross", "liste/rubrik", rails
+// "neueste/meist/themen", data-v attributes, localStorage keys and the
+// /rubrik/ URL scheme — are interface schema and stay untouched.
 //
-// `client` ist die Teilmenge, die der Browser braucht (kit-panel.js); sie wird
-// in page.js als window.KIT_I18N injiziert. Die Katalog-Arrays (pairs/looks/
-// palettes) sind INDEX-gekoppelt an die Kataloge in public/assets/kit-theme.js —
-// wer dort Einträge ergänzt, ergänzt hier beide Sprachen (Test erzwingt Parität).
+// `client` is the subset the browser needs (kit-panel.js); it is injected in
+// page.ts as window.KIT_I18N. The catalog arrays (pairs/looks/palettes) are
+// INDEX-coupled to the catalogs in public/assets/kit-theme.js — whoever adds
+// entries there adds both languages here (a test enforces parity).
 
 import kit from "../../kit.config.js";
 
 export const LANGUAGE: "de" | "en" = kit.language === "en" ? "en" : "de";
 
-/** Client-Teilmenge der Strings (wird als window.KIT_I18N in page.ts injiziert).
- *  Katalog-Arrays sind INDEX-gekoppelt an public/assets/kit-theme.js. */
+/** Client subset of the strings (injected as window.KIT_I18N in page.ts).
+ *  The catalog arrays are INDEX-coupled to public/assets/kit-theme.js. */
 interface ClientStrings {
   cats: Record<string, string>;
   pairs: string[];
@@ -27,7 +27,7 @@ interface ClientStrings {
   [key: string]: string | string[] | Array<{ n: string; d: string }> | Record<string, string>;
 }
 
-/** Sprach-Tabelle: flache UI-Strings + die client-Teilmenge. */
+/** Language table: flat UI strings + the client subset. */
 interface LangStrings {
   client: ClientStrings;
   [key: string]: string | ClientStrings;
@@ -219,7 +219,7 @@ const STRINGS: Record<string, LangStrings> = {
       "pin.remove": "Pin entfernen",
       "pin.label": "Angepinnt",
       "pin.max": "Maximal 3 Beiträge pro Bereich.",
-      // Katalog-Labels (Anzeige) — Werte/Slugs in kit-theme.js bleiben unverändert.
+      // Catalog labels (display) — values/slugs in kit-theme.js stay unchanged.
       cats: {
         "Grotesk": "Grotesk", "Humanistisch": "Humanistisch", "Geometrisch": "Geometrisch",
         "Condensed": "Condensed", "Neuer": "Neuer", "Serif Display": "Serif Display", "Serif Text": "Serif Text",
@@ -442,7 +442,7 @@ const STRINGS: Record<string, LangStrings> = {
   },
 };
 
-/** t-Funktion für eine Sprache bauen; {var}-Interpolation; Fallback: de, dann Key. */
+/** Build a t function for a language; {var} interpolation; fallback: de, then the key. */
 export function makeT(lang: string): (key: string, vars?: Record<string, string | number>) => string {
   const dict = STRINGS[lang] || STRINGS.de;
   return function t(key: string, vars?: Record<string, string | number>): string {
@@ -454,15 +454,15 @@ export function makeT(lang: string): (key: string, vars?: Record<string, string 
   };
 }
 
-/** Das fertig gebundene t des Deployments. */
+/** The deployment's fully bound t. */
 export const t: (key: string, vars?: Record<string, string | number>) => string = makeT(LANGUAGE);
 
-/** Client-Teilmenge (window.KIT_I18N) für kit-panel.js. */
+/** Client subset (window.KIT_I18N) for kit-panel.js. */
 export function clientStrings(lang: string = LANGUAGE): ClientStrings {
   return (STRINGS[lang] || STRINGS.de).client;
 }
 
-/** Nur für Tests: kompletter Katalog (Key-Paritätsprüfung de ↔ en). */
+/** Tests only: the complete catalog (key-parity check de ↔ en). */
 export function _allStrings(): Record<string, LangStrings> {
   return STRINGS;
 }

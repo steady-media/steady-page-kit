@@ -1,4 +1,4 @@
-// Route: GET /rubrik/:slug → Rubrik-Seite (alle Beiträge einer Feed-Kategorie).
+// Route: GET /rubrik/:slug → section page (all posts in one feed category).
 import type { KitContext, FeedItem } from "../_lib/types.ts";
 import { getItems } from "../_lib/feed.ts";
 import { slugify } from "../_lib/util.ts";
@@ -19,7 +19,7 @@ export async function onRequestGet(context: KitContext): Promise<Response> {
     const cats = new Set<string>();
     all.forEach(it => it.categories.forEach(c => { if (c) cats.add(c); }));
     category = [...cats].find(c => slugify(c) === slug) || null;
-    // category ist hier string (Laufzeit-Guard oben), TS sieht mutable let → non-null assertion
+    // category is a string here (runtime guard above); TS sees a mutable let → non-null assertion
     if (category) items = all.filter(it => it.categories.includes(category!));
   } catch (err) {
     category = null;
@@ -29,5 +29,5 @@ export async function onRequestGet(context: KitContext): Promise<Response> {
   return htmlResponse(renderSection(category, items, all, page, cfg), cacheControl);
 }
 
-// HEAD wie GET behandeln (Crawler/Uptime-Checks); workerd entfernt den Body selbst.
+// Treat HEAD like GET (crawlers/uptime checks); workerd strips the body itself.
 export const onRequestHead = onRequestGet;

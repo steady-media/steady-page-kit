@@ -1,67 +1,67 @@
-// _lib/types.ts — zentrale TypeScript-Typen für das Kit.
+// _lib/types.ts — central TypeScript types for the kit.
 //
-// Wird von server-seitigem Code via `import type` eingebunden.
-// Browser-Assets (kit-theme.js, kit-panel.js) nutzen JSDoc-@typedef-Kopien
-// in den Dateien selbst; kit.config.js importiert KitConfig via @type-Annotation.
+// Imported by server-side code via `import type`.
+// Browser assets (kit-theme.js, kit-panel.js) use JSDoc @typedef copies in the
+// files themselves; kit.config.js imports KitConfig via a @type annotation.
 //
-// Keine Runtime-Exporte — nur Typen. Kompatibel mit Node ≥ 22.18 type stripping
+// No runtime exports — types only. Compatible with Node ≥ 22.18 type stripping
 // (erasableSyntaxOnly: true).
 
-// ──────────────────────────────────────────────── Publisher-Konfiguration ──────
+// ──────────────────────────────────────────────── Publisher configuration ──────
 
-/** Navigations-Eintrag in kit.config.js */
+/** Navigation entry in kit.config.js */
 export interface KitNavItem {
-  /** Label / Anzeigetext */
+  /** label / display text */
   l: string;
   /** href / URL */
   h: string;
-  /** extern = neuer Tab (optional) */
+  /** external = new tab (optional) */
   x?: boolean;
 }
 
 /**
- * Steady-Publikations-Angaben.
- * Enthält Slug (für Feed-URL) und Publikations-ID (für das Widget).
+ * Steady publication details.
+ * Holds the slug (for the feed URL) and the publication ID (for the widget).
  */
 export interface KitSteadyConfig {
-  /** Steady-Slug — der Teil hinter steady.page/ in der Publikations-URL */
+  /** Steady slug — the part after steady.page/ in the publication URL */
   slug?: string;
-  /** Steady-Publikations-ID (UUID) — lädt das Steady-Widget */
+  /** Steady publication ID (UUID) — loads the Steady widget */
   publicationId?: string;
 }
 
 /**
- * Die einzige Datei, die Publisher anfassen: kit.config.js.
- * Wird als Default-Export erwartet.
+ * The only file publishers touch: kit.config.js.
+ * Expected as the default export.
  */
 export interface KitConfig {
-  /** Anzeigename der Publikation */
+  /** Display name of the publication */
   publication?: string;
-  /** Autor:in (optional; Meta-Daten) */
+  /** Author (optional; meta data) */
   author?: string;
-  /** Sprache der Oberfläche: "de" oder "en" */
+  /** UI language: "de" or "en" */
   language?: "de" | "en" | (string & {});
-  /** Kanonische URL der fertigen Seite, ohne Slash am Ende */
+  /** Canonical URL of the finished site, without a trailing slash */
   siteOrigin?: string;
-  /** Steady-Slug + Publikations-ID */
+  /** Steady slug + publication ID */
   steady?: KitSteadyConfig;
-  /** Überschrift, mit der der Mitglieder-Teil beginnt */
+  /** Heading at which the member section begins */
   memberHeading?: string;
-  /** Explizite Navigation (überschreibt den Kit-Default) */
+  /** Explicit navigation (overrides the kit default) */
   nav?: Array<{ l: string; h: string; x?: boolean }> | null;
-  /** Teaser pro Seite (Default 12) */
+  /** Teasers per page (default 12) */
   perPage?: number;
-  /** Max. Kategorie-Pills (Default 8) */
+  /** Max category pills (default 8) */
   maxPills?: number;
-  /** Post-GUID als Aufmacher pinnen */
+  /** Pin a post GUID as the lead story */
   pinnedGuid?: string | null;
 }
 
-// ──────────────────────────────────────────────── Runtime-Adapter ──────────────
+// ──────────────────────────────────────────────── Runtime adapters ─────────────
 
 /**
- * Minimales KV-Interface — kompatibel mit dem Cloudflare KV Namespace
- * und dem Node-Emulator (server/fs-kv.js).
+ * Minimal KV interface — compatible with the Cloudflare KV namespace
+ * and the Node emulator (server/fs-kv.ts).
  */
 export interface KVAdapter {
   get(key: string, opts?: "text" | "json" | "arrayBuffer" | { type?: "text" | "json" | "arrayBuffer"; cacheTtl?: number }): Promise<unknown>;
@@ -70,32 +70,32 @@ export interface KVAdapter {
 }
 
 /**
- * Cloudflare-Pages-Env-Bindings — alle optionalen Felder; bei Node werden
- * sie per process.env / fs-kv simuliert.
+ * Cloudflare Pages env bindings — all optional fields; on Node they are
+ * simulated via process.env / fs-kv.
  */
 export interface KitEnv {
-  /** KV-Namespace (Cloudflare Binding) oder fs-kv-Emulator */
+  /** KV namespace (Cloudflare binding) or fs-kv emulator */
   KIT_KV?: KVAdapter;
-  /** Feed-URL-Override (überschreibt den Slug-Ableitungswert) */
+  /** Feed URL override (overrides the slug-derived value) */
   FEED_URL?: string;
-  /** Authentifizierter Volltext-Feed (Secret — nie loggen!) */
+  /** Authenticated full-text feed (secret — never log!) */
   FULLTEXT_FEED_URL?: string;
-  /** Admin-Code-Gate für globale Schreib-Operationen */
+  /** Admin-code gate for global write operations */
   KIT_ADMIN_CODE?: string;
-  /** Canonical-Origin-Override */
+  /** Canonical origin override */
   SITE_ORIGIN?: string;
-  /** Steady-Publikations-ID-Override */
+  /** Steady publication ID override */
   STEADY_PUBLICATION_ID?: string;
-  /** Steady-Login-URL-Override */
+  /** Steady login URL override */
   STEADY_LOGIN_URL?: string;
-  /** Cloudflare Web Analytics Beacon-Token (optional) */
+  /** Cloudflare Web Analytics beacon token (optional) */
   ANALYTICS_TOKEN?: string;
-  /** Weitere Host-/Deployment-Variablen (process.env bzw. CF-Bindings). */
+  /** Further host/deployment variables (process.env or CF bindings). */
   [key: string]: unknown;
 }
 
 /**
- * Cloudflare-Pages-Functions-Context — wird von allen Handler-Routen empfangen.
+ * Cloudflare Pages Functions context — received by all handler routes.
  */
 export interface KitContext {
   request: Request;
@@ -103,113 +103,113 @@ export interface KitContext {
   params: Record<string, string>;
   data: Record<string, unknown>;
   waitUntil(p: Promise<unknown>): void;
-  /** Nächster Handler in der Middleware-Kette */
+  /** Next handler in the middleware chain */
   next(): void;
 }
 
-/** Cloudflare-Pages-Functions-Handler-Signatur */
+/** Cloudflare Pages Functions handler signature */
 export type PagesHandler = (context: KitContext) => Promise<Response> | Response;
 
-// ──────────────────────────────────────────────── Inhalte ──────────────────────
+// ──────────────────────────────────────────────── Content ──────────────────────
 
 /**
- * Ein geparster RSS-Item aus dem Steady-Feed.
- * Entspricht exakt dem Rückgabe-Shape von parseFeed() in feed.js.
+ * A parsed RSS item from the Steady feed.
+ * Matches exactly the return shape of parseFeed() in feed.ts.
  */
 export interface FeedItem {
   title: string;
   description: string;
   categories: string[];
-  /** Teaser-Bild-URL (leer wenn nicht vorhanden) */
+  /** Teaser image URL (empty when absent) */
   image: string;
   link: string;
-  /** Steady-GUID (Artikel-Identifier) */
+  /** Steady GUID (article identifier) */
   guid: string;
   pubDate: string;
-  /** Volltext-HTML — nur im authentifizierten Feed gefüllt */
+  /** Full-text HTML — only populated in the authenticated feed */
   content: string;
 }
 
-// ──────────────────────────────────────────────── Globale Config (KV) ─────────
+// ──────────────────────────────────────────────── Global config (KV) ───────────
 
 /**
- * Global veröffentlichte Config aus KV (key "config").
- * Wird von getConfig() in settings.js geladen.
+ * Globally published config from KV (key "config").
+ * Loaded by getConfig() in settings.ts.
  */
 export interface GlobalConfig {
-  /** Skin-Objekt (CSS-Custom-Properties als Record) */
+  /** Skin object (CSS custom properties as a record) */
   skin?: Record<string, string> | null;
-  /** Serialisierter kitstruct-Cookie-Wert */
+  /** Serialized kitstruct cookie value */
   kitstruct?: string;
-  /** Serialisierter kitchrome-Cookie-Wert (JSON: {brand, nav}) */
+  /** Serialized kitchrome cookie value (JSON: {brand, nav}) */
   kitchrome?: string;
-  /** Serialisierter kitpins-Cookie-Wert (JSON: {scope: [guid]}) */
+  /** Serialized kitpins cookie value (JSON: {scope: [guid]}) */
   kitpins?: string;
-  /** Unix-Timestamp der letzten Speicherung */
+  /** Unix timestamp of the last save */
   ts?: number;
 }
 
 /**
- * Logo-Metadaten aus KV (key "logo:meta").
- * Wird von getLogoMeta() in settings.js geladen.
+ * Logo metadata from KV (key "logo:meta").
+ * Loaded by getLogoMeta() in settings.ts.
  */
 export interface LogoMeta {
-  /** MIME-Typ des Upload-Bilds (z. B. "image/svg+xml") */
+  /** MIME type of the uploaded image (e.g. "image/svg+xml") */
   type: string;
-  /** Seitenverhältnis als Float (z. B. 4), Default 4. */
+  /** Aspect ratio as a float (e.g. 4), default 4. */
   aspect?: number;
-  /** Unix-Timestamp der letzten Speicherung */
+  /** Unix timestamp of the last save */
   ts?: number;
 }
 
-// ──────────────────────────────────────────────── Render-Config ──────────────────
+// ──────────────────────────────────────────────── Render config ────────────────
 
 /**
- * Seiten-Struktur aus parseStruct() — steuert das serverseitige Rendering.
- * Wird aus dem kitstruct-Cookie + globalem Config-Fallback abgeleitet.
+ * Page structure from parseStruct() — drives the server-side rendering.
+ * Derived from the kitstruct cookie + global config fallback.
  */
 export interface StructCfg {
-  /** Seiten-Shell: "single" (einspaltig) | "portal" (Portal mit Leisten) */
+  /** Page shell: "single" (single column) | "portal" (portal with rails) */
   shell: "single" | "portal";
-  /** Aufmacher-Größe: "klein" (Split-Hero) | "gross" (Vollbild) */
+  /** Lead-story size: "klein" (split hero) | "gross" (full width) */
   auf: "klein" | "gross";
-  /** Stream-Layout: "liste" (flache Karten) | "rubrik" (Rubriken-Sektionen) */
+  /** Stream layout: "liste" (flat cards) | "rubrik" (section blocks) */
   stream: "liste" | "rubrik";
-  /** Leisten (Rails) im Portal-Modus */
+  /** Rails in portal mode */
   rails: string[];
-  /** Header-Alignment: "links" | "zentriert" */
+  /** Header alignment: "links" | "zentriert" */
   headerStyle: "links" | "zentriert";
-  /** Suchfeld aktiviert */
+  /** Search field enabled */
   search: boolean;
-  /** Angepasster Publikations-Titel (aus kitchrome-Cookie) */
+  /** Customized publication title (from the kitchrome cookie) */
   brand: string;
-  /** Angepasste Navigation (aus kitchrome-Cookie) oder null = Default */
+  /** Customized navigation (from the kitchrome cookie) or null = default */
   nav: Array<{ l: string; h: string; x: boolean }> | null;
-  /** Footer-Links (aus kitchrome-Cookie) oder null = keine Links */
+  /** Footer links (from the kitchrome cookie) or null = no links */
   foot: Array<{ l: string; h: string; x: boolean }> | null;
-  /** Angepinnte Beiträge je Bereich: scope ("/" | "rubrik/<slug>") → GUID-Liste (max 3). */
+  /** Pinned posts per section: scope ("/" | "rubrik/<slug>") → GUID list (max 3). */
   pins: Record<string, string[]>;
 }
 
 /**
- * Vollständige Render-Config pro Request — StructCfg + KV-Daten + Env-Overrides.
- * Wird von buildPageContext() in settings.js zusammengestellt.
+ * Full render config per request — StructCfg + KV data + env overrides.
+ * Assembled by buildPageContext() in settings.ts.
  */
 export interface RenderCfg extends StructCfg {
-  /** Globaler Skin (CSS-Variablen) aus KV, oder null */
+  /** Global skin (CSS variables) from KV, or null */
   skin: Record<string, string> | null;
-  /** Logo-Metadaten aus KV, oder null */
+  /** Logo metadata from KV, or null */
   logo: LogoMeta | null;
-  /** Feed-URL-Override (Env), oder null = Default aus config.js */
+  /** Feed URL override (env), or null = default from config.ts */
   feedUrl: string | null;
-  /** Site-Origin-Override (Env), oder null */
+  /** Site origin override (env), or null */
   site: string | null;
-  /** Steady-Publikations-ID-Override (Env), oder null */
+  /** Steady publication ID override (env), or null */
   steadyId: string | null;
-  /** Steady-Login-URL-Override (Env), oder null */
+  /** Steady login URL override (env), or null */
   loginUrl: string | null;
-  /** Cloudflare Web Analytics Beacon-Token (leer = deaktiviert) */
+  /** Cloudflare Web Analytics beacon token (empty = disabled) */
   analytics: string;
-  /** Kanal-Beschreibung (optional) */
+  /** Channel description (optional) */
   channelDesc?: string;
 }

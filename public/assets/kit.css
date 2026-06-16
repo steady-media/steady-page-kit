@@ -1,25 +1,25 @@
-/* kit.css — Design-Tokens + alle Komponenten-Styles des Kits.
-   Theming-Modell: Das Panel (kit-panel.js) ändert NUR die CSS-Variablen unten
-   bzw. schaltet html.*-Modifier-Klassen (z. B. html.card-side, html.dens-compact).
-   Komponenten lesen ausschließlich Tokens — so bleibt jede Kombination konsistent. */
+/* kit.css — design tokens + all component styles of the kit.
+   Theming model: the panel (kit-panel.js) only changes the CSS variables below
+   or toggles html.* modifier classes (e.g. html.card-side, html.dens-compact).
+   Components read tokens exclusively — so every combination stays consistent. */
 
 :root{
-  /* Schrift: Familien setzt kit-theme.js (Bunny Fonts); --fs ist der globale Größenfaktor */
+  /* Fonts: families are set by kit-theme.js (Bunny Fonts); --fs is the global size factor */
   --font-head:"Inter", system-ui, -apple-system, sans-serif;
   --font-body:"Inter", system-ui, -apple-system, sans-serif;
   --fs:1;
   --text-base:calc(18px*var(--fs)); --text-h1:calc(50px*var(--fs)); --lh-h1:1.12; --text-card-title:calc(22px*var(--fs)); --text-nav:16px;
   --lh-body:1.55; --track-head:-.01em; --case-head:none; --align-head:left; --card-ar:4/3;
   --weight-heading:700; --weight-body:400;
-  /* Farben: brand/accent wählt der Creator; ink* /line/hairline folgen Hell/Dunkel */
+  /* Colors: the creator picks brand/accent; ink* /line/hairline follow light/dark */
   --color-ink:#291E38; --color-ink-soft:#6B6577; --color-brand:#137EC0; --color-accent:#FF7264;
   --color-line:#9A95A6; --color-hairline:#ECEAEF; --color-bg:#FFFFFF; --btn-fg:#FFFFFF;
-  /* Linien: --rule = allgemeine Trennlinien, --rule-sec = Sektions-Trenner (Figma) */
+  /* Lines: --rule = general dividers, --rule-sec = section divider (Figma) */
   --rule:#C2C2C2; --rule-sec:#000000;
   --radius-btn:1px; --radius-card:0; --container:1024px;
 }
 *,*::before,*::after{box-sizing:border-box;}
-/* Skip-Link: unsichtbar bis Tastatur-Fokus */
+/* Skip link: invisible until keyboard focus */
 .skip-link{position:absolute;left:-9999px;top:0;z-index:100;background:var(--color-brand);color:#fff;padding:10px 16px;font-size:14px;border-radius:0 0 8px 0;}
 .skip-link:focus{left:0;}
 html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
@@ -37,14 +37,14 @@ a{color:inherit;text-decoration:none;} img{display:block;max-width:100%;}
 /* ------------------------------------------------------------------ Header */
 .site-header{border-bottom:0;background:#fff;}
 .site-header__inner{display:flex;align-items:center;justify-content:space-between;gap:16px;height:74px;}
-/* Marke darf schrumpfen (min-width:0), damit der Login-Button bei schmalen
-   Fenstern nie überlappt — statt Overlap kürzt die Wortmarke bzw. wird mobil
-   ausgeblendet; der Login-Block bleibt fix (header-actions: flex:none). */
+/* The brand may shrink (min-width:0) so the login button never overlaps on
+   narrow windows — instead of overlapping, the wordmark truncates or is hidden
+   on mobile; the login block stays fixed (header-actions: flex:none). */
 .brand{display:flex;align-items:center;gap:11px;min-width:0;}
-/* Marken-Icon: public/assets/logo.png (Referenz-Asset = Blaupause-B). Eigene Publikation:
-   die Datei ersetzen. Ein global hochgeladenes Logo (KV) ersetzt im Header zusätzlich die Wortmarke. */
+/* Brand icon: public/assets/logo.png (reference asset = blueprint B). Own publication:
+   replace the file. A globally uploaded logo (KV) additionally replaces the wordmark in the header. */
 .brand__logo{width:34px;height:34px;border-radius:2px;background:url(/assets/logo.png) center/cover no-repeat;flex:none;}
-/* global hochgeladenes Logo (KV): skaliert proportional in 240×32 */
+/* globally uploaded logo (KV): scales proportionally within 240×32 */
 .brand__logo-img{max-height:32px;max-width:240px;width:auto;height:auto;display:block;flex:0 1 auto;min-width:0;object-fit:contain;}
 .brand__name{font-weight:700;font-size:15px;letter-spacing:.13em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
 .header-actions{display:flex;align-items:center;gap:12px;flex:none;}
@@ -64,7 +64,7 @@ a{color:inherit;text-decoration:none;} img{display:block;max-width:100%;}
 .login-link{font:inherit;font-size:13px;font-weight:600;letter-spacing:.02em;color:var(--color-ink);cursor:pointer;text-decoration:none;}
 .login-link:hover{color:var(--color-brand);}
 .site-header--center .login-link{font-size:12px;text-transform:uppercase;letter-spacing:.06em;}
-/* Figma-Nav: abgerundeter Pill-Rahmen statt Linien, sticky, horizontaler Überlauf, runde Suche */
+/* Figma nav: rounded pill frame instead of lines, sticky, horizontal overflow, round search */
 html.nav-figma .tabs{border-bottom:0;background:transparent;padding:14px 0;position:sticky;top:0;z-index:40;}
 html.nav-figma .tabs__bar{justify-content:center;gap:12px;}
 html.nav-figma .tabs__inner{min-width:0;flex:0 1 auto;display:inline-flex;width:auto;border:1px solid #2A2A2A;border-radius:12px;padding:12px 40px;gap:26px;align-items:center;background:#fff;overflow-x:auto;scrollbar-width:none;}
@@ -74,7 +74,7 @@ html.nav-figma .tab--active{text-decoration:underline;text-underline-offset:6px;
 html.nav-figma .tabs__search{flex:none;align-self:stretch;width:52px;border:1px solid #2A2A2A;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:#fff;color:var(--color-ink);}
 html.nav-figma .tabs__search svg{width:17px;height:17px;}
 
-/* ------------------------------------------------------------------ Hero (Aufmacher klein) */
+/* ------------------------------------------------------------------ Hero (small lead story) */
 .hero{padding:56px 0 44px;}
 .hero__grid{display:grid;grid-template-columns:1.25fr 1fr;gap:48px;align-items:center;}
 .hero__title{font-size:var(--text-h1);line-height:var(--lh-h1);font-weight:var(--weight-heading);margin:0 0 18px;letter-spacing:var(--track-head);text-transform:var(--case-head);}
@@ -90,7 +90,7 @@ html.nav-figma .tabs__search svg{width:17px;height:17px;}
       border:1px solid var(--color-brand);border-radius:100px;padding:3px 10px;background:transparent;line-height:1.25;white-space:nowrap;transition:background-color .15s,color .15s;}
 .pill:hover{background:var(--color-brand);color:var(--btn-fg,#fff);}
 
-/* ------------------------------------------------------------------ Teaser-Grid */
+/* ------------------------------------------------------------------ Teaser grid */
 .grid{display:grid;grid-template-columns:repeat(var(--grid-cols,3),1fr);gap:36px 30px;padding-bottom:48px;}
 .card__media{width:100%;aspect-ratio:var(--card-ar);background:var(--color-line);border-radius:var(--radius-card);object-fit:cover;}
 .card__title{font-size:var(--text-card-title);font-weight:var(--weight-heading);line-height:1.27;margin:12px 0 0;letter-spacing:var(--track-head);text-transform:var(--case-head);transition:color .15s;}
@@ -98,7 +98,7 @@ html.nav-figma .tabs__search svg{width:17px;height:17px;}
 .card__excerpt{font-size:16px;color:var(--color-ink-soft);line-height:1.25;margin:8px 0 0;}
 .card__date{font-size:14px;color:var(--color-ink-soft);margin-top:12px;}
 
-/* ------------------------------------------------------------------ Einzelpost */
+/* ------------------------------------------------------------------ Single post */
 .post{max-width:984px;margin:0 auto;padding:46px 24px 24px;}
 .post__col{max-width:600px;margin-left:auto;margin-right:auto;}
 .post__back{display:inline-flex;align-items:center;gap:7px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-ink-soft);margin-bottom:30px;}
@@ -113,13 +113,13 @@ html.nav-figma .tabs__search svg{width:17px;height:17px;}
 .post__cap .credit{color:#bfbfbf;}
 .post__bodywrap{margin:40px auto 0;}
 .post__foot{margin:40px auto 0;padding-top:22px;border-top:1px solid var(--rule);}
-/* echte Reaktionen: Clap (KV-Zähler) + Teilen (Web Share API) */
+/* real reactions: clap (KV counter) + share (Web Share API) */
 .post__react{display:flex;align-items:center;gap:14px;}
 .post__clap,.post__share{display:inline-flex;align-items:center;gap:8px;font:inherit;font-family:var(--font-head);font-size:14px;font-weight:600;color:var(--color-ink-soft);background:none;border:1px solid var(--color-hairline);border-radius:100px;padding:8px 16px;cursor:pointer;transition:color .15s,border-color .15s,transform .1s;}
 .post__clap:hover,.post__share:hover{color:var(--color-brand);border-color:var(--color-brand);}
 .post__clap:active{transform:scale(1.07);}
 .post__clap svg,.post__share svg{width:18px;height:18px;}
-/* Nachbar-Navigation unter dem Beitrag */
+/* neighbor navigation below the post */
 .post-nav{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:34px auto 0;padding-top:22px;border-top:1px solid var(--rule);}
 .post-nav__a{display:block;min-width:0;}
 .post-nav__a--prev{text-align:right;}
@@ -128,7 +128,7 @@ html.nav-figma .tabs__search svg{width:17px;height:17px;}
 .post-nav__a:hover span{color:var(--color-brand);}
 .post__body{font-family:var(--font-body);font-size:calc(22px*var(--fs));line-height:var(--lh-body);color:var(--color-ink);}
 .post__body p{margin:0 0 26px;} .post__body p.lede{font-weight:600;}
-/* Volltext-Inhalte (content:encoded aus dem Steady-Feed) */
+/* full-text content (content:encoded from the Steady feed) */
 .post__body--full img{display:block;width:100%;height:auto;border-radius:var(--radius-card);margin:24px 0;}
 .post__body--full figure{margin:24px 0;} .post__body--full figcaption{font-size:calc(15px*var(--fs));color:var(--color-ink-soft);margin-top:8px;text-align:center;}
 .post__body--full h2{font-family:var(--font-head);font-weight:var(--weight-heading);font-size:calc(30px*var(--fs));line-height:1.18;letter-spacing:-.01em;margin:38px 0 14px;}
@@ -156,17 +156,17 @@ html.nav-figma .tabs__search svg{width:17px;height:17px;}
 .kit-search__m{display:block;font-size:11px;color:var(--color-ink-soft);margin-top:4px;text-transform:uppercase;letter-spacing:.05em;}
 .kit-search__empty{padding:18px 14px;font-size:14px;color:var(--color-ink-soft);}
 
-/* ------------------------------------------------------------------ „Mehr laden" */
+/* ------------------------------------------------------------------ "load more" */
 .loadmore-wrap{display:flex;justify-content:center;padding:8px 0 56px;}
 .load-more{font:inherit;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-brand);background:none;border:0;padding:8px 4px;cursor:pointer;transition:opacity .15s;}
 .load-more:hover{text-decoration:underline;text-underline-offset:4px;}
 .load-more:disabled{opacity:.5;cursor:default;text-decoration:none;}
 
-/* Headlines/Display nutzen --font-head; Chrome (Nav, Pills, Labels) den Lauftext --font-body */
+/* Headlines/display use --font-head; chrome (nav, pills, labels) uses the body font --font-body */
 .brand__name,.hero__title,.card__title,.load-more,.btn,.nav-action,.post__title,.post__back{font-family:var(--font-head);}
 .tab{font-family:var(--font-body);}
 
-/* ------------------------------------------------------------------ Layout-Modifier (Panel) */
+/* ------------------------------------------------------------------ Layout modifiers (panel) */
 html.dens-compact{--text-base:calc(16px*var(--fs));--text-h1:calc(42px*var(--fs));}
 html.dens-compact .hero{padding:36px 0 30px;} html.dens-compact .grid{gap:24px 22px;} html.dens-compact .container{padding:0 20px;}
 html.hero-center .hero__grid{grid-template-columns:1fr;text-align:center;justify-items:center;}
@@ -180,7 +180,7 @@ html.hero-center .aufmacher:not(.aufmacher--side) .aufmacher__meta{justify-conte
 html.dens-roomy{--lh-body:1.7;}
 html.dens-roomy .hero{padding:76px 0 58px;} html.dens-roomy .grid{gap:48px 40px;} html.dens-roomy .container{padding:0 30px;}
 
-/* ------------------------------------------------------------------ Teaser-/Karten-Stile (Panel) */
+/* ------------------------------------------------------------------ Teaser/card styles (panel) */
 .card__body{display:block;}
 html.card-side .card{display:grid;grid-template-columns:112px 1fr;gap:15px;align-items:start;}
 html.card-side .card__media{aspect-ratio:1/1;} html.card-side .card__title{margin-top:0;}
@@ -195,17 +195,17 @@ html.card-list .card__media{display:none;}
 html.surf-soft .card{background:var(--color-bg);border-radius:12px;box-shadow:0 6px 22px rgba(41,30,56,.10);overflow:hidden;}
 html.surf-outline .card{border:1px solid var(--color-hairline);border-radius:10px;overflow:hidden;}
 html.surf-soft .card__body,html.surf-outline .card__body{padding:2px 15px 16px;}
-/* surf-soft: Schatten brauchen Luft — die Row-Kollaps-Grids (overflow:hidden) würden
-   sie sonst hart abschneiden; Padding schafft Platz, Negativ-Margin neutralisiert das Layout */
+/* surf-soft: shadows need room — the row-collapse grids (overflow:hidden) would
+   otherwise clip them hard; padding makes space, negative margin neutralizes the layout */
 html.surf-soft .rubrik__grid,html.surf-soft .rubrik__compact{padding:12px 12px 30px;margin:-12px -12px -30px;}
 html.surf-soft.card-overlay .card__body,html.surf-outline.card-overlay .card__body{padding:16px;}
-/* Bildlook gilt für ALLE Inhaltsbilder (Karten, Heros, Aufmacher, Feature, Listen, Rails) —
-   nur das Brand-Logo bleibt ungefiltert */
+/* Image look applies to ALL content images (cards, heros, lead stories, feature, lists, rails) —
+   only the brand logo stays unfiltered */
 html.img-gray .card__media,html.img-gray .hero__media,html.img-gray .post__hero img,html.img-gray .aufmacher__media,html.img-gray .feat-main__media,html.img-gray .teaser-row__media,html.img-gray .rail-num__media{filter:grayscale(1);transition:filter .35s;}
 html.img-gray .card:hover .card__media{filter:none;}
 html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__hero img,html.img-duo .aufmacher__media,html.img-duo .feat-main__media,html.img-duo .teaser-row__media,html.img-duo .rail-num__media{filter:grayscale(1) contrast(1.05) sepia(.5) hue-rotate(165deg) saturate(2.4) brightness(.96);}
 
-/* ------------------------------------------------------------------ Aufmacher (großer Opener) */
+/* ------------------------------------------------------------------ Lead story (large opener) */
 .aufmacher{max-width:none;}
 .aufmacher--side{display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:center;}
 @media (max-width:760px){.aufmacher--side{grid-template-columns:1fr;}}
@@ -219,9 +219,9 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__hero img
 .aufmacher-band{padding:44px 0 44px;}
 .section-body{border-top:1px solid var(--rule);padding-top:50px;}
 
-/* ------------------------------------------------------------------ Portal-Shell (3-spaltig) */
-/* Bottom 44px = gleicher visueller Abstand wie zwischen den Rubrik-Sektionen
-   (30px Sektions-Padding unten + 14px oben bis zur Trennlinie) */
+/* ------------------------------------------------------------------ Portal shell (3 columns) */
+/* Bottom 44px = same visual gap as between the section blocks
+   (30px section padding below + 14px above up to the divider) */
 .portal-band{padding:40px 0 44px;}
 .portal-grid{max-width:var(--container);margin:0 auto;padding:0 24px;display:grid;gap:28px;align-items:start;}
 .portal-center{padding:0 28px;border-left:1px solid var(--rule);border-right:1px solid var(--rule);}
@@ -245,11 +245,11 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__hero img
 .rail-num__lead .rail-num__t{display:block;font-size:15px;}
 .rail-pills{display:flex;flex-wrap:wrap;gap:8px;}
 
-/* ------------------------------------------------------------------ Rubriken-Sektionen */
+/* ------------------------------------------------------------------ Section blocks */
 .rubrik{padding:14px 0 30px;}
 .rubrik--lead{border-top:1px solid var(--rule);padding-top:30px;}
 .rubrik__head{display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:1px solid var(--rule-sec);padding-top:16px;margin-bottom:22px;}
-/* Figma „Section-Header"-Chip: gerundete Pille, Rahmen + feiner Schatten (74:429) */
+/* Figma "section header" chip: rounded pill, frame + subtle shadow (74:429) */
 .rubrik__chip{display:inline-flex;align-items:center;font-family:var(--font-body);font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--color-ink);background:var(--color-bg);border:1px solid var(--rule);border-radius:20px;padding:11px 15px 9px;box-shadow:0 0 2.5px rgba(145,143,148,.3);}
 .rubrik__more{font-family:var(--font-body);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-brand);}
 .rubrik__chip{transition:color .15s,border-color .15s;} .rubrik__chip:hover{color:var(--color-brand);border-color:var(--color-brand);}
@@ -258,9 +258,9 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__hero img
 .section-head .post__back{margin-bottom:16px;}
 .section-title{font-family:var(--font-head);font-size:calc(44px*var(--fs));line-height:1.06;font-weight:var(--weight-heading);letter-spacing:var(--track-head);text-transform:var(--case-head);color:var(--color-ink);margin:0;}
 .section-count{font-size:15px;color:var(--color-ink-soft);margin:12px 0 0;}
-/* genau eine Teaser-Zeile zeigen (überzählige Grid-Rows kollabieren) */
+/* show exactly one teaser row (surplus grid rows collapse) */
 .rubrik__grid{padding-bottom:0;grid-template-rows:max-content;grid-auto-rows:0;row-gap:0;overflow:hidden;}
-/* Feature-Sektion: 1 groß + Liste */
+/* Feature section: 1 large + list */
 .rubrik__feature{display:grid;grid-template-columns:1.5fr 1fr;gap:34px;align-items:start;}
 .feat-main__media{width:100%;aspect-ratio:var(--card-ar);object-fit:cover;background:var(--color-line);border-radius:var(--radius-card);}
 .feat-main__title{font-family:var(--font-head);font-size:calc(26px*var(--fs));font-weight:var(--weight-heading);line-height:1.2;margin:14px 0 0;letter-spacing:var(--track-head);text-transform:var(--case-head);transition:color .15s;}
@@ -271,7 +271,7 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__hero img
 .teaser-row__media{width:84px;height:84px;object-fit:cover;background:var(--color-line);border-radius:var(--radius-card);}
 .teaser-row__title{font-family:var(--font-head);font-size:15px;font-weight:600;line-height:1.3;margin:0;text-transform:var(--case-head);transition:color .15s;}
 .teaser-row:hover .teaser-row__title{color:var(--color-brand);}
-/* Kompakt-Sektion: Textteaser in Spalten */
+/* Compact section: text teasers in columns */
 .rubrik__compact{display:grid;grid-template-columns:repeat(var(--grid-cols,3),1fr);gap:0 30px;grid-template-rows:max-content;grid-auto-rows:0;overflow:hidden;}
 .teaser-text{display:block;}
 .teaser-text__title{font-family:var(--font-head);font-size:15px;font-weight:600;line-height:1.3;margin:0 0 4px;text-transform:var(--case-head);transition:color .15s;}
@@ -286,8 +286,8 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__hero img
 }
 
 /* ------------------------------------------------------------------ Footer */
-/* Bottom-Polster räumt den fixierten Steady-Bottom-Layer (Checkout/Newsletter)
-   frei, damit Logo + Links trotz Overlay sichtbar bleiben; + iOS-Safe-Area. */
+/* Bottom padding clears the fixed Steady bottom layer (checkout/newsletter)
+   so logo + links stay visible despite the overlay; + iOS safe area. */
 .site-footer{border-top:1px solid var(--rule);margin-top:44px;padding:44px 0 calc(120px + env(safe-area-inset-bottom,0px));}
 .site-footer__inner{display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;}
 .site-footer .brand{justify-content:center;}
@@ -295,15 +295,15 @@ html.img-duo .card__media,html.img-duo .hero__media,html.img-duo .post__hero img
 .footer-link{font-family:var(--font-body);font-size:13px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--color-ink-soft);transition:color .15s;}
 .footer-link:hover{color:var(--color-brand);}
 
-/* ------------------------------------------------------------------ Customizer-Panel
-   Gestylt nach den Steady-Backend-Design-Tokens (main_app design_tokens/*):
-   Navy #291E38 (primär), Purple #954FCF (Links/Fokus), Hairline #E7E7E7,
-   Flächen #F7F7F7, Text-sekundär #757776, Fehler #D75A46. Radius-Philosophie:
-   Controls eckig (radius 0), Panel 13px (Sideview), Pills rund. Uppercase-
-   Buttons 12-13px/700/.5px. Schrift bleibt Inter (CircularStd ist Lineto-
-   lizenziert und darf nicht mitgeliefert werden). Der Drawer ist Steady-Chrome
-   und folgt deshalb bewusst NICHT dem Publisher-Theme. */
-/* FAB: dezente, vertikal zentrierte Lasche am rechten Rand (kollidiert nicht mit dem Steady-Layer) */
+/* ------------------------------------------------------------------ Customizer panel
+   Styled after the Steady backend design tokens (main_app design_tokens/*):
+   navy #291E38 (primary), purple #954FCF (links/focus), hairline #E7E7E7,
+   surfaces #F7F7F7, secondary text #757776, error #D75A46. Radius philosophy:
+   controls square (radius 0), panel 13px (sideview), pills round. Uppercase
+   buttons 12-13px/700/.5px. The font stays Inter (CircularStd is Lineto-
+   licensed and must not be shipped). The drawer is Steady chrome and therefore
+   deliberately does NOT follow the publisher theme. */
+/* FAB: subtle, vertically centered tab on the right edge (doesn't collide with the Steady layer) */
 :root{--cz-w:340px;}
 @media (min-width:960px){html.cz-on body{padding-right:var(--cz-w);transition:padding-right .25s ease-in-out;}}
 .cz-fab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:60;width:34px;height:48px;border-radius:13px 0 0 13px;border:1px solid #E7E7E7;border-right:0;background:rgba(255,255,255,.92);color:#954FCF;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 25px rgba(41,30,56,.15);backdrop-filter:blur(5px);transition:color .2s,background .2s;}
@@ -319,8 +319,8 @@ html.cz-on .cz{transform:none;}
 .cz-x{width:28px;height:28px;border:1px solid #E7E7E7;border-radius:0;background:#fff;color:#757776;cursor:pointer;font-size:16px;line-height:1;transition:color .2s;}
 .cz-x:hover{color:#291E38;}
 .cz-body{overflow-y:auto;flex:1;}
-/* „Für alle Besucher speichern" oben als Aktions-Leiste (Steady sideview__actions:
-   Fläche #F7F7F7 + Hairline) — der späte Steady-Bottom-Layer kann sie nicht verdecken */
+/* "Publish for all visitors" at the top as an action bar (Steady sideview__actions:
+   surface #F7F7F7 + hairline) — the late Steady bottom layer can't cover it */
 .cz-pubbar{flex:none;padding:15px 20px;border-bottom:1px solid #E7E7E7;background:#F7F7F7;}
 .cz-pub{width:100%;min-height:36px;font:inherit;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#fff;background:#291E38;border:1px solid #291E38;border-radius:0;padding:9px 10px;cursor:pointer;transition:background .2s;}
 .cz-pub:hover{background:#372C4A;} .cz-pub:disabled{opacity:.6;cursor:default;}
@@ -358,8 +358,8 @@ html.cz-on .cz{transform:none;}
 .cz-color-t{display:flex;flex-direction:column;line-height:1.2;}
 .cz-color-t em{font-style:normal;font-weight:400;font-size:10px;color:#757776;margin-top:2px;}
 .cz-lbl-x{text-transform:none;letter-spacing:0;font-weight:400;color:#757776;}
-/* Segment-Reihen: einzeilig, bei Platzmangel horizontal scrollbar (Scrollbar versteckt,
-   wie Steadys Sidebar-Nav) — statt zu umbrechen oder zu quetschen */
+/* Segment rows: single line, horizontally scrollable when space is tight (scrollbar hidden,
+   like Steady's sidebar nav) — instead of wrapping or squeezing */
 .cz-seg{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
 .cz-seg::-webkit-scrollbar{display:none;}
 .cz-seg button{flex:1 0 auto;white-space:nowrap;font:inherit;font-size:12px;padding:9px 12px;border:1px solid #E7E7E7;border-radius:0;background:#fff;color:#291E38;cursor:pointer;transition:background .2s,border-color .2s,color .2s;}
@@ -404,24 +404,24 @@ html.cz-on .cz{transform:none;}
 .cz-logo-up:hover{background:#372C4A;}
 .cz-logo-rm{font:inherit;font-size:12px;color:#291E38;background:#fff;border:1px solid #E7E7E7;border-radius:0;padding:9px 11px;cursor:pointer;transition:background .2s;}
 .cz-logo-rm:hover{background:#F7F7F7;}
-/* Fokus-Ring wie im Steady-Backend (focus.scss): 2px Purple, 2px Offset — Inputs
-   zeigen Fokus stattdessen über die Navy-Border */
+/* Focus ring like in the Steady backend (focus.scss): 2px purple, 2px offset — inputs
+   show focus via the navy border instead */
 .cz button:focus-visible,.cz-fab:focus-visible{outline:2px solid #954FCF;outline-offset:2px;}
-/* Steady-Breakpoint 30rem: darunter volle Breite, ohne Panel-Radius */
+/* Steady breakpoint 30rem: below it full width, without panel radius */
 @media (max-width:480px){.cz{width:100%;max-width:none;border-radius:0;border-left:0;}}
 
 /* ------------------------------------------------------------------ Responsive */
-/* Zentrierter Header: auf schmalen Fenstern zurück aufs Links/Rechts-Layout —
-   sonst überlappt der absolut positionierte Login-Button die mittige Marke.
-   Im normalen Flow schrumpft die Marke (min-width:0) statt zu überlappen. */
+/* Centered header: on narrow windows back to the left/right layout —
+   otherwise the absolutely positioned login button overlaps the centered brand.
+   In normal flow the brand shrinks (min-width:0) instead of overlapping. */
 @media (max-width:768px){
   .site-header--center .site-header__inner{justify-content:space-between;}
   .site-header--center .header-actions{position:static;transform:none;}}
 @media (max-width:900px){.hero__grid{grid-template-columns:1fr;gap:28px;}.grid{grid-template-columns:repeat(2,1fr);}:root{--text-h1:calc(38px*var(--fs));}}
 @media (max-width:680px){.post__title{font-size:calc(34px*var(--fs));}.post__body{font-size:calc(20px*var(--fs));}}
 @media (max-width:560px){.grid{grid-template-columns:1fr;}.header-actions .btn--outline{display:none;}
-  /* Schmale Fenster: nur das Icon im Header, Wortmarke weg — schafft Platz
-     für den Steady-Login-Button (sonst Overlap). */
+  /* Narrow windows: only the icon in the header, wordmark gone — makes room
+     for the Steady login button (otherwise overlap). */
   .brand__name{display:none;}
   /* Touch-Targets (≥44px): Pills + Login-Fallback */
   .pill{padding:7px 14px;}

@@ -1,10 +1,10 @@
-// server/node.ts — HTTP-Server-Bridge: Node-IncomingMessage ↔ fetch-API.
-// Baut pro Request einen fetch-Request, leitet ihn an handleRequest() weiter
-// und schreibt die fetch-Response zurück in die Node-ServerResponse.
-// Static-Serving (public/) und der 404-Fallback sind hier angesiedelt.
+// server/node.ts — HTTP server bridge: Node IncomingMessage ↔ fetch API.
+// Builds one fetch Request per request, forwards it to handleRequest() and
+// writes the fetch Response back into the Node ServerResponse.
+// Static serving (public/) and the 404 fallback live here.
 //
-// Direktstart: server/node.js (Bootstrap) — nicht diese Datei.
-// Tests importieren startServer direkt von hier.
+// Direct start: server/node.js (bootstrap) — not this file.
+// Tests import startServer directly from here.
 
 import http from "node:http";
 import { readFile } from "node:fs/promises";
@@ -30,7 +30,7 @@ const MIME: Record<string, string> = {
   ".woff": "font/woff", ".woff2": "font/woff2",
 };
 
-/** Node-IncomingMessage → fetch-Request (absolute URL, gepufferter Body). */
+/** Node IncomingMessage → fetch Request (absolute URL, buffered body). */
 async function toRequest(req: http.IncomingMessage, port: number): Promise<{ request?: Request; tooLarge?: boolean }> {
   const proto = String(req.headers["x-forwarded-proto"] || "http").split(",")[0].trim();
   const host = req.headers["host"] || `localhost:${port}`;
@@ -56,11 +56,11 @@ async function toRequest(req: http.IncomingMessage, port: number): Promise<{ req
   return { request: new Request(url, { method: req.method, headers, body }) };
 }
 
-/** fetch-Response → Node-ServerResponse. */
+/** fetch Response → Node ServerResponse. */
 async function writeResponse(res: http.ServerResponse, response: Response): Promise<void> {
   const headers: Record<string, string | string[]> = {};
   response.headers.forEach((v, k) => {
-    if (k === "set-cookie") return; // unten separat (mehrwertig)
+    if (k === "set-cookie") return; // handled separately below (multi-valued)
     headers[k] = v;
   });
   const setCookie = typeof response.headers.getSetCookie === "function"
@@ -70,8 +70,8 @@ async function writeResponse(res: http.ServerResponse, response: Response): Prom
   res.end(Buffer.from(await response.arrayBuffer()));
 }
 
-/** Statische Datei aus public/ — mit der Cache-Politik aus public/_headers
- *  (die Datei selbst gilt nur auf Cloudflare; hier spiegeln wir sie). */
+/** Static file from public/ — with the cache policy from public/_headers
+ *  (that file only applies on Cloudflare; here we mirror it). */
 async function tryStatic(pathname: string): Promise<{ data: Buffer; type: string; cache: string } | null> {
   if (pathname.includes("..") || pathname.includes("\0")) return null;
   let rel: string;
@@ -112,7 +112,7 @@ function makeHandler(env: KitEnv, serverPort: number) {
       const response = built.request ? await handleRequest(built.request, env) : null;
       if (response) { await writeResponse(res, response); return; }
 
-      // Kein Function-Match → statische Datei aus public/
+      // No function match → static file from public/
       const pathname = built.request
         ? new URL(built.request.url).pathname
         : (req.url || "/").split("?")[0];
@@ -140,7 +140,7 @@ function makeHandler(env: KitEnv, serverPort: number) {
 }
 
 /**
- * Server starten. opts.env überschreibt process.env (Tests!), opts.port 0 = zufällig.
+ * Start the server. opts.env overrides process.env (tests!), opts.port 0 = random.
  */
 export function startServer(opts?: { port?: number; host?: string; env?: Record<string, unknown> }): Promise<http.Server> {
   const port = opts?.port ?? parseInt(process.env.PORT || "8788", 10);

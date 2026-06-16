@@ -1,19 +1,18 @@
 #!/usr/bin/env node
-// server/node.js — Bootstrap: prüft die Node-Version in plain JS, BEVOR
-// TypeScript-Module geladen werden (sonst wäre der Fehler ein kryptisches
-// ERR_UNKNOWN_FILE_EXTENSION). npm run dev / npm start zeigen hierher.
+// server/node.js — bootstrap: checks the Node version in plain JS BEFORE any
+// TypeScript module loads (otherwise the error would be a cryptic
+// ERR_UNKNOWN_FILE_EXTENSION). npm run dev / npm start point here.
 import { loadDotEnv } from "./env.js";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { resolve } from "node:path";
 
-/** Versions-Check; liefert die Fehlermeldung oder null. Exportiert für Tests. */
+/** Version check; returns the error message or null. Exported for tests. */
 export function checkNodeVersion(version) {
   const [maj = 0, min = 0] = String(version).split(".").map(Number);
   if (maj > 22 || (maj === 22 && min >= 18)) return null;
   return [
-    `steady-page-kit v2 braucht Node >= 22.18 (gefunden: ${version}).`,
-    "DE: Bitte Node 24 LTS installieren — siehe README «Voraussetzungen» bzw. dein Deploy-Rezept in docs/agent/deploy/.",
-    "EN: Please install Node 24 LTS — see README 'Requirements' or your deploy recipe in docs/agent/deploy/.",
+    `steady-page-kit v2 requires Node >= 22.18 (found: ${version}).`,
+    "Please install Node 24 LTS — see the README 'Requirements' or your deploy recipe in docs/agent/deploy/.",
   ].join("\n");
 }
 
@@ -29,6 +28,6 @@ if (isMain) {
   const { port } = server.address();
   const { IS_CONFIGURED } = await import("../functions/_lib/config.ts");
   const configured = IS_CONFIGURED || !!process.env.FEED_URL || !!process.env.STEADY_SLUG;
-  const hint = configured ? "" : `  (noch unkonfiguriert → Onboarding-Seite; sage deinem KI-Tool: „Richte meine Seite ein“)`;
-  console.log(`steady-page-kit läuft auf http://localhost:${port}${hint}`);
+  const hint = configured ? "" : `  (not configured yet → onboarding page; tell your AI tool: "Set up my page")`;
+  console.log(`steady-page-kit running at http://localhost:${port}${hint}`);
 }

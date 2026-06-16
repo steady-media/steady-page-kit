@@ -1,11 +1,11 @@
-// Eine Routen-Wahrheit: jede functions/-Routendatei steht in ROUTES und umgekehrt.
+// One routing truth: every functions/ route file is in ROUTES and vice versa.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { ROUTES } from "../server/routes.ts";
 
-test("ROUTES ↔ functions/-Ordner sind deckungsgleich", () => {
+test("ROUTES ↔ functions/ folder are in lockstep", () => {
   const root = fileURLToPath(new URL("../functions/", import.meta.url));
   const found = [];
   const walk = (dir, prefix) => {

@@ -1,29 +1,29 @@
 // @ts-check
-/* kit-panel.js — Logik des Customizer-Panels (läuft am Ende von <body>, Panel-DOM existiert).
+/* kit-panel.js — customizer panel logic (runs at the end of <body>, panel DOM exists).
  *
- * Arbeitsteilung: kit-theme.js stellt Kataloge + Setter bereit (_w.kit*);
- * diese Datei verdrahtet die Panel-Controls damit. Generische Regler sind über
- * data-Attribute gebunden: data-fn (Setter-Familie) + data-kind (Regler) + data-v (Wert).
+ * Division of labor: kit-theme.js provides the catalogs + setters (_w.kit*);
+ * this file wires the panel controls to them. Generic controls are bound via
+ * data attributes: data-fn (setter family) + data-kind (control) + data-v (value).
  *
- * Persistenz: persönliche Einstellungen in localStorage/Cookies; „Für alle Besucher
- * speichern" veröffentlicht sie global über PUT /api/config (Admin-Code, KV).
+ * Persistence: personal settings in localStorage/cookies; "Publish for all
+ * visitors" publishes them globally via PUT /api/config (admin code, KV).
  */
 
-// Kurzreferenz auf window mit Kit-Erweiterungen (Typedef in kit-theme.js).
-// In der Browser-Seite sind beide Dateien geladen; tsc prüft sie gemeinsam (tsconfig.browser.json).
+// Shorthand reference to window with the kit extensions (typedef in kit-theme.js).
+// On the browser page both files are loaded; tsc checks them together (tsconfig.browser.json).
 /** @type {Window & typeof globalThis & KitWindowExtensions} */
 var _w = /** @type {any} */ (window);
 (function () {
   var D = document.documentElement;
 
-  /* — i18n: page.js injiziert _w.KIT_I18N (Sprache aus kit.config.js).
-       Die deutschen Literale bleiben als eingebauter Fallback. — */
+  /* — i18n: page.ts injects _w.KIT_I18N (language from kit.config.js).
+       The English literals remain as a built-in fallback. — */
   /** @type {Record<string,unknown>} */
   var I18N = /** @type {Record<string,unknown>} */ (_w.KIT_I18N || {});
   /** @param {string} key @param {string} fallback */
   function T(key, fallback) { return I18N[key] != null ? /** @type {string} */ (I18N[key]) : fallback; }
 
-  /* — Storage-Helfer: localStorage zuerst, dann global veröffentlichte Basis — */
+  /* — Storage helpers: localStorage first, then the globally published base — */
   /** @param {string} k @param {unknown} [d] */
   function gs(k, d) {
     try { var v = localStorage.getItem(k); if (v != null) return v; } catch (e) {}
@@ -40,7 +40,7 @@ var _w = /** @type {any} */ (window);
     return {};
   }
 
-  /* ---------------------------------------------------------------- Öffnen/Schließen + Akkordeon */
+  /* ---------------------------------------------------------------- Open/close + accordion */
   /** @param {boolean} open */
   function setOpen(open) {
     D.classList.toggle("cz-on", open);
@@ -49,12 +49,12 @@ var _w = /** @type {any} */ (window);
   var openBtn = document.getElementById("cz-open"), closeBtn = document.getElementById("cz-close");
   if (openBtn) openBtn.addEventListener("click", function () { setOpen(true); if (closeBtn) closeBtn.focus(); });
   if (closeBtn) closeBtn.addEventListener("click", function () { setOpen(false); if (openBtn) openBtn.focus(); });
-  // ESC schließt das Panel (Suche/Dialoge fangen ESC selbst ab)
+  // ESC closes the panel (search/dialogs handle ESC themselves)
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape" && D.classList.contains("cz-on")) { setOpen(false); if (openBtn) openBtn.focus(); }
   });
 
-  // Offene Sektionen als Index-Liste merken (kitAcc2), beim Laden wiederherstellen
+  // Remember open sections as an index list (kitAcc2), restore them on load
   function saveAccordion() {
     /** @type {number[]} */
     var open = [];
@@ -73,17 +73,17 @@ var _w = /** @type {any} */ (window);
     h.addEventListener("click", function () { if (h.parentElement) h.parentElement.classList.toggle("cz-open"); saveAccordion(); });
   });
 
-  // Jede manuelle Änderung löst die Look-Markierung (kein Look mehr „aktiv")
+  // Any manual change clears the look marker (no look is "active" anymore)
   function clearLook() {
     try { localStorage.removeItem("kitLook"); } catch (e) {}
     markLook();
   }
 
-  /* ---------------------------------------------------------------- Schriften */
-  // Such-Comboboxen über kuratierte Favoriten + den kompletten Bunny-Katalog (lazy).
+  /* ---------------------------------------------------------------- Fonts */
+  // Search comboboxes over curated favorites + the full Bunny catalog (lazy).
   _w.KIT_BUNNY = _w.KIT_BUNNY || {};
   _w.KIT_BUNNY_LIST = _w.KIT_BUNNY_LIST || [];
-  var bunnyState = 0; // 0 = nicht geladen, 1 = lädt, 2 = fertig
+  var bunnyState = 0; // 0 = not loaded, 1 = loading, 2 = done
   /** @type {Array<() => void>} */
   var bunnyCallbacks = [];
 
@@ -100,7 +100,7 @@ var _w = /** @type {any} */ (window);
     if (category === "handwriting") return "cursive";
     return "sans-serif";
   }
-  // sinnvolle Gewichte herausfiltern (300–800); leere Liste → erstes verfügbares
+  // filter to sensible weights (300–800); empty list → first available
   /** @param {number[]} arr */
   function weightsOf(arr) {
     if (!arr || !arr.length) return "400,700";
@@ -128,7 +128,7 @@ var _w = /** @type {any} */ (window);
       done();
     }).catch(function () { bunnyState = 0; done(); });
   }
-  // Suchpool: Favoriten zuerst, dann der restliche Katalog (max. 60 Treffer)
+  // Search pool: favorites first, then the rest of the catalog (max 60 hits)
   function fontPool() {
     /** @type {Record<string,number>} */
     var seen = {};
@@ -148,7 +148,7 @@ var _w = /** @type {any} */ (window);
     }
     return res;
   }
-  // Anzeigename der aktuell gespeicherten Schrift (JSON-Deskriptor oder Legacy-Slug)
+  // Display name of the currently stored font (JSON descriptor or legacy slug)
   /** @param {string} role */
   function curName(role) {
     var v = /** @type {string} */ (gs(role === "head" ? "kitFontHead" : "kitFontBody", role === "head" ? _w.KIT_DEFAULT_HEAD : _w.KIT_DEFAULT_BODY));
@@ -169,7 +169,7 @@ var _w = /** @type {any} */ (window);
     var inp = /** @type {HTMLInputElement|null} */ (document.getElementById(inputId));
     var pop = /** @type {HTMLElement|null} */ (document.getElementById(popupId));
     if (!inp || !pop) return;
-    var _inp = inp, _pop = pop; // nicht-null Aliase für Closures
+    var _inp = inp, _pop = pop; // non-null aliases for closures
     _inp.value = curName(role);
     /** @param {string} q */
     function render(q) {
@@ -184,7 +184,7 @@ var _w = /** @type {any} */ (window);
           var cats = /** @type {Record<string,string>|undefined} */ (/** @type {any} */ (I18N).cats);
           var ct = document.createElement("em"); ct.textContent = (cats && cats[f.c]) || f.c || f.g || "";
           b.appendChild(nm); b.appendChild(ct);
-          // mousedown statt click: feuert vor dem blur des Inputs (Popup bleibt benutzbar)
+          // mousedown instead of click: fires before the input's blur (popup stays usable)
           b.addEventListener("mousedown", function (e) {
             e.preventDefault();
             _w.kitApplyFont(role, f, true);
@@ -209,9 +209,9 @@ var _w = /** @type {any} */ (window);
   setupFontBox("head", "cz-fh-in", "cz-fh-pop");
   setupFontBox("body", "cz-fb-in", "cz-fb-pop");
 
-  // Schrift-Paare (Vorlagen)
+  // Font pairs (presets)
   if (pairSel && _w.KIT_PAIRS) {
-    var _pairSel = pairSel; // nicht-null Alias
+    var _pairSel = pairSel; // non-null alias
     for (var pi = 0; pi < _w.KIT_PAIRS.length; pi++) {
       var pp = _w.KIT_PAIRS[pi];
       var po = document.createElement("option");
@@ -230,17 +230,17 @@ var _w = /** @type {any} */ (window);
     });
   }
 
-  // „Feinschliff" auf-/zuklappen
+  // "fine-tuning" expand/collapse
   var moreBtn = document.getElementById("cz-type-more"), moreBody = document.getElementById("cz-type-adv");
   if (moreBtn && moreBody) {
-    var _moreBtn = moreBtn, _moreBody = moreBody; // nicht-null Aliase
+    var _moreBtn = moreBtn, _moreBody = moreBody; // non-null aliases
     _moreBtn.addEventListener("click", function () {
       var open = _moreBody.classList.toggle("open");
       _moreBtn.setAttribute("aria-expanded", open ? "true" : "false");
     });
   }
 
-  /* ---------------------------------------------------------------- Farben + Kontrast-Wächter */
+  /* ---------------------------------------------------------------- Colors + contrast guard */
   /** @type {Record<string,string>} */
   var colorMap = { "cz-c-brand": "--color-brand", "cz-c-accent": "--color-accent", "cz-c-bg": "--color-bg" };
   /** @param {string} name @returns {string} */
@@ -263,7 +263,7 @@ var _w = /** @type {any} */ (window);
     var sv = gs("kitPalette", null);
     if (pal) Array.from(pal.children).forEach(function (x, i) { x.classList.toggle("on", String(i) === sv); });
   }
-  // Schema-Swatches: zweifarbig (Akzent + tatsächlicher Hintergrund), dunkle Schemas markiert
+  // Scheme swatches: two-tone (accent + actual background), dark schemes marked
   if (pal && _w.KIT_PALETTES) {
     for (var qi = 0; qi < _w.KIT_PALETTES.length; qi++) {
       (function (idx) {
@@ -271,7 +271,7 @@ var _w = /** @type {any} */ (window);
         var b = document.createElement("button");
         var i18nPalettes = /** @type {Record<number,string>|undefined} */ (/** @type {any} */ (I18N).palettes);
         b.title = ((i18nPalettes && i18nPalettes[idx]) || p.n)
-          + ((_w.KIT_RL && _w.KIT_RL(p.v["--color-bg"] || "#FFFFFF") < 0.42) ? T("palette.dark", " (dunkel)") : "");
+          + ((_w.KIT_RL && _w.KIT_RL(p.v["--color-bg"] || "#FFFFFF") < 0.42) ? T("palette.dark", " (dark)") : "");
         var brand = p.v["--color-brand"], bg = p.v["--color-bg"] || "#FFFFFF";
         b.style.background = "linear-gradient(135deg, " + brand + " 0 50%, " + bg + " 50% 100%)";
         b.addEventListener("click", function () { _w.kitPalette(idx, true); markPal(); syncColors(); clearLook(); });
@@ -286,8 +286,8 @@ var _w = /** @type {any} */ (window);
     })(cid, /** @type {string} */ (colorMap[/** @type {string} */ (cid)]));
   }
 
-  /* ---------------------------------------------------------------- Generische Segmente */
-  // data-fn wählt die Setter-Familie, data-kind den Regler, data-v den Wert.
+  /* ---------------------------------------------------------------- Generic segments */
+  // data-fn picks the setter family, data-kind the control, data-v the value.
   /** @type {Record<string, Record<string,string>>} */
   var DEFAULTS = {
     layout: { cols: "3", width: "standard", dens: "komfortabel", corner: "eckig", hero: "split", nav: "standard" },
@@ -330,10 +330,10 @@ var _w = /** @type {any} */ (window);
     });
   });
 
-  /* ---------------------------------------------------------------- Seitenleisten (nur Portal) */
+  /* ---------------------------------------------------------------- Side rails (portal only) */
   var railsEl = document.getElementById("cz-rails");
   if (railsEl) {
-    var _railsEl = railsEl; // nicht-null Alias
+    var _railsEl = railsEl; // non-null alias
     var st0 = jget("kitStruct"), shell0 = /** @type {string} */ (st0["shell"] || "single");
     var rails0 = /** @type {string[]} */ (Array.isArray(st0["rails"]) ? st0["rails"] : (shell0 === "portal" ? ["neueste", "meist", "themen"] : []));
     _railsEl.classList.toggle("cz-rails--off", shell0 !== "portal");
@@ -350,7 +350,7 @@ var _w = /** @type {any} */ (window);
     });
   }
 
-  /* ---------------------------------------------------------------- Header: Titel + Navigation */
+  /* ---------------------------------------------------------------- Header: title + navigation */
   var navEd = document.getElementById("cz-nav");
   var footEd = document.getElementById("cz-foot");
   var brandInp = /** @type {HTMLInputElement|null} */ (document.getElementById("cz-brand"));
@@ -360,7 +360,7 @@ var _w = /** @type {any} */ (window);
   try { savedChrome = JSON.parse(localStorage.getItem("kitChrome") || "{}"); } catch (e) {}
   if (brandInp) brandInp.value = savedChrome.brand || _w.KIT_DEFAULT_BRAND || "";
 
-  /** Liest alle Nav-Zeilen aus einem Editor-Container und gibt das Array zurück. */
+  /** Reads all nav rows from an editor container and returns the array. */
   /** @param {Element} ed */
   function collectRows(ed) {
     /** @type {Array<{l:string,h:string,x:boolean}>} */
@@ -374,7 +374,7 @@ var _w = /** @type {any} */ (window);
     return out;
   }
 
-  /** Sammelt brand + nav + foot aus dem Panel und schreibt kitchrome → Reload. */
+  /** Collects brand + nav + foot from the panel and writes kitchrome → reload. */
   function writeChrome() {
     var brand = brandInp ? brandInp.value.trim() : "";
     var nav = navEd ? collectRows(navEd) : (savedChrome.nav || []);
@@ -383,9 +383,9 @@ var _w = /** @type {any} */ (window);
   }
 
   if (navEd) {
-    var _navEd = navEd; // nicht-null Alias
+    var _navEd = navEd; // non-null alias
 
-    // Initiale Liste: gespeichert > aktuelle Seiten-Nav (DOM) > Default
+    // Initial list: stored > current page nav (DOM) > default
     /** @type {Array<{l:string,h:string,x?:boolean}>|undefined} */
     var navInit = savedChrome.nav;
     if (!navInit) {
@@ -403,16 +403,16 @@ var _w = /** @type {any} */ (window);
       if (!sib) return;
       if (dir < 0) _navEd.insertBefore(row, sib); else _navEd.insertBefore(sib, row);
     }
-    // Eine editierbare Nav-Zeile: Grip (Drag + Pfeiltasten) | Label | URL | Entfernen
+    // One editable nav row: grip (drag + arrow keys) | label | URL | remove
     /** @param {Element} container @param {{ l?: string, h?: string, x?: boolean }|undefined} [n] */
     function navRow(container, n) {
       var row = document.createElement("div"); row.className = "cz-nav-row";
       var grip = document.createElement("button");
       grip.type = "button"; grip.className = "cz-nav-grip"; grip.textContent = "⠿";
-      grip.title = T("nav.grip.title", "Ziehen oder Pfeiltasten zum Sortieren"); grip.setAttribute("aria-label", T("nav.grip.aria", "Link verschieben"));
+      grip.title = T("nav.grip.title", "Drag or use arrow keys to reorder"); grip.setAttribute("aria-label", T("nav.grip.aria", "Move link"));
       var label = document.createElement("input"); label.className = "cz-nav-l"; label.placeholder = T("nav.label.ph", "Label"); label.value = (n && n.l) || "";
       var href = document.createElement("input"); href.className = "cz-nav-h"; href.placeholder = T("nav.url.ph", "URL"); href.value = (n && n.h) || "";
-      var del = document.createElement("button"); del.type = "button"; del.className = "cz-nav-x"; del.textContent = "×"; del.title = T("nav.remove", "Entfernen");
+      var del = document.createElement("button"); del.type = "button"; del.className = "cz-nav-x"; del.textContent = "×"; del.title = T("nav.remove", "Remove");
       del.addEventListener("click", function () { if (row.parentNode) row.parentNode.removeChild(row); });
       grip.addEventListener("keydown", function (e) {
         var ke = /** @type {KeyboardEvent} */ (e);
@@ -457,19 +457,19 @@ var _w = /** @type {any} */ (window);
 
   /* ---------------------------------------------------------------- Footer: Links */
   if (footEd) {
-    var _footEd = footEd; // nicht-null Alias
+    var _footEd = footEd; // non-null alias
 
-    // Initiale Footer-Links aus kitchrome
+    // Initial footer links from kitchrome
     /** @type {Array<{l:string,h:string,x?:boolean}>} */
     var footInit = savedChrome.foot || [];
 
-    // Footer-Zeile: Label | URL | Entfernen (kein Drag-Grip — Reihenfolge weniger kritisch)
+    // Footer row: label | URL | remove (no drag grip — order less critical)
     /** @param {{ l?: string, h?: string, x?: boolean }|undefined} [n] */
     function footRow(n) {
       var row = document.createElement("div"); row.className = "cz-nav-row";
       var label = document.createElement("input"); label.className = "cz-nav-l"; label.placeholder = T("nav.label.ph", "Label"); label.value = (n && n.l) || "";
       var href = document.createElement("input"); href.className = "cz-nav-h"; href.placeholder = T("nav.url.ph", "URL"); href.value = (n && n.h) || "";
-      var del = document.createElement("button"); del.type = "button"; del.className = "cz-nav-x"; del.textContent = "×"; del.title = T("nav.remove", "Entfernen");
+      var del = document.createElement("button"); del.type = "button"; del.className = "cz-nav-x"; del.textContent = "×"; del.title = T("nav.remove", "Remove");
       del.addEventListener("click", function () { if (row.parentNode) row.parentNode.removeChild(row); });
       row.appendChild(label); row.appendChild(href); row.appendChild(del);
       _footEd.appendChild(row);
@@ -483,7 +483,7 @@ var _w = /** @type {any} */ (window);
     if (footApplyBtn) footApplyBtn.addEventListener("click", writeChrome);
   }
 
-  /* ---------------------------------------------------------------- Suche (feed-basiert, /api/search) */
+  /* ---------------------------------------------------------------- Search (feed-based, /api/search) */
   var searchBtn = document.querySelector(".tabs__search");
   var searchDlg = /** @type {HTMLDialogElement|null} */ (document.getElementById("kit-search"));
   if (searchBtn && searchDlg) {
@@ -515,7 +515,7 @@ var _w = /** @type {any} */ (window);
     function renderResults(results, query) {
       sRes.innerHTML = ""; sActive = -1;
       if (!results.length) {
-        if (query) { var p = document.createElement("p"); p.className = "kit-search__empty"; p.textContent = T("search.empty", 'Keine Treffer für „{q}“.').split("{q}").join(query); sRes.appendChild(p); }
+        if (query) { var p = document.createElement("p"); p.className = "kit-search__empty"; p.textContent = T("search.empty", 'No results for "{q}".').split("{q}").join(query); sRes.appendChild(p); }
         return;
       }
       results.forEach(function (r) {
@@ -541,7 +541,7 @@ var _w = /** @type {any} */ (window);
     _searchBtn.addEventListener("click", openSearch);
     _searchBtn.addEventListener("keydown", function (e) { var ke = /** @type {KeyboardEvent} */ (e); if (ke.key === "Enter" || ke.key === " ") { ke.preventDefault(); openSearch(); } });
     var closeEl = document.getElementById("kit-search-close"); if (closeEl) closeEl.addEventListener("click", closeSearch);
-    // Klick auf den Backdrop (= das dialog-Element selbst) schließt
+    // A click on the backdrop (= the dialog element itself) closes it
     _searchDlg.addEventListener("click", function (e) { if (e.target === _searchDlg) closeSearch(); });
     sIn.addEventListener("input", function () { if (sTimer !== null) clearTimeout(sTimer); sTimer = setTimeout(runSearch, 180); });
     sIn.addEventListener("keydown", function (e) {
@@ -553,36 +553,36 @@ var _w = /** @type {any} */ (window);
     });
   }
 
-  /* ---------------------------------------------------------------- Admin-Code (globales Schreiben) */
-  // Der Code wird einmal abgefragt und im Browser gemerkt; der Server prüft jede Anfrage
-  // gegen das Secret KIT_ADMIN_CODE (401 → gemerkten Code verwerfen).
+  /* ---------------------------------------------------------------- Admin code (global writes) */
+  // The code is requested once and remembered in the browser; the server checks every
+  // request against the secret KIT_ADMIN_CODE (401 → discard the remembered code).
   function kitAdminCode() {
     var c = null;
     try { c = localStorage.getItem("kitAdmin"); } catch (e) {}
     if (!c) {
-      c = window.prompt(T("admin.prompt", "Admin-Code für globale Änderungen:"));
+      c = window.prompt(T("admin.prompt", "Admin code for global changes:"));
       if (c) { c = c.trim(); try { localStorage.setItem("kitAdmin", c); } catch (e) {} }
     }
     return c;
   }
   function kitAdminFail() {
     try { localStorage.removeItem("kitAdmin"); } catch (e) {}
-    alert(T("admin.fail", "Admin-Code falsch oder fehlt."));
+    alert(T("admin.fail", "Wrong or missing admin code."));
   }
 
   /* ---------------------------------------------------------------- Logo (global, KV) */
   var logoFile = /** @type {HTMLInputElement|null} */ (document.getElementById("cz-logo-file"));
   if (logoFile) {
-    var _logoFile = logoFile; // nicht-null Alias
+    var _logoFile = logoFile; // non-null alias
     _logoFile.addEventListener("change", function () {
       var f = _logoFile.files && _logoFile.files[0];
       if (!f) return;
-      if (f.size > 1572864) { alert(T("logo.toobig", "Logo zu groß (max. 1,5 MB).")); _logoFile.value = ""; return; }
+      if (f.size > 1572864) { alert(T("logo.toobig", "Logo too large (max 1.5 MB).")); _logoFile.value = ""; return; }
       var code = kitAdminCode();
       _logoFile.value = "";
       if (!code) return;
-      var _code = code; // nicht-null Alias
-      var _f = f; // nicht-null Alias
+      var _code = code; // non-null alias
+      var _f = f; // non-null alias
       /** @param {number} aspect */
       function send(aspect) {
         fetch("/api/logo", {
@@ -591,11 +591,11 @@ var _w = /** @type {any} */ (window);
           body: _f,
         }).then(function (r) {
           if (r.status === 401) { kitAdminFail(); return; }
-          if (!r.ok) { alert(T("logo.fail", "Logo-Upload fehlgeschlagen.")); return; }
+          if (!r.ok) { alert(T("logo.fail", "Logo upload failed.")); return; }
           location.reload();
-        }).catch(function () { alert(T("logo.fail", "Logo-Upload fehlgeschlagen.")); });
+        }).catch(function () { alert(T("logo.fail", "Logo upload failed.")); });
       }
-      // Seitenverhältnis fürs Server-Meta ermitteln (Fallback 4:1)
+      // determine the aspect ratio for the server meta (fallback 4:1)
       var url = URL.createObjectURL(_f), im = new Image();
       im.onload = function () { var a = im.naturalWidth / (im.naturalHeight || 1); URL.revokeObjectURL(url); send(a); };
       im.onerror = function () { URL.revokeObjectURL(url); send(4); };
@@ -618,7 +618,7 @@ var _w = /** @type {any} */ (window);
     if (looksEl) looksEl.querySelectorAll(":scope > *").forEach(function (x, i) { x.classList.toggle("on", String(i) === String(sv)); });
   }
   if (looksEl && _w.KIT_LOOKS) {
-    var _looksEl = looksEl; // nicht-null Alias
+    var _looksEl = looksEl; // non-null alias
     var looks = /** @type {Array<Record<string,unknown>>} */ (/** @type {any} */ (I18N).looks);
     for (var lo = 0; lo < _w.KIT_LOOKS.length; lo++) {
       (function (idx) {
@@ -635,7 +635,7 @@ var _w = /** @type {any} */ (window);
     }
   }
 
-  // Panel-UI an den aktuellen Zustand angleichen (nach Look-Klick / Basis-Wechsel)
+  // Align the panel UI to the current state (after a look click / base change)
   function syncAll() {
     var fh = /** @type {HTMLInputElement|null} */ (document.getElementById("cz-fh-in")); if (fh) fh.value = curName("head");
     var fb = /** @type {HTMLInputElement|null} */ (document.getElementById("cz-fb-in")); if (fb) fb.value = curName("body");
@@ -645,9 +645,9 @@ var _w = /** @type {any} */ (window);
   }
   markPal(); markLook(); syncColors();
 
-  /* ---------------------------------------------------------------- Reset (nur persönlich) */
-  // Löscht die persönlichen Einstellungen dieses Browsers → zurück zur veröffentlichten
-  // globalen Basis (bzw. zu den Defaults, wenn nichts veröffentlicht ist).
+  /* ---------------------------------------------------------------- Reset (personal only) */
+  // Clears this browser's personal settings → back to the published global base
+  // (or to the defaults if nothing is published).
   var resetBtn = document.getElementById("cz-reset");
   if (resetBtn) resetBtn.addEventListener("click", function () {
     ["kitFontHead", "kitFontBody", "kitColors", "kitLayout", "kitType", "kitCard",
@@ -659,11 +659,11 @@ var _w = /** @type {any} */ (window);
     location.reload();
   });
 
-  /* ---------------------------------------------------------------- Global veröffentlichen */
-  // Aktuelle Skin-Einstellungen + Struktur-Cookies als globale Basis in KV speichern.
+  /* ---------------------------------------------------------------- Publish globally */
+  // Save the current skin settings + structure cookies as the global base in KV.
   var pubBtn = /** @type {HTMLButtonElement|null} */ (document.getElementById("cz-pub"));
   if (pubBtn) {
-    var _pubBtn = pubBtn; // nicht-null Alias
+    var _pubBtn = pubBtn; // non-null alias
     _pubBtn.addEventListener("click", function () {
       var code = kitAdminCode();
       if (!code) return;
@@ -682,7 +682,7 @@ var _w = /** @type {any} */ (window);
       var payload = { skin: skin, kitstruct: cookieValue("kitstruct"), kitchrome: cookieValue("kitchrome"), kitpins: cookieValue("kitpins") };
       var orig = _pubBtn.textContent;
       _pubBtn.disabled = true;
-      _pubBtn.textContent = T("pub.saving", "Speichert …");
+      _pubBtn.textContent = T("pub.saving", "Saving …");
       fetch("/api/config", {
         method: "PUT",
         headers: { "x-kit-admin": code, "content-type": "application/json" },
@@ -690,29 +690,29 @@ var _w = /** @type {any} */ (window);
       }).then(function (r) {
         _pubBtn.disabled = false;
         if (r.status === 401) { _pubBtn.textContent = orig; kitAdminFail(); return; }
-        if (!r.ok) { _pubBtn.textContent = orig; alert(T("pub.fail", "Speichern fehlgeschlagen.")); return; }
-        _pubBtn.textContent = T("pub.done", "✓ Für alle gespeichert");
+        if (!r.ok) { _pubBtn.textContent = orig; alert(T("pub.fail", "Publishing failed.")); return; }
+        _pubBtn.textContent = T("pub.done", "✓ Published for all");
         setTimeout(function () { _pubBtn.textContent = orig; }, 2200);
-      }).catch(function () { _pubBtn.disabled = false; _pubBtn.textContent = orig; alert(T("pub.fail", "Speichern fehlgeschlagen.")); });
+      }).catch(function () { _pubBtn.disabled = false; _pubBtn.textContent = orig; alert(T("pub.fail", "Publishing failed.")); });
     });
   }
 
-  /* ---------------------------------------------------------------- Publish-Status + Revert */
-  // „Zuletzt veröffentlicht"-Anzeige + Rücksprung zur Vorversion (PATCH /api/config).
+  /* ---------------------------------------------------------------- Publish status + revert */
+  // "Last published" display + jump back to the previous version (PATCH /api/config).
   var pubTs = document.getElementById("cz-pub-ts");
   var pubUndo = /** @type {HTMLButtonElement|null} */ (document.getElementById("cz-pub-undo"));
   function refreshPubMeta() {
     if (!pubTs) return;
-    var _pubTs = pubTs; // nicht-null Alias
+    var _pubTs = pubTs; // non-null alias
     fetch("/api/config").then(function (r) { return r.json(); }).then(function (j) {
       _pubTs.textContent = (j && j.ts)
-        ? T("pub.stand", "Stand: ") + new Date(j.ts).toLocaleString(_w.KIT_LOCALE || "de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })
-        : T("pub.none", "Noch nichts veröffentlicht");
+        ? T("pub.stand", "Published: ") + new Date(j.ts).toLocaleString(_w.KIT_LOCALE || "de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })
+        : T("pub.none", "Nothing published yet");
     }).catch(function () { _pubTs.textContent = "–"; });
   }
   refreshPubMeta();
   if (pubUndo) {
-    var _pubUndo = pubUndo; // nicht-null Alias
+    var _pubUndo = pubUndo; // non-null alias
     _pubUndo.addEventListener("click", function () {
       var code = kitAdminCode();
       if (!code) return;
@@ -720,24 +720,24 @@ var _w = /** @type {any} */ (window);
       fetch("/api/config", { method: "PATCH", headers: { "x-kit-admin": code } }).then(function (r) {
         _pubUndo.disabled = false;
         if (r.status === 401) { kitAdminFail(); return; }
-        if (r.status === 404) { alert(T("undo.none", "Keine Vorversion vorhanden.")); return; }
-        if (!r.ok) { alert(T("undo.fail", "Zurücknehmen fehlgeschlagen.")); return; }
-        location.reload(); // Vorversion ist jetzt aktiv
+        if (r.status === 404) { alert(T("undo.none", "No previous version available.")); return; }
+        if (!r.ok) { alert(T("undo.fail", "Revert failed.")); return; }
+        location.reload(); // the previous version is now active
       }).catch(function () { _pubUndo.disabled = false; });
     });
   }
 
-  /* ---------------------------------------------------------------- Post-Reaktionen */
-  // Clap: KV-Zähler über /api/react (optimistisches UI); Teilen: Web Share API → Clipboard-Fallback.
+  /* ---------------------------------------------------------------- Post reactions */
+  // Clap: KV counter via /api/react (optimistic UI); share: Web Share API → clipboard fallback.
   var clapBtn = document.getElementById("js-clap");
   if (clapBtn) {
-    var _clapBtn = clapBtn; // nicht-null Alias
+    var _clapBtn = clapBtn; // non-null alias
     var clapN = document.getElementById("js-clap-n");
     var clapBusy = false;
     _clapBtn.addEventListener("click", function () {
       if (clapBusy) return;
       clapBusy = true;
-      setTimeout(function () { clapBusy = false; }, 400); // Mehrfach-Klicks drosseln
+      setTimeout(function () { clapBusy = false; }, 400); // throttle multi-clicks
       if (clapN) clapN.textContent = String((parseInt(clapN.textContent || "0", 10) || 0) + 1);
       fetch("/api/react?g=" + encodeURIComponent(_clapBtn.getAttribute("data-guid") || ""), { method: "POST" })
         .then(function (r) { return r.json(); })
@@ -747,7 +747,7 @@ var _w = /** @type {any} */ (window);
   }
   var shareBtn = document.getElementById("js-share");
   if (shareBtn) {
-    var _shareBtn = shareBtn; // nicht-null Alias
+    var _shareBtn = shareBtn; // non-null alias
     _shareBtn.addEventListener("click", function () {
       var title = _shareBtn.getAttribute("data-title") || document.title;
       var url = location.href;
@@ -756,42 +756,42 @@ var _w = /** @type {any} */ (window);
         navigator.share({ title: title, url: url }).catch(function () {});
       } else if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(url).then(function () {
-          if (label) { var _label = label; _label.textContent = T("share.copied", "Link kopiert ✓"); setTimeout(function () { _label.textContent = T("share", "Teilen"); }, 1800); }
+          if (label) { var _label = label; _label.textContent = T("share.copied", "Link copied ✓"); setTimeout(function () { _label.textContent = T("share", "Share"); }, 1800); }
         }).catch(function () {});
       }
     });
   }
 
-  /* ---------------------------------------------------------------- „Mehr laden" */
-  // Holt die nächste Server-Seite (?page=N) und hängt nur deren Teaser-Karten ans Grid.
+  /* ---------------------------------------------------------------- "load more" */
+  // Fetches the next server page (?page=N) and appends only its teaser cards to the grid.
   var loadMoreBtn = /** @type {HTMLButtonElement|null} */ (document.getElementById("js-loadmore"));
   if (loadMoreBtn) {
-    var _loadMoreBtn = loadMoreBtn; // nicht-null Alias
+    var _loadMoreBtn = loadMoreBtn; // non-null alias
     _loadMoreBtn.addEventListener("click", function () {
       var next = parseInt(_loadMoreBtn.getAttribute("data-next") || "0", 10);
       var pages = parseInt(_loadMoreBtn.getAttribute("data-pages") || "0", 10);
       _loadMoreBtn.disabled = true;
-      _loadMoreBtn.textContent = T("loading", "Lädt …");
+      _loadMoreBtn.textContent = T("loading", "Loading …");
       var base = _loadMoreBtn.getAttribute("data-url") || "/";
       var sep = base.indexOf("?") >= 0 ? "&" : "?";
       fetch(base + sep + "page=" + next).then(function (r) { return r.text(); }).then(function (html) {
         var doc = new DOMParser().parseFromString(html, "text/html");
         var grid = document.querySelector(".grid");
         if (grid) { var _grid = grid; doc.querySelectorAll(".grid .card").forEach(function (c) { _grid.appendChild(document.importNode(c, true)); }); }
-        injectPins(); // nachgeladene Karten ebenfalls pinnbar machen
+        injectPins(); // make freshly loaded cards pinnable too
         next++;
         _loadMoreBtn.setAttribute("data-next", String(next));
         _loadMoreBtn.disabled = false;
-        _loadMoreBtn.textContent = T("loadmore", "Mehr laden");
+        _loadMoreBtn.textContent = T("loadmore", "Load more");
         if (next > pages) _loadMoreBtn.style.display = "none";
-      }).catch(function () { _loadMoreBtn.disabled = false; _loadMoreBtn.textContent = T("loadmore", "Mehr laden"); });
+      }).catch(function () { _loadMoreBtn.disabled = false; _loadMoreBtn.textContent = T("loadmore", "Load more"); });
     });
   }
 
-  /* ---------------------------------------------------------------- Beiträge anpinnen */
-  // Sichtbar im Editing-Modus (Panel offen → html.cz-on, per CSS). Pinnen schreibt einen
-  // persönlichen kitpins-Cookie {scope:[guid]}; global wird erst per „Für alle speichern"
-  // (admin-gated). Scope = aktuelle Seite.
+  /* ---------------------------------------------------------------- Pin posts */
+  // Visible in editing mode (panel open → html.cz-on, via CSS). Pinning writes a
+  // personal kitpins cookie {scope:[guid]}; it goes global only via "Publish for all"
+  // (admin-gated). Scope = the current page.
   /** @returns {string|null} "/" | "rubrik/<slug>" | null */
   function pinScope() {
     var p = location.pathname;
@@ -812,7 +812,7 @@ var _w = /** @type {any} */ (window);
     location.reload();
   }
   var PIN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.8V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6.8a2 2 0 0 0 1.1 1.8l1.8.9A2 2 0 0 1 19 15.2V16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-.8a2 2 0 0 1 1.1-1.8l1.8-.9A2 2 0 0 0 9 10.8Z"/></svg>';
-  // Pinnbare Elemente: Aufmacher/Hero (dort landet Pin 1) + Karten-Familie.
+  // Pinnable elements: lead story/hero (pin 1 lands there) + the card family.
   var PIN_TARGETS = [
     { sel: "section.hero", meta: ".hero__date" },
     { sel: "article.aufmacher", meta: ".aufmacher__meta" },
@@ -821,8 +821,8 @@ var _w = /** @type {any} */ (window);
     { sel: "a.teaser-text", meta: ".card__date" },
     { sel: "a.feat-main", meta: ".card__date" }
   ];
-  // Idempotent + erneut aufrufbar (z. B. nach „Mehr laden"). Scope je Karte: nächstes
-  // [data-pin-scope] (Rubrik-Sektion = eigener Bereich), sonst der Seiten-Scope.
+  // Idempotent + re-callable (e.g. after "load more"). Scope per card: the nearest
+  // [data-pin-scope] (section block = its own scope), otherwise the page scope.
   function injectPins() {
     var pageScope = pinScope();
     if (!pageScope) return;
@@ -847,8 +847,8 @@ var _w = /** @type {any} */ (window);
           btn.setAttribute("role", "button");
           btn.setAttribute("tabindex", "0");
           btn.setAttribute("aria-pressed", pinned ? "true" : "false");
-          btn.setAttribute("aria-label", pinned ? T("pin.remove", "Pin entfernen") : T("pin.add", "Nach oben anpinnen"));
-          btn.innerHTML = PIN_SVG + '<span class="card__pin-t">' + T("pin.label", "Angepinnt") + "</span>";
+          btn.setAttribute("aria-label", pinned ? T("pin.remove", "Remove pin") : T("pin.add", "Pin to top"));
+          btn.innerHTML = PIN_SVG + '<span class="card__pin-t">' + T("pin.label", "Pinned") + "</span>";
           /** @param {Event} e */
           function toggle(e) {
             e.preventDefault(); e.stopPropagation();
@@ -857,7 +857,7 @@ var _w = /** @type {any} */ (window);
             var at = l.indexOf(guid);
             if (at >= 0) { l.splice(at, 1); }
             else {
-              if (l.length >= 3) { alert(T("pin.max", "Maximal 3 Beiträge pro Bereich.")); return; }
+              if (l.length >= 3) { alert(T("pin.max", "Maximum 3 posts per section.")); return; }
               l.push(guid);
             }
             if (l.length) map[cardScope] = l; else delete map[cardScope];

@@ -1,12 +1,12 @@
-// _lib/settings.ts — Besucher- und Publikations-Konfiguration.
+// _lib/settings.ts — visitor and publication configuration.
 //
-// Zwei Ebenen, klare Präzedenz:
-//   1. Global veröffentlichte Config aus KV (Basis für ALLE Besucher; Panel-Button
-//      „Für alle Besucher speichern", admin-gated über /api/config).
-//   2. Persönliche Cookies (kitstruct/kitchrome) + localStorage — gewinnen pro Browser.
+// Two layers, clear precedence:
+//   1. Globally published config from KV (base for ALL visitors; panel button
+//      "Publish for all visitors", admin-gated via /api/config).
+//   2. Personal cookies (kitstruct/kitchrome) + localStorage — win per browser.
 //
-// Struktur (Shell/Aufmacher/Stream/Leisten/Header) rendert der SERVER aus dem Cookie;
-// Skin (Fonts/Farben/Karten) wendet der CLIENT an (public/assets/kit-theme.js).
+// Structure (shell/lead story/stream/rails/header) is rendered by the SERVER from
+// the cookie; the skin (fonts/colors/cards) is applied by the CLIENT (public/assets/kit-theme.js).
 
 import type { GlobalConfig, KitContext, KitEnv, LogoMeta, RenderCfg, StructCfg } from "./types.ts";
 import { FEED_URL, envSteadyUrls } from "./config.ts";
@@ -14,15 +14,15 @@ import { FEED_URL, envSteadyUrls } from "./config.ts";
 type NavEntry = { l?: unknown; h?: unknown; x?: unknown };
 
 /**
- * Effektiv konfiguriert? Zählt kit.config.js (FEED_URL aus dem Slug abgeleitet)
- * UND den FEED_URL-Env-Override (cfg.feedUrl aus buildPageContext). Unkonfigurierte
- * Installationen zeigen die Onboarding-Seite statt einer Fehlerseite.
+ * Effectively configured? Counts kit.config.js (FEED_URL derived from the slug)
+ * AND the FEED_URL env override (cfg.feedUrl from buildPageContext). Unconfigured
+ * installations show the onboarding page instead of an error page.
  */
 export function isConfigured(cfg: { feedUrl?: string | null } | null | undefined): boolean {
   return !!((cfg && cfg.feedUrl) || FEED_URL);
 }
 
-/** Default-Struktur = einspaltige Seite mit Split-Hero und flacher Liste. */
+/** Default structure = single-column page with split hero and a flat list. */
 export function parseStruct(cookie: string | null | undefined): StructCfg {
   const def: StructCfg = { shell: "single", auf: "klein", stream: "liste", rails: [], pins: {},
                 headerStyle: "links", search: false, brand: "", nav: null, foot: null };
@@ -41,10 +41,10 @@ export function parseStruct(cookie: string | null | undefined): StructCfg {
       const allow = ["neueste", "meist", "themen"];
       if (q.has("rails")) def.rails = (q.get("rails") || "").split(",").filter(r => allow.includes(r));
       else def.rails = def.shell === "portal" ? allow.slice() : [];
-    } catch (e) { /* defekter Cookie → Defaults */ }
+    } catch (e) { /* broken cookie → defaults */ }
   }
 
-  // kitchrome = JSON {brand, nav:[{l,h,x}]} — Titel + Navigation (Längen hart begrenzt)
+  // kitchrome = JSON {brand, nav:[{l,h,x}]} — title + navigation (lengths hard-capped)
   const cm = cookie.match(/(?:^|;\s*)kitchrome=([^;]*)/);
   if (cm) {
     try {
@@ -54,10 +54,10 @@ export function parseStruct(cookie: string | null | undefined): StructCfg {
         .map((n: NavEntry) => ({ l: String(n.l).slice(0, 40), h: String(n.h || "#").slice(0, 300), x: !!n.x }));
       if (Array.isArray(o.foot)) def.foot = o.foot.filter((n: NavEntry) => n && n.l).slice(0, 8)
         .map((n: NavEntry) => ({ l: String(n.l).slice(0, 40), h: String(n.h || "#").slice(0, 300), x: !!n.x }));
-    } catch (e) { /* defekter Cookie → Default-Nav */ }
+    } catch (e) { /* broken cookie → default nav */ }
   }
 
-  // kitpins = JSON {scope: [guid,…]} — angepinnte Beiträge je Bereich, hart gedeckelt.
+  // kitpins = JSON {scope: [guid,…]} — pinned posts per section, hard-capped.
   const pm = cookie.match(/(?:^|;\s*)kitpins=([^;]*)/);
   if (pm) {
     try {
@@ -72,15 +72,15 @@ export function parseStruct(cookie: string | null | undefined): StructCfg {
           if (list.length) def.pins[String(k).slice(0, 120)] = list;
         }
       }
-    } catch (e) { /* defekter Cookie → leere Map */ }
+    } catch (e) { /* broken cookie → empty map */ }
   }
   return def;
 }
 
 /**
- * Persönlicher Cookie + global veröffentlichte Struktur als Fallback:
- * Hat der Besucher KEINEN eigenen kitstruct-/kitchrome-Cookie, zählt der
- * veröffentlichte Wert aus der globalen Config.
+ * Personal cookie + globally published structure as fallback:
+ * if the visitor has NO own kitstruct/kitchrome cookie, the published value
+ * from the global config applies.
  */
 export function effectiveCookie(cookie: string | null | undefined, globalCfg: GlobalConfig | null): string {
   let out = cookie || "";
@@ -92,7 +92,7 @@ export function effectiveCookie(cookie: string | null | undefined, globalCfg: Gl
   return out;
 }
 
-/** Global veröffentlichte Config aus KV: {skin, kitstruct, kitchrome, ts} oder null. */
+/** Globally published config from KV: {skin, kitstruct, kitchrome, ts} or null. */
 export async function getConfig(env: KitEnv): Promise<GlobalConfig | null> {
   try {
     if (!env || !env.KIT_KV) return null;
@@ -102,7 +102,7 @@ export async function getConfig(env: KitEnv): Promise<GlobalConfig | null> {
   }
 }
 
-/** Global gespeichertes Logo (KV): {type, aspect, ts} oder null. Fehlertolerant. */
+/** Globally stored logo (KV): {type, aspect, ts} or null. Fault-tolerant. */
 export async function getLogoMeta(env: KitEnv): Promise<LogoMeta | null> {
   try {
     if (!env || !env.KIT_KV) return null;
@@ -112,7 +112,7 @@ export async function getLogoMeta(env: KitEnv): Promise<LogoMeta | null> {
   }
 }
 
-/** Clap-Zähler eines Posts (KV, leicht verzögert konsistent). */
+/** A post's clap counter (KV, eventually consistent). */
 export async function getClaps(env: KitEnv, guid: string): Promise<number> {
   try {
     if (!env || !env.KIT_KV) return 0;
@@ -124,10 +124,10 @@ export async function getClaps(env: KitEnv, guid: string): Promise<number> {
 }
 
 /**
- * Pro Request: Cookie + globale Config + Logo zu EINEM Render-cfg bündeln.
- * Liefert auch den passenden Cache-Header: Seiten mit persönlichen Cookies
- * variieren pro Besucher → no-store; sonst 5 Min Edge-/Browser-Cache.
- * Wird von allen HTML-Routen benutzt.
+ * Per request: bundle cookie + global config + logo into ONE render cfg.
+ * Also returns the matching cache header: pages with personal cookies vary per
+ * visitor → no-store; otherwise a 5-minute edge/browser cache.
+ * Used by all HTML routes.
  */
 export async function buildPageContext(context: KitContext): Promise<{ cfg: RenderCfg; cacheControl: string }> {
   const env = context.env || {};
@@ -136,15 +136,15 @@ export async function buildPageContext(context: KitContext): Promise<{ cfg: Rend
   const cfg = parseStruct(effectiveCookie(cookie, globalCfg)) as Partial<RenderCfg> & StructCfg;
   cfg.skin = (globalCfg ? globalCfg.skin : null) as Record<string, string> | null;
   cfg.logo = logo;
-  // Deployment-Overrides (Portabilität: Kit als Vorlage für andere Publikationen).
-  // STEADY_SLUG leitet Feed-/Login-URL ab (One-Click-Deploys ohne kit.config.js-Edit);
-  // explizite FEED_URL/STEADY_LOGIN_URL gewinnen weiterhin.
+  // Deployment overrides (portability: kit as a template for other publications).
+  // STEADY_SLUG derives the feed/login URL (one-click deploys without editing
+  // kit.config.js); explicit FEED_URL/STEADY_LOGIN_URL still win.
   const envSteady = envSteadyUrls(env);
-  cfg.feedUrl   = env.FEED_URL || (envSteady && envSteady.feedUrl) || null;  // null = Default aus config.js
+  cfg.feedUrl   = env.FEED_URL || (envSteady && envSteady.feedUrl) || null;  // null = default from config.ts
   cfg.site      = env.SITE_ORIGIN || null;
   cfg.steadyId  = env.STEADY_PUBLICATION_ID || null;
   cfg.loginUrl  = env.STEADY_LOGIN_URL || (envSteady && envSteady.loginUrl) || null;
-  cfg.analytics = env.ANALYTICS_TOKEN || "";       // Cloudflare Web Analytics Beacon-Token
+  cfg.analytics = env.ANALYTICS_TOKEN || "";       // Cloudflare Web Analytics beacon token
   const hasPersonalCfg = /(?:^|;\s*)kit(?:struct|chrome|pins)=/.test(cookie);
   return { cfg: cfg as RenderCfg, cacheControl: hasPersonalCfg ? "no-store" : "public, max-age=300" };
 }

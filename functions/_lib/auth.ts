@@ -1,14 +1,14 @@
-// _lib/auth.ts — Authorizer-Naht. v2.0: geteilter Admin-Code, timing-safe.
-// v2.1 (geplant, Spec §2.6): Tausch gegen „Login mit Steady"-Owner-Check —
-// NUR diese Funktion wird ersetzt, die Aufrufer bleiben.
+// _lib/auth.ts — authorizer seam. v2.0: shared admin code, timing-safe.
+// v2.1 (planned, spec §2.6): swap for a "Login with Steady" owner check —
+// ONLY this function gets replaced, the callers stay.
 import type { KitEnv } from "./types.ts";
 
-/** true, wenn der Request globale Writes (Config/Logo) ausführen darf. */
+/** true if the request may perform global writes (config/logo). */
 export async function isAuthorized(request: Request, env: KitEnv): Promise<boolean> {
   const code = env.KIT_ADMIN_CODE;
   const given = request.headers.get("x-kit-admin") || "";
   if (!code || !given) return false;
-  // Digest-Vergleich statt ===: konstante Zeit unabhängig von Übereinstimmungslänge.
+  // Digest comparison instead of ===: constant time regardless of match length.
   const enc = new TextEncoder();
   const [a, b] = await Promise.all([
     crypto.subtle.digest("SHA-256", enc.encode(given)),

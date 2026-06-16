@@ -1,6 +1,6 @@
-// test/node-server.test.js — der portable Node-Server muss sich wie Cloudflare
-// Pages verhalten: gleiche Routen, gleiche Handler, gleicher Admin-Gate.
-// Der Feed kommt aus einem lokalen Fixture-Server (kein Netz im Test).
+// test/node-server.test.js — the portable Node server must behave like Cloudflare
+// Pages: same routes, same handlers, same admin gate.
+// The feed comes from a local fixture server (no network in the test).
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
@@ -58,7 +58,7 @@ after(async () => {
   _resetFeedCache();
 });
 
-test("GET / liefert die Landing mit Feed-Inhalten", async () => {
+test("GET / returns the landing with feed content", async () => {
   const res = await fetch(base + "/");
   assert.equal(res.status, 200);
   assert.match(res.headers.get("content-type"), /text\/html/);
@@ -66,13 +66,13 @@ test("GET / liefert die Landing mit Feed-Inhalten", async () => {
   assert.ok(html.includes("Erster Beitrag"));
 });
 
-test("HEAD / antwortet 200 ohne Body", async () => {
+test("HEAD / responds 200 without a body", async () => {
   const res = await fetch(base + "/", { method: "HEAD" });
   assert.equal(res.status, 200);
   assert.equal(await res.text(), "");
 });
 
-test("GET /posts/:id rendert den Post, unbekannte GUID → 404", async () => {
+test("GET /posts/:id renders the post, unknown GUID → 404", async () => {
   const ok = await fetch(base + "/posts/guid-eins-001");
   assert.equal(ok.status, 200);
   assert.ok((await ok.text()).includes("Erster Beitrag"));
@@ -80,13 +80,13 @@ test("GET /posts/:id rendert den Post, unbekannte GUID → 404", async () => {
   assert.equal(missing.status, 404);
 });
 
-test("GET /rubrik/:slug filtert nach Kategorie", async () => {
+test("GET /rubrik/:slug filters by category", async () => {
   const res = await fetch(base + "/rubrik/politik");
   assert.equal(res.status, 200);
   assert.ok((await res.text()).includes("Erster Beitrag"));
 });
 
-test("GET /rss proxyt den Feed, /sitemap.xml nutzt SITE_ORIGIN-Env", async () => {
+test("GET /rss proxies the feed, /sitemap.xml uses the SITE_ORIGIN env", async () => {
   const rss = await fetch(base + "/rss");
   assert.equal(rss.status, 200);
   assert.ok((await rss.text()).includes("Test-Publikation"));
@@ -95,7 +95,7 @@ test("GET /rss proxyt den Feed, /sitemap.xml nutzt SITE_ORIGIN-Env", async () =>
   assert.ok((await map.text()).includes("https://example.test/posts/guid-eins-001"));
 });
 
-test("/api/config: PUT ohne Admin-Code 401, mit Code 200, GET liefert das Gespeicherte", async () => {
+test("/api/config: PUT without admin code 401, with code 200, GET returns the stored value", async () => {
   const noAuth = await fetch(base + "/api/config", { method: "PUT", body: "{}" });
   assert.equal(noAuth.status, 401);
   const put = await fetch(base + "/api/config", {
@@ -108,7 +108,7 @@ test("/api/config: PUT ohne Admin-Code 401, mit Code 200, GET liefert das Gespei
   assert.equal(got.skin.kitColorBrand, "#112233");
 });
 
-test("/api/logo: Binär-Roundtrip mit Admin-Gate", async () => {
+test("/api/logo: binary roundtrip with admin gate", async () => {
   const bytes = new Uint8Array([137, 80, 78, 71, 0, 255, 1]);
   const put = await fetch(base + "/api/logo", {
     method: "PUT",
@@ -122,20 +122,20 @@ test("/api/logo: Binär-Roundtrip mit Admin-Gate", async () => {
   assert.deepEqual(new Uint8Array(await get.arrayBuffer()), bytes);
 });
 
-test("/api/react zählt hoch (KV über fs-Shim)", async () => {
+test("/api/react increments (KV via fs shim)", async () => {
   const one = await (await fetch(base + "/api/react?g=guid-eins-001", { method: "POST" })).json();
   assert.equal(one.n, 1);
   const two = await (await fetch(base + "/api/react?g=guid-eins-001", { method: "POST" })).json();
   assert.equal(two.n, 2);
 });
 
-test("/api/search findet Feed-Items", async () => {
+test("/api/search finds feed items", async () => {
   const res = await (await fetch(base + "/api/search?q=zweiter")).json();
   assert.equal(res.results.length, 1);
   assert.equal(res.results[0].u, "/posts/guid-zwei-002");
 });
 
-test("Statics: kit.css mit Langzeit-Cache, _headers wird nie ausgeliefert", async () => {
+test("Statics: kit.css with long-term cache, _headers is never served", async () => {
   const css = await fetch(base + "/assets/kit.css");
   assert.equal(css.status, 200);
   assert.equal(css.headers.get("cache-control"), "public, max-age=604800");
@@ -144,17 +144,17 @@ test("Statics: kit.css mit Langzeit-Cache, _headers wird nie ausgeliefert", asyn
   assert.equal(blocked.status, 404);
 });
 
-test("405 bei nicht unterstützter Methode, mit Allow-Header", async () => {
+test("405 on an unsupported method, with Allow header", async () => {
   const res = await fetch(base + "/rss", { method: "PUT", body: "x" });
   assert.equal(res.status, 405);
   assert.ok(res.headers.get("allow").includes("GET"));
 });
 
 test(
-  "Onboarding-Modus: ohne Feed-Quelle zeigt / die Setup-Seite",
-  // In gefüllten Publisher-Forks greift IS_CONFIGURED aus kit.config.js — den
-  // unkonfigurierten Zustand gibt es dort nicht mehr.
-  { skip: IS_CONFIGURED && "kit.config.js ist gefüllt (Fork)" },
+  "Onboarding mode: without a feed source, / shows the setup page",
+  // In filled publisher forks IS_CONFIGURED from kit.config.js applies — the
+  // unconfigured state no longer exists there.
+  { skip: IS_CONFIGURED && "kit.config.js is filled (fork)" },
   async t => {
   const dir = await mkdtemp(join(tmpdir(), "kitdata2-"));
   const srv = await startServer({ port: 0, env: { FEED_URL: "", KIT_DATA_DIR: dir } });
@@ -166,7 +166,7 @@ test(
   assert.ok(html.includes("Set up my page"));
 });
 
-test("Bootstrap: checkNodeVersion akzeptiert >=22.18, lehnt älter ab", () => {
+test("Bootstrap: checkNodeVersion accepts >=22.18, rejects older", () => {
   assert.equal(checkNodeVersion("22.18.0"), null);
   assert.equal(checkNodeVersion("24.1.0"), null);
   assert.match(checkNodeVersion("22.17.1") || "", /22\.18/);

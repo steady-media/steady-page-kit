@@ -1,4 +1,4 @@
-// Route: GET /robots.txt — env-bewusst (SITE_ORIGIN), daher Function statt statischer Datei.
+// Route: GET /robots.txt — env-aware (SITE_ORIGIN), hence a function instead of a static file.
 import type { KitContext } from "./_lib/types.ts";
 import { SITE_ORIGIN } from "./_lib/config.ts";
 
@@ -10,5 +10,5 @@ export async function onRequestGet(context: KitContext): Promise<Response> {
   });
 }
 
-// HEAD wie GET behandeln (Crawler/Uptime-Checks); workerd entfernt den Body selbst.
+// Treat HEAD like GET (crawlers/uptime checks); workerd strips the body itself.
 export const onRequestHead = onRequestGet;

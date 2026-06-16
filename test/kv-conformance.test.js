@@ -1,5 +1,5 @@
-// test/kv-conformance.test.js — jedes Storage-Backend erfüllt dieselbe
-// KV-Teilmenge, inkl. des Logo-Kontrakts (1,5-MB-Binär-Roundtrip).
+// test/kv-conformance.test.js — every storage backend satisfies the same
+// KV subset, incl. the logo contract (1.5 MB binary roundtrip).
 import { test, describe, before, after } from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
@@ -9,14 +9,14 @@ import { join } from "node:path";
 import { createFsKv } from "../server/fs-kv.ts";
 import { createRedisRestKv } from "../server/kv-redis-rest.ts";
 
-const LOGO_BYTES = 1572864; // exakt das /api/logo-Limit
+const LOGO_BYTES = 1572864; // exactly the /api/logo limit
 
 function conformance(name, makeKv) {
-  describe(`KVAdapter-Konformität: ${name}`, () => {
+  describe(`KVAdapter conformance: ${name}`, () => {
     let kv;
     before(async () => { kv = await makeKv(); });
 
-    test("text: get/put/delete-Roundtrip, fehlender Key → null", async () => {
+    test("text: get/put/delete roundtrip, missing key → null", async () => {
       assert.equal(await kv.get("c:none"), null);
       await kv.put("c:txt", "hallo");
       assert.equal(await kv.get("c:txt"), "hallo");
@@ -24,19 +24,19 @@ function conformance(name, makeKv) {
       assert.equal(await kv.get("c:txt"), null);
     });
 
-    test("json: Objekt-Roundtrip + kaputtes JSON → null", async () => {
+    test("json: object roundtrip + broken JSON → null", async () => {
       await kv.put("c:json", JSON.stringify({ a: 1, s: "ü" }));
       assert.deepEqual(await kv.get("c:json", "json"), { a: 1, s: "ü" });
       await kv.put("c:bad", "{nope");
       assert.equal(await kv.get("c:bad", "json"), null);
     });
 
-    test("opts-Objekt-Form wie settings.ts: {type:'json', cacheTtl}", async () => {
+    test("opts object form like settings.ts: {type:'json', cacheTtl}", async () => {
       await kv.put("c:opts", JSON.stringify({ ok: true }));
       assert.deepEqual(await kv.get("c:opts", { type: "json", cacheTtl: 60 }), { ok: true });
     });
 
-    test("arrayBuffer: 1,5-MB-Binär-Roundtrip (Logo-Kontrakt)", async () => {
+    test("arrayBuffer: 1.5 MB binary roundtrip (logo contract)", async () => {
       const buf = new Uint8Array(LOGO_BYTES);
       for (let i = 0; i < buf.length; i += 4096) buf[i] = i % 251;
       await kv.put("c:logo", buf);
@@ -46,7 +46,7 @@ function conformance(name, makeKv) {
       assert.equal(back[LOGO_BYTES - 4096], (LOGO_BYTES - 4096) % 251);
     });
 
-    test("Schema-Keys mit Doppelpunkt funktionieren", async () => {
+    test("schema keys with a colon work", async () => {
       await kv.put("config:prev", "x");
       assert.equal(await kv.get("config:prev"), "x");
       await kv.put("react:guid-eins-001", "7");
@@ -55,13 +55,13 @@ function conformance(name, makeKv) {
   });
 }
 
-// — fs-Backend —
+// — fs backend —
 let fsDir;
 before(async () => { fsDir = await mkdtemp(join(tmpdir(), "kvconf-")); });
 after(async () => { await rm(fsDir, { recursive: true, force: true }); });
 conformance("fs", async () => createFsKv(fsDir));
 
-// — redis-rest-Backend gegen einen Fake-Upstash-Server (GET /get|/set|/del) —
+// — redis-rest backend against a fake Upstash server (GET /get|/set|/del) —
 let restSrv;
 const store = new Map();
 before(async () => {

@@ -1,4 +1,4 @@
-// Route: GET /rss — eigener Feed-Endpunkt dieser Domain (Proxy des öffentlichen Steady-Feeds).
+// Route: GET /rss — this domain's own feed endpoint (proxy of the public Steady feed).
 import type { KitContext } from "./_lib/types.ts";
 import { fetchFeedXml } from "./_lib/feed.ts";
 import { effectiveFeedUrl } from "./_lib/config.ts";
@@ -15,5 +15,5 @@ export async function onRequestGet(context: KitContext): Promise<Response> {
   }
 }
 
-// HEAD wie GET behandeln (Crawler/Uptime-Checks); workerd entfernt den Body selbst.
+// Treat HEAD like GET (crawlers/uptime checks); workerd strips the body itself.
 export const onRequestHead = onRequestGet;

@@ -1,11 +1,11 @@
-// _lib/panel.js — Markup des Customizer-Panels (rechte Lade, „Anpassen").
-// Die zugehörige Logik liegt in public/assets/kit-panel.js und hängt sich an die
-// data-fn/data-kind-Attribute: data-fn wählt den Setter (layout/type/card/base/struct),
-// data-kind den Regler, data-v den Wert. Struktur-Regler (struct) schreiben einen
-// Cookie und laden neu; alles andere wirkt live über CSS-Variablen/Klassen.
+// _lib/panel.ts — markup of the customizer panel (right drawer, "Customize").
+// The matching logic lives in public/assets/kit-panel.js and hooks onto the
+// data-fn/data-kind attributes: data-fn picks the setter (layout/type/card/base/struct),
+// data-kind the control, data-v the value. Structure controls (struct) write a
+// cookie and reload; everything else applies live via CSS variables/classes.
 //
-// i18n: NUR Button-/Label-TEXTE laufen über t(); die data-v-WERTE sind Schema
-// (Cookies/localStorage/KV) und bleiben unverändert deutsch.
+// i18n: ONLY button/label TEXT goes through t(); the data-v VALUES are schema
+// (cookies/localStorage/KV) and stay verbatim — they remain the original German enum values.
 
 import { PUBLICATION } from "./config.ts";
 import { t } from "./i18n.ts";

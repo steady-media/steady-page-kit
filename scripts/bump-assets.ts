@@ -1,5 +1,5 @@
-// scripts/bump-assets.ts — ASSET_VERSION + Hash-Fixture in EINEM Schritt aktualisieren.
-// `npm run bump-assets` nach jeder Änderung an public/assets/kit.css|kit-*.js.
+// scripts/bump-assets.ts — update ASSET_VERSION + hash fixture in ONE step.
+// `npm run bump-assets` after every change to public/assets/kit.css|kit-*.js.
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -15,9 +15,9 @@ const today = new Date().toISOString().slice(0, 10);
 const cfgPath = ROOT + "functions/_lib/config.ts";
 const cfg = readFileSync(cfgPath, "utf8");
 const m = cfg.match(/ASSET_VERSION = "([^"]+)"/);
-if (!m) { console.error("ASSET_VERSION nicht gefunden"); process.exit(1); }
+if (!m) { console.error("ASSET_VERSION not found"); process.exit(1); }
 const cur = m[1]!;
-// Format YYYY-MM-DD<buchstabe>: gleicher Tag → Buchstabe hochzählen, sonst neuer Tag + "a"
+// Format YYYY-MM-DD<letter>: same day → increment the letter, otherwise new day + "a"
 const next = cur.startsWith(today)
   ? today + String.fromCharCode((cur.slice(10) || "a").charCodeAt(0) + 1)
   : today + "a";

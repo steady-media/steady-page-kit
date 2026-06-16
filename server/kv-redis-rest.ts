@@ -1,12 +1,12 @@
-// server/kv-redis-rest.ts — KVAdapter über die Upstash-kompatible Redis-REST-API.
-// Für Hosts ohne Disk (Vercel). Nur fetch, keine Dependencies. Binärwerte werden
-// markiert + base64-kodiert (REST transportiert Strings). ACHTUNG Rezept-Doku:
-// Upstash-Free limitiert Requests auf 1 MB — das 1,5-MB-Logo braucht einen
-// bezahlten Tier; der Konformitätstest erzwingt den Kontrakt gegen den Fake.
+// server/kv-redis-rest.ts — KVAdapter over the Upstash-compatible Redis REST API.
+// For hosts without disk (Vercel). Only fetch, no dependencies. Binary values are
+// marked + base64-encoded (REST transports strings). NOTE for deploy docs:
+// Upstash Free caps requests at 1 MB — the 1.5 MB logo needs a paid tier;
+// the conformance test enforces the contract against the fake.
 import { Buffer } from "node:buffer";
 import type { KVAdapter } from "../functions/_lib/types.ts";
 
-const B64 = " b64:"; // Marker; kommt in keinem Schema-Wert vor
+const B64 = " b64:"; // marker; never occurs in any schema value
 
 export function createRedisRestKv(baseUrl: string, token: string): KVAdapter {
   const url = baseUrl.replace(/\/+$/, "");

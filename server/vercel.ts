@@ -1,6 +1,6 @@
-// server/vercel.ts — Vercel-Entry (Web-Handler-Signatur). Statisches liefert
-// Vercel selbst aus public/; alles andere geht durch dieselbe ROUTES-Tabelle.
-// Storage: redis-rest (Upstash) — Vercel-Functions haben keine persistente Disk.
+// server/vercel.ts — Vercel entry (web handler signature). Vercel serves static
+// files from public/ itself; everything else goes through the same ROUTES table.
+// Storage: redis-rest (Upstash) — Vercel functions have no persistent disk.
 import { handleRequest } from "./routes.ts";
 import { createRedisRestKv } from "./kv-redis-rest.ts";
 import type { KitEnv } from "../functions/_lib/types.ts";

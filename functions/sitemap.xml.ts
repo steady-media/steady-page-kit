@@ -1,4 +1,4 @@
-// Route: GET /sitemap.xml — generiert aus dem Feed (Posts, Rubriken, statische Seiten).
+// Route: GET /sitemap.xml — generated from the feed (posts, sections, static pages).
 import type { KitContext, FeedItem } from "./_lib/types.ts";
 import { getItems, topCategories } from "./_lib/feed.ts";
 import { SITE_ORIGIN, effectiveFeedUrl } from "./_lib/config.ts";
@@ -9,7 +9,7 @@ export async function onRequestGet(context: KitContext): Promise<Response> {
   let items: FeedItem[] = [];
   try {
     items = await getItems(effectiveFeedUrl(context.env));
-  } catch (err) { /* leere Sitemap ist besser als 500 */ }
+  } catch (err) { /* an empty sitemap is better than a 500 */ }
 
   const urls: Array<{ loc: string; lastmod?: string }> = [
     { loc: origin + "/" },
@@ -29,5 +29,5 @@ ${urls.map(u => `<url><loc>${esc(u.loc)}</loc>${u.lastmod ? `<lastmod>${u.lastmo
   });
 }
 
-// HEAD wie GET behandeln (Crawler/Uptime-Checks); workerd entfernt den Body selbst.
+// Treat HEAD like GET (crawlers/uptime checks); workerd strips the body itself.
 export const onRequestHead = onRequestGet;

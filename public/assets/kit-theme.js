@@ -1,20 +1,20 @@
 // @ts-check
-/* kit-theme.js — früher Theme-Motor des Kits.
+/* kit-theme.js — the kit's early theme engine.
  *
- * Läuft BLOCKIEREND im <head>, damit gespeicherte Einstellungen vor dem ersten
- * Paint anliegen (kein Theme-Flackern). Datenquellen, in dieser Präzedenz:
- *   1. localStorage        — persönliche Einstellungen dieses Browsers (gewinnen)
- *   2. window.KIT_GLOBAL   — global veröffentlichte Einstellungen (Server-injiziert aus KV)
+ * Runs BLOCKING in the <head> so saved settings are in place before the first
+ * paint (no theme flash). Data sources, in this precedence:
+ *   1. localStorage        — this browser's personal settings (win)
+ *   2. window.KIT_GLOBAL   — globally published settings (server-injected from KV)
  *
- * Öffentliche API (genutzt von kit-panel.js):
- *   Kataloge : KIT_FONTS, KIT_FONT_CATS, KIT_PAIRS, KIT_PALETTES, KIT_BASES, KIT_LOOKS
- *   Setter   : kitApplyFont, kitColor, kitPalette, kitBase, kitType, kitCard,
+ * Public API (used by kit-panel.js):
+ *   Catalogs : KIT_FONTS, KIT_FONT_CATS, KIT_PAIRS, KIT_PALETTES, KIT_BASES, KIT_LOOKS
+ *   Setters  : kitApplyFont, kitColor, kitPalette, kitBase, kitType, kitCard,
  *              kitSetLayout, kitLook, kitStructSet, kitChromeSet
- *   Helfer   : KIT_RATIO (WCAG-Kontrast), KIT_RL (relative Luminanz)
+ *   Helpers  : KIT_RATIO (WCAG contrast), KIT_RL (relative luminance)
  *
- * Skin-Setter wirken live (CSS-Variablen/Klassen auf <html>); Struktur-Setter
- * (kitStructSet/kitChromeSet) schreiben einen Cookie und laden die Seite neu,
- * weil der Server die Struktur rendert.
+ * Skin setters apply live (CSS variables/classes on <html>); structure setters
+ * (kitStructSet/kitChromeSet) write a cookie and reload the page, because the
+ * server renders the structure.
  */
 
 /**
@@ -25,7 +25,7 @@
  */
 
 /**
- * Globale window-Erweiterungen des Kits (Kataloge, Setter, Helfer).
+ * Global window extensions of the kit (catalogs, setters, helpers).
  * @typedef {Object} KitWindowExtensions
  * @property {KitFont[]} KIT_FONTS
  * @property {string[]} KIT_FONT_CATS
@@ -56,12 +56,12 @@
  * @property {(idx: number, save?: boolean) => void} kitLook
  */
 
-// Typ-Erweiterung für window im Browser-Kontext (nur JSDoc, kein Laufzeit-Effekt).
+// Type extension for window in the browser context (JSDoc only, no runtime effect).
 /** @type {Window & typeof globalThis & KitWindowExtensions} */
 var _w = /** @type {any} */ (window);
 
-/* — Kuratierte Font-Auswahl (Bunny-Slugs). n=Name, s=Slug, c=Kategorie,
-     g=generische Familie (Default sans-serif), w=verfügbare Gewichte — */
+/* — Curated font selection (Bunny slugs). n=name, s=slug, c=category,
+     g=generic family (default sans-serif), w=available weights — */
 _w.KIT_FONTS = [
   { n: "Inter", s: "inter", c: "Grotesk", w: "400,500,600,700,900" },
   { n: "Archivo", s: "archivo", c: "Grotesk" },
@@ -113,70 +113,70 @@ _w.KIT_FONTS = [
 ];
 _w.KIT_FONT_CATS = ["Grotesk", "Humanistisch", "Geometrisch", "Condensed", "Neuer", "Serif Display", "Serif Text"];
 
-/* — Geprüfte Schrift-Paare: h = Überschriften-Slug, b = Lauftext-Slug — */
+/* — Vetted font pairs: h = heading slug, b = body slug — */
 _w.KIT_PAIRS = [
-  { n: "Nordisch editorial", h: "schibsted-grotesk", b: "source-sans-3" },
-  { n: "Zeitungsklassiker", h: "libre-franklin", b: "source-sans-3" },
-  { n: "Headline-Werkstatt", h: "archivo", b: "inter" },
-  { n: "Display mit Charakter", h: "bricolage-grotesque", b: "inter" },
-  { n: "Geometrisch & sauber", h: "space-grotesk", b: "work-sans" },
-  { n: "Masthead / Condensed", h: "oswald", b: "public-sans" },
-  { n: "Tech-editorial", h: "geist", b: "inter" },
-  { n: "Eine Familie", h: "archivo-black", b: "archivo" },
-  { n: "Warm & lesbar", h: "familjen-grotesk", b: "mulish" },
-  { n: "Hochkontrast-Magazin", h: "playfair-display", b: "source-serif-4" },
-  { n: "Serife trifft Grotesk", h: "fraunces", b: "inter" },
-  { n: "Buch / Longform", h: "cormorant-garamond", b: "crimson-pro" },
-  { n: "News-Longform", h: "libre-franklin", b: "newsreader" },
-  { n: "Instrument-Duo", h: "instrument-serif", b: "instrument-sans" },
-  { n: "Redaktion klassisch", h: "dm-serif-display", b: "lora" },
+  { n: "Nordic editorial", h: "schibsted-grotesk", b: "source-sans-3" },
+  { n: "Newspaper classic", h: "libre-franklin", b: "source-sans-3" },
+  { n: "Headline workshop", h: "archivo", b: "inter" },
+  { n: "Display with character", h: "bricolage-grotesque", b: "inter" },
+  { n: "Geometric & clean", h: "space-grotesk", b: "work-sans" },
+  { n: "Masthead / condensed", h: "oswald", b: "public-sans" },
+  { n: "Tech editorial", h: "geist", b: "inter" },
+  { n: "One family", h: "archivo-black", b: "archivo" },
+  { n: "Warm & readable", h: "familjen-grotesk", b: "mulish" },
+  { n: "High-contrast magazine", h: "playfair-display", b: "source-serif-4" },
+  { n: "Serif meets grotesque", h: "fraunces", b: "inter" },
+  { n: "Book / longform", h: "cormorant-garamond", b: "crimson-pro" },
+  { n: "News longform", h: "libre-franklin", b: "newsreader" },
+  { n: "Instrument duo", h: "instrument-serif", b: "instrument-sans" },
+  { n: "Classic newsroom", h: "dm-serif-display", b: "lora" },
 ];
 _w.KIT_DEFAULT_HEAD = "inter";
 _w.KIT_DEFAULT_BODY = "inter";
 
-/* — Farbschemata (setzen ALLE Farb-Tokens konsistent) — */
+/* — Color schemes (set ALL color tokens consistently) — */
 _w.KIT_PALETTES = [
   { n: "Steady",   v: { "--color-brand": "#137EC0", "--color-ink": "#291E38", "--color-ink-soft": "#6B6577", "--color-accent": "#FF7264", "--color-line": "#9A95A6", "--color-hairline": "#ECEAEF", "--color-bg": "#FFFFFF" } },
-  { n: "Nacht",    v: { "--color-brand": "#4DA3E0", "--color-ink": "#ECEAF2", "--color-ink-soft": "#A6A2B5", "--color-accent": "#FF7264", "--color-line": "#5A5470", "--color-hairline": "#2A2636", "--color-bg": "#14121A" } },
-  { n: "Wald",     v: { "--color-brand": "#1E7A4F", "--color-ink": "#1C2B22", "--color-ink-soft": "#5C6B62", "--color-accent": "#E0823C", "--color-line": "#9AA89F", "--color-hairline": "#E7EEE9", "--color-bg": "#FFFFFF" } },
+  { n: "Night",    v: { "--color-brand": "#4DA3E0", "--color-ink": "#ECEAF2", "--color-ink-soft": "#A6A2B5", "--color-accent": "#FF7264", "--color-line": "#5A5470", "--color-hairline": "#2A2636", "--color-bg": "#14121A" } },
+  { n: "Forest",   v: { "--color-brand": "#1E7A4F", "--color-ink": "#1C2B22", "--color-ink-soft": "#5C6B62", "--color-accent": "#E0823C", "--color-line": "#9AA89F", "--color-hairline": "#E7EEE9", "--color-bg": "#FFFFFF" } },
   { n: "Bordeaux", v: { "--color-brand": "#8E2B43", "--color-ink": "#2B1A20", "--color-ink-soft": "#6E5860", "--color-accent": "#C99A2E", "--color-line": "#B39AA2", "--color-hairline": "#F0E8EB", "--color-bg": "#FFFFFF" } },
   { n: "Mono",     v: { "--color-brand": "#291E38", "--color-ink": "#1A1A1A", "--color-ink-soft": "#6B6B6B", "--color-accent": "#1A1A1A", "--color-line": "#B0B0B0", "--color-hairline": "#ECECEC", "--color-bg": "#FFFFFF" } },
 ];
 
-/* — Hell/Dunkel-Basis (nur Flächen-/Text-Tokens, Brand/Accent bleiben) — */
+/* — Light/dark base (only surface/text tokens, brand/accent stay) — */
 _w.KIT_BASES = {
   light: { "--color-bg": "#FFFFFF", "--color-ink": "#291E38", "--color-ink-soft": "#6B6577", "--color-line": "#9A95A6", "--color-hairline": "#ECEAEF" },
   dark:  { "--color-bg": "#14121A", "--color-ink": "#ECEAF2", "--color-ink-soft": "#A6A2B5", "--color-line": "#5A5470", "--color-hairline": "#2A2636" },
 };
 
-/* — Looks: ein Klick = geprüfter Gesamtstil (Fonts + Farben + Layout + Karten,
-     optional struct → Server-Reload für die Seitenstruktur) — */
+/* — Looks: one click = a vetted overall style (fonts + colors + layout + cards,
+     optionally struct → server reload for the page structure) — */
 _w.KIT_LOOKS = [
-  { n: "Steady", d: "Klar & journalistisch", head: "inter", body: "inter", base: "light", palette: 0,
+  { n: "Steady", d: "Clear & journalistic", head: "inter", body: "inter", base: "light", palette: 0,
     type: { size: "standard", lead: "normal", track: "normal", case: "normal", align: "links" },
     layout: { corner: "eckig", dens: "komfortabel", hero: "split", width: "standard" },
     card: { style: "classic", surface: "flat", image: "farbe", aspect: "16:9" } },
-  { n: "Magazin", d: "Serifen & Kontrast", head: "playfair-display", body: "source-serif-4", base: "light",
+  { n: "Magazine", d: "Serifs & contrast", head: "playfair-display", body: "source-serif-4", base: "light",
     type: { size: "gross", lead: "normal", track: "eng", case: "normal", align: "links" },
     layout: { corner: "eckig", dens: "komfortabel", hero: "split", width: "standard" },
     card: { style: "classic", surface: "flat", image: "farbe", aspect: "4:3" } },
-  { n: "Minimal", d: "Ruhig, viel Weissraum", head: "inter", body: "inter", base: "light", palette: 4,
+  { n: "Minimal", d: "Calm, lots of whitespace", head: "inter", body: "inter", base: "light", palette: 4,
     type: { size: "standard", lead: "luftig", track: "normal", case: "normal", align: "links" },
     layout: { corner: "eckig", dens: "grosszuegig", hero: "split", width: "schmal" },
     card: { style: "text", surface: "flat", image: "farbe", aspect: "16:9" } },
-  { n: "Bold", d: "Laut & Grossbuchstaben", head: "archivo-black", body: "archivo", base: "light", palette: 0,
+  { n: "Bold", d: "Loud & uppercase", head: "archivo-black", body: "archivo", base: "light", palette: 0,
     type: { size: "gross", lead: "normal", track: "eng", case: "gross", align: "links" },
     layout: { corner: "eckig", dens: "komfortabel", hero: "split", width: "standard" },
     card: { style: "overlay", surface: "flat", image: "farbe", aspect: "16:9" } },
-  { n: "Klassik", d: "Elegant & zentriert", head: "fraunces", body: "lora", base: "light", palette: 3,
+  { n: "Classic", d: "Elegant & centered", head: "fraunces", body: "lora", base: "light", palette: 3,
     type: { size: "standard", lead: "normal", track: "normal", case: "normal", align: "zentriert" },
     layout: { corner: "rund", dens: "komfortabel", hero: "center", width: "standard" },
     card: { style: "classic", surface: "soft", image: "graustufen", aspect: "4:3" } },
-  { n: "Nacht", d: "Dark Mode", head: "inter", body: "inter", base: "dark", palette: 1,
+  { n: "Night", d: "Dark mode", head: "inter", body: "inter", base: "dark", palette: 1,
     type: { size: "standard", lead: "normal", track: "normal", case: "normal", align: "links" },
     layout: { corner: "rund", dens: "komfortabel", hero: "split", width: "standard" },
     card: { style: "classic", surface: "outline", image: "farbe", aspect: "16:9" } },
-  { n: "Magazin-Portal", d: "3-spaltig, rubriziert", head: "inter", body: "inter", base: "light",
+  { n: "Magazine portal", d: "3 columns, sectioned", head: "inter", body: "inter", base: "light",
     type: { size: "standard", lead: "normal", track: "normal", case: "normal", align: "links" },
     layout: { corner: "eckig", dens: "komfortabel", hero: "split", width: "breit", cols: "4", nav: "figma" },
     card: { style: "classic", surface: "flat", image: "farbe", aspect: "4:3" },
@@ -186,9 +186,9 @@ _w.KIT_LOOKS = [
 
 (function () {
   var D = document.documentElement;
-  var loadedFonts = { inter: 1 }; // Inter kommt schon als <link> im <head>
+  var loadedFonts = { inter: 1 }; // Inter already ships as a <link> in the <head>
 
-  /* — Farb-Helfer (WCAG) — */
+  /* — Color helpers (WCAG) — */
   /** @param {string} h */
   function hexToRgb(h) {
     h = (h || "").replace("#", "");
@@ -208,13 +208,13 @@ _w.KIT_LOOKS = [
     var L1 = relLuminance(a), L2 = relLuminance(b);
     return (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05);
   }
-  // Button-Textfarbe: dunkel auf hellen Marken, weiß auf dunklen
+  // Button text color: dark on light brands, white on dark ones
   /** @param {string} brand */
   function buttonFg(brand) { return relLuminance(brand) > 0.42 ? "#16121d" : "#ffffff"; }
   _w.KIT_RATIO = contrastRatio;
   _w.KIT_RL = relLuminance;
 
-  /* — Storage: localStorage zuerst, dann global veröffentlichte Basis (KIT_GLOBAL) — */
+  /* — Storage: localStorage first, then the globally published base (KIT_GLOBAL) — */
   /** @param {string} k */
   function gget(k) {
     try { var v = localStorage.getItem(k); if (v != null) return v; } catch (e) {}
@@ -233,7 +233,7 @@ _w.KIT_LOOKS = [
   /** @param {string} store @param {string} k @param {unknown} v */
   function setObj(store, k, v) { var o = jget(store); o[k] = v; jset(store, o); }
 
-  /* — Fonts: Slug | Deskriptor | JSON-String → Deskriptor {s,n,g,w} auflösen + Bunny-CSS laden — */
+  /* — Fonts: slug | descriptor | JSON string → resolve to descriptor {s,n,g,w} + load Bunny CSS — */
   /** @param {string} s */
   function titleCase(s) {
     var p = String(s || "").split("-");
@@ -243,7 +243,7 @@ _w.KIT_LOOKS = [
   /** @param {string} slug @returns {KitFont} */
   function bySlug(slug) {
     for (var i = 0; i < _w.KIT_FONTS.length; i++) if (_w.KIT_FONTS[i].s === slug) return _w.KIT_FONTS[i];
-    if (_w.KIT_BUNNY && _w.KIT_BUNNY[slug]) return _w.KIT_BUNNY[slug]; // Katalog aus kit-panel.js
+    if (_w.KIT_BUNNY && _w.KIT_BUNNY[slug]) return _w.KIT_BUNNY[slug]; // catalog from kit-panel.js
     return { s: slug, n: titleCase(slug), g: "sans-serif", w: "400,700", c: "" };
   }
   /** @param {unknown} x @returns {KitFont} */
@@ -265,10 +265,10 @@ _w.KIT_LOOKS = [
     /** @type {Record<string,unknown>} */ (loadedFonts)[f.s] = 1;
   }
 
-  /* — Öffentliche Setter — */
+  /* — Public setters — */
 
-  // role = "head" | "body"; x = Slug, Deskriptor oder gespeicherter JSON-String.
-  // Persistiert den AUFGELÖSTEN Deskriptor, damit beliebige Bunny-Fonts den Reload überleben.
+  // role = "head" | "body"; x = slug, descriptor or a stored JSON string.
+  // Persists the RESOLVED descriptor so arbitrary Bunny fonts survive the reload.
   _w.kitApplyFont = function (role, x, save) {
     var f = resolveFont(x);
     loadFontCss(f);
@@ -278,8 +278,8 @@ _w.KIT_LOOKS = [
     }
   };
 
-  // Einzelne Farbe setzen. Marke → Button-Textfarbe nachziehen; Hintergrund → Text-/
-  // Linien-Töne automatisch auf hell/dunkel kontrastieren (lesbar bleiben).
+  // Set a single color. Brand → also update the button text color; background →
+  // auto-contrast the text/line tones to light/dark (stay readable).
   _w.kitColor = function (name, val, save) {
     D.style.setProperty(name, val);
     if (name === "--color-brand") D.style.setProperty("--btn-fg", buttonFg(val));
@@ -359,7 +359,7 @@ _w.KIT_LOOKS = [
     if (save) setObj("kitLayout", kind, val);
   };
 
-  /* — Struktur (Server-gerendert): Cookie schreiben + Reload — */
+  /* — Structure (server-rendered): write cookie + reload — */
   function readStruct() { return jget("kitStruct"); }
   /** @param {Record<string,unknown>} s */
   function structSer(s) {
@@ -385,7 +385,7 @@ _w.KIT_LOOKS = [
     location.reload();
   };
 
-  // Look anwenden: alle Skin-Teile, dann optional Struktur (löst den Reload aus — zuletzt!)
+  // Apply a look: all skin parts, then optionally structure (triggers the reload — last!)
   _w.kitLook = function (idx, save) {
     var L = _w.KIT_LOOKS[idx];
     if (!L) return;
@@ -402,14 +402,14 @@ _w.KIT_LOOKS = [
     if (L.struct) _w.kitStructSet(L.struct, true);
   };
 
-  /* — Frühanwendung: gespeicherte Einstellungen (persönlich oder global) vor dem Paint — */
+  /* — Early apply: saved settings (personal or global) before the paint — */
   try { var sh = gget("kitFontHead"); if (sh && sh !== _w.KIT_DEFAULT_HEAD) _w.kitApplyFont("head", sh, false); } catch (e) {}
   try { var sb = gget("kitFontBody"); if (sb && sb !== _w.KIT_DEFAULT_BODY) _w.kitApplyFont("body", sb, false); } catch (e) {}
   var C = jget("kitColors");
   for (var ck in C) D.style.setProperty(ck, C[ck]);
   if (C["--color-brand"]) D.style.setProperty("--btn-fg", buttonFg(String(C["--color-brand"])));
-  // Auto-Dark: System-Schema respektieren, solange weder persönlich noch global Farben
-  // gewählt wurden (nur Anzeige, wird nicht gespeichert).
+  // Auto-dark: respect the system scheme as long as neither personal nor global
+  // colors have been chosen (display only, not persisted).
   var hasColors = false;
   for (var hc in C) { hasColors = true; break; }
   if (!hasColors) {

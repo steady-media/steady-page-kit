@@ -1,4 +1,4 @@
-// test/footer.test.js — Footer-Feature: Site-Footer + kitchrome.foot-Parsing.
+// test/footer.test.js — footer feature: site footer + kitchrome.foot parsing.
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
@@ -39,34 +39,34 @@ after(async () => {
   _resetFeedCache();
 });
 
-test("GET / ohne Cookie → enthält site-footer + Brand-Block, keine site-footer__links", async () => {
+test("GET / without a cookie → contains site-footer + brand block, no site-footer__links", async () => {
   const res = await fetch(base + "/");
   assert.equal(res.status, 200);
   const html = await res.text();
-  assert.ok(html.includes('class="site-footer"'), "site-footer fehlt");
-  // Brand-Block: entweder Logo-Img oder brand__logo + brand__name
+  assert.ok(html.includes('class="site-footer"'), "site-footer missing");
+  // Brand block: either logo img or brand__logo + brand__name
   assert.ok(
     html.includes('class="brand__logo"') || html.includes('class="brand__logo-img"'),
-    "Brand-Block fehlt im Footer"
+    "brand block missing in the footer"
   );
-  assert.ok(!html.includes("site-footer__links"), "site-footer__links sollte ohne foot-Cookie fehlen");
+  assert.ok(!html.includes("site-footer__links"), "site-footer__links should be absent without a foot cookie");
 });
 
-test("GET / mit kitchrome foot-Cookie → Footer enthält Impressum-Link mit target=_blank", async () => {
+test("GET / with a kitchrome foot cookie → footer contains an Impressum link with target=_blank", async () => {
   const chrome = JSON.stringify({ foot: [{ l: "Impressum", h: "https://example.org/impressum", x: true }] });
   const res = await fetch(base + "/", {
     headers: { "Cookie": "kitchrome=" + encodeURIComponent(chrome) },
   });
   assert.equal(res.status, 200);
   const html = await res.text();
-  assert.ok(html.includes("site-footer__links"), "site-footer__links fehlt trotz foot-Cookie");
-  assert.ok(html.includes("Impressum"), "Impressum-Label fehlt");
-  assert.ok(html.includes("https://example.org/impressum"), "Impressum-URL fehlt");
-  assert.ok(html.includes('target="_blank"'), 'target="_blank" fehlt bei externem Link');
+  assert.ok(html.includes("site-footer__links"), "site-footer__links missing despite the foot cookie");
+  assert.ok(html.includes("Impressum"), "Impressum label missing");
+  assert.ok(html.includes("https://example.org/impressum"), "Impressum URL missing");
+  assert.ok(html.includes('target="_blank"'), 'target="_blank" missing on the external link');
 });
 
-test("Footer zeigt nur das Icon — keine Wortmarke, kein Upload-Logo (Header zeigt das Logo)", async () => {
-  // Logo hochladen (admin-gated)
+test("Footer shows only the icon — no wordmark, no uploaded logo (header shows the logo)", async () => {
+  // upload the logo (admin-gated)
   const put = await fetch(base + "/api/logo", {
     method: "PUT",
     headers: { "x-kit-admin": "geheim-footer-test", "x-kit-type": "image/png", "x-kit-aspect": "3" },
@@ -76,28 +76,28 @@ test("Footer zeigt nur das Icon — keine Wortmarke, kein Upload-Logo (Header ze
 
   const html = await (await fetch(base + "/")).text();
   const cut = html.indexOf('class="site-footer"');
-  assert.ok(cut > 0, "site-footer fehlt");
+  assert.ok(cut > 0, "site-footer missing");
   const headerPart = html.slice(0, cut);
   const footerPart = html.slice(cut);
 
-  // Header: hochgeladenes Logo
-  assert.ok(headerPart.includes("brand__logo-img"), "Header sollte das hochgeladene Logo zeigen");
-  // Footer: NUR das Icon — keine Wortmarke, kein Upload-Logo
-  assert.ok(footerPart.includes('class="brand__logo"'), "Footer sollte das Icon zeigen");
-  assert.ok(!footerPart.includes('class="brand__name"'), "Footer darf KEINE Wortmarke zeigen");
-  assert.ok(!footerPart.includes("brand__logo-img"), "Footer darf das Upload-Logo NICHT zeigen");
+  // Header: uploaded logo
+  assert.ok(headerPart.includes("brand__logo-img"), "header should show the uploaded logo");
+  // Footer: ONLY the icon — no wordmark, no uploaded logo
+  assert.ok(footerPart.includes('class="brand__logo"'), "footer should show the icon");
+  assert.ok(!footerPart.includes('class="brand__name"'), "footer must NOT show a wordmark");
+  assert.ok(!footerPart.includes("brand__logo-img"), "footer must NOT show the uploaded logo");
 
-  // aufräumen, damit andere Tests das Logo nicht sehen
+  // clean up so other tests don't see the logo
   await fetch(base + "/api/logo", { method: "DELETE", headers: { "x-kit-admin": "geheim-footer-test" } });
 });
 
-test("parseStruct-Unit: foot-Parsing — Label-Limit 40 Zeichen, max. 8 Einträge", () => {
+test("parseStruct unit: foot parsing — label limit 40 chars, max 8 entries", () => {
   const longLabel = "A".repeat(50);
   const entries = Array.from({ length: 10 }, (_, i) => ({ l: "Link " + i, h: "/link-" + i }));
   entries[0] = { l: longLabel, h: "/lang" };
   const chrome = JSON.stringify({ foot: entries });
   const s = parseStruct("kitchrome=" + encodeURIComponent(chrome));
-  assert.ok(s.foot !== null, "foot sollte nicht null sein");
-  assert.equal(s.foot.length, 8, "foot sollte auf max. 8 Einträge gekappt sein");
-  assert.equal(s.foot[0].l.length, 40, "Label sollte auf 40 Zeichen gekappt sein");
+  assert.ok(s.foot !== null, "foot should not be null");
+  assert.equal(s.foot.length, 8, "foot should be capped at max 8 entries");
+  assert.equal(s.foot[0].l.length, 40, "label should be capped at 40 chars");
 });

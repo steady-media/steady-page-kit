@@ -1,7 +1,7 @@
-// scripts/golden-master.ts — Paritätsbeweis: v1 (Git-Ref) und v2 (Arbeitsstand)
-// rendern denselben Fixture-Feed; HTML/JSON-Diff modulo ASSET_VERSION/ts/Ports.
-// Aufruf: node scripts/golden-master.ts <v1-ref>   (z. B. v1-final)
-// Exit 0 = identisch; Exit 1 = Diff (Report in .gm-report/).
+// scripts/golden-master.ts — parity proof: v1 (git ref) and v2 (working tree)
+// render the same fixture feed; HTML/JSON diff modulo ASSET_VERSION/ts/ports.
+// Usage: node scripts/golden-master.ts <v1-ref>   (e.g. v1-final)
+// Exit 0 = identical; Exit 1 = diff (report in .gm-report/).
 import { execSync, spawn } from "node:child_process";
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync, cpSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -29,10 +29,10 @@ const ROUTESET = ["/", "/posts/guid-eins-001", "/rubrik/politik", "/memberships"
 
 function normalize(s: string): string {
   return s
-    .replace(/\?v=[A-Za-z0-9-]+/g, "?v=NORM")        // ASSET_VERSION-Buster
-    .replace(/"ts":\s*\d+/g, '"ts":0')                // Zeitstempel in JSON
-    .replace(/127\.0\.0\.1:\d+/g, "127.0.0.1:0")     // Ports
-    .replace(/localhost:\d+/g, "localhost:0");         // Ports in console/HTML
+    .replace(/\?v=[A-Za-z0-9-]+/g, "?v=NORM")        // ASSET_VERSION buster
+    .replace(/"ts":\s*\d+/g, '"ts":0')                // timestamps in JSON
+    .replace(/127\.0\.0\.1:\d+/g, "127.0.0.1:0")     // ports
+    .replace(/localhost:\d+/g, "localhost:0");         // ports in console/HTML
 }
 
 async function boot(cmdCwd: string, env: Record<string, string>): Promise<{ base: string; kill: () => void }> {
@@ -46,23 +46,23 @@ async function boot(cmdCwd: string, env: Record<string, string>): Promise<{ base
       const m = out.match(/http:\/\/localhost:(\d+)/);
       if (m) resolve({ base: `http://127.0.0.1:${m[1]}`, kill: () => child.kill() });
     });
-    child.on("exit", (code: number | null) => reject(new Error(`Server-Exit ${code} vor Port-Meldung:\n${out}`)));
-    setTimeout(() => reject(new Error("Boot-Timeout")), 15000);
+    child.on("exit", (code: number | null) => reject(new Error(`Server exit ${code} before port message:\n${out}`)));
+    setTimeout(() => reject(new Error("Boot timeout")), 15000);
   });
 }
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 
-// 1. Fixture-Feed-Server
+// 1. Fixture feed server
 const feedSrv = http.createServer((_q, r) => { r.writeHead(200, { "content-type": "application/rss+xml" }); r.end(FEED_XML); });
 await new Promise<void>(resolve => feedSrv.listen(0, "127.0.0.1", () => resolve()));
 const feedUrl = `http://127.0.0.1:${(feedSrv.address() as { port: number }).port}/rss`;
 
-// 2. v1-Worktree + Injektion (Config rein, sonst rendert v1 ggf. anders)
+// 2. v1 worktree + injection (config in, otherwise v1 may render differently)
 const wt = mkdtempSync(join(tmpdir(), "gm-v1-"));
 execSync(`git worktree add --detach "${wt}" ${REF}`, { stdio: "inherit" });
-cpSync(join(ROOT, "kit.config.js"), join(wt, "kit.config.js"));  // gleiche Publisher-Config
-const dataDir = mkdtempSync(join(tmpdir(), "gm-data-"));         // GETEILTER KV-Stand
+cpSync(join(ROOT, "kit.config.js"), join(wt, "kit.config.js"));  // same publisher config
+const dataDir = mkdtempSync(join(tmpdir(), "gm-data-"));         // SHARED KV state
 const envBoth: Record<string, string> = {
   FEED_URL: feedUrl,
   KIT_DATA_DIR: dataDir,
@@ -93,5 +93,5 @@ try {
   execSync(`git worktree remove --force "${wt}"`);
   rmSync(dataDir, { recursive: true, force: true });
 }
-if (failed) { console.error("\nDiffs unter .gm-report/ — diff <route>.v1.txt <route>.v2.txt"); process.exit(1); }
-console.log("\nGolden-Master: v1 und v2 sind verhaltensgleich.");
+if (failed) { console.error("\nDiffs under .gm-report/ — diff <route>.v1.txt <route>.v2.txt"); process.exit(1); }
+console.log("\nGolden master: v1 and v2 are behavior-identical.");
