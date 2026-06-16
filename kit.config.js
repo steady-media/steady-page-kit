@@ -44,4 +44,15 @@ export default {
   perPage: 12,      // teasers per page
   maxPills: 8,      // max category pills
   pinnedGuid: null, // pin a post guid as the lead story
+
+  // Post-Engagement: "claps" (eingebauter Zähler, Default), "none" (nur Teilen),
+  // oder "steady-app" (Kommentare + Reaktionen aus der Steady App, read-only).
+  // Nur für "steady-app" relevant: org/channelId/appUrl. Der API-Token gehört in
+  // die Env (TCHOP_TOKEN), NICHT hierher.
+  engagement: {
+    mode: "claps",
+    org: "",            // Tchop-Org-Subdomain, z. B. "steady"
+    channelId: null,    // Tchop-Channel-ID der Publikation, z. B. 290638
+    appUrl: "",         // Channel-Web-App-URL als Fallback-CTA, z. B. https://sebastian-steady.tchop.io/webapp
+  },
 };

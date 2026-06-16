@@ -8,6 +8,7 @@
 
 import kit from "../../kit.config.js";
 import { LANGUAGE, t } from "./i18n.ts";
+import type { EngagementCfg, EngagementMode } from "./types.ts";
 
 // LANGUAGE is determined from kit.config.js in i18n.ts; re-exported here so
 // modules that import LANGUAGE from config keep working.
@@ -85,6 +86,39 @@ export const MEMBER_HEADING = String(kit.memberHeading || "").trim() || t("membe
 export const PER_PAGE = intOr(kit.perPage, 12);    // teasers per page
 export const MAX_PILLS = intOr(kit.maxPills, 8);   // max category pills
 export const PINNED_GUID: string | null = kit.pinnedGuid || null; // optional: post GUID as hero
+
+const ENGAGEMENT_MODES: EngagementMode[] = ["none", "claps", "steady-app"];
+
+function asMode(v: unknown, def: EngagementMode): EngagementMode {
+  const s = String(v || "").trim();
+  return (ENGAGEMENT_MODES as string[]).includes(s) ? (s as EngagementMode) : def;
+}
+
+// kit.config.js-Defaults (env gewinnt zur Request-Zeit, siehe effectiveEngagement)
+const kitEng = (kit.engagement || {}) as Partial<EngagementCfg>;
+export const ENGAGEMENT_MODE: EngagementMode = asMode(kitEng.mode, "claps");
+export const TCHOP_ORG: string = String(kitEng.org || "").trim();
+export const TCHOP_CHANNEL_ID: number | null = kitEng.channelId ? Number(kitEng.channelId) : null;
+export const TCHOP_APP_URL: string = String(kitEng.appUrl || "").trim().replace(/\/+$/, "");
+
+/**
+ * Effektive Engagement-Config: env-Overrides > kit.config.js. Der Secret-Token
+ * (TCHOP_TOKEN) gehört NICHT hierher — er wird nur in der Proxy-Route gelesen.
+ */
+export function effectiveEngagement(env: { [k: string]: unknown } | null | undefined): EngagementCfg {
+  const e = env || {};
+  return {
+    mode: asMode(e.ENGAGEMENT_MODE, ENGAGEMENT_MODE),
+    org: String(e.TCHOP_ORG || TCHOP_ORG).trim(),
+    channelId: e.TCHOP_CHANNEL_ID ? Number(e.TCHOP_CHANNEL_ID) : TCHOP_CHANNEL_ID,
+    appUrl: String(e.TCHOP_APP_URL || TCHOP_APP_URL).trim().replace(/\/+$/, ""),
+  };
+}
+
+/** Per-Card-Deeplink (öffnet App, Web-Fallback). Format verifiziert 2026-06-16. */
+export function cardDeepLink(org: string, channelId: number, storyId: number, cardId: number): string {
+  return `https://${org}.tchop.io/apps/posts/${channelId}/${storyId}/${cardId}`;
+}
 
 /** true as soon as kit.config.js yields a feed source. Env overrides also count
  *  at request time — use isConfigured(cfg) in settings.ts for that. */
