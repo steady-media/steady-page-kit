@@ -19,6 +19,11 @@ test("no token configured → configured:false + fallback deepLink, public cache
   assert.equal(body.deepLink, "https://sebastian-steady.tchop.io/webapp");
 });
 
+test("rejects a steady.page URL without a /posts/ segment", async () => {
+  const res = await onRequestGet(ctx("https://x/api/engagement?key=" + encodeURIComponent("https://steady.page/ab2d81e4/about")));
+  assert.equal(res.status, 400);
+});
+
 test("stub backend → configured:true with comments, short cache, no PII", async () => {
   const res = await onRequestGet(ctx("https://x/api/engagement?key=" + encodeURIComponent(KEY),
     { TCHOP_STUB: "1", TCHOP_ORG: "steady", TCHOP_CHANNEL_ID: "290638" }));

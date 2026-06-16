@@ -6,9 +6,10 @@ import type { KitContext } from "../_lib/types.ts";
 import { jsonResponse } from "../_lib/http.ts";
 import { effectiveEngagement } from "../_lib/config.ts";
 import { getTchopClient } from "../_lib/tchop.ts";
+import { logError } from "../_lib/scrub.ts";
 
-// Join-Key ist die kanonische Steady-Post-URL (RSS-<link>): https://steady.page/<pub>/posts/<uuid>
-const KEY_RE = /^https:\/\/steady\.page\/[^\s"'<>]{1,200}$/i;
+// Kanonische Steady-Post-URL: https://steady.page/<pub>/posts/<uuid> — Pfadform erzwingen.
+const KEY_RE = /^https:\/\/steady\.page\/[^\s"'<>/]{1,80}\/posts\/[^\s"'<>/]{8,80}$/i;
 
 export async function onRequestGet(context: KitContext): Promise<Response> {
   const { request, env } = context;
@@ -28,6 +29,8 @@ export async function onRequestGet(context: KitContext): Promise<Response> {
     return jsonResponse({ configured: true, ...eng }, 200, "public, max-age=60");
   } catch (err) {
     // Fehlertolerant: nie die Seite blockieren, nie Secrets leaken.
-    return jsonResponse({ configured: false, deepLink: fallback }, 200, "public, max-age=60");
+    // Transiente Backend-Fehler nicht cachen (no-store).
+    logError(err, env);
+    return jsonResponse({ configured: false, deepLink: fallback }, 200, "no-store");
   }
 }
