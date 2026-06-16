@@ -82,6 +82,8 @@ export interface KitEnv {
   FEED_URL?: string;
   /** Authenticated full-text feed (secret — never log!) */
   FULLTEXT_FEED_URL?: string;
+  /** Read-scoped Tchop API token for the steady-app engagement proxy (secret — never log!) */
+  TCHOP_TOKEN?: string;
   /** Admin-code gate for global write operations */
   KIT_ADMIN_CODE?: string;
   /** Canonical origin override */
