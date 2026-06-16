@@ -37,7 +37,8 @@ function sumReactions(rs: unknown): number {
 
 /**
  * Rohen Tchop-Kommentar auf den sicheren EngComment reduzieren. Verwirft bewusst
- * author.email/location/roleId/links (PII) — siehe Spec §14.5. Ein Level Replies.
+ * author.email/location/roleId/links (PII) — siehe Spec §14.5.
+ * Rekursiv: auch verschachtelte Replies werden normalisiert.
  */
 export function normalizeComment(raw: { [k: string]: unknown }): EngComment {
   const a = (raw.author || {}) as { [k: string]: unknown };
@@ -47,7 +48,7 @@ export function normalizeComment(raw: { [k: string]: unknown }): EngComment {
     id: Number(raw.id) || 0,
     author: {
       name: String(a.screenName || "").slice(0, 80),
-      avatar: avatar.thumb ? String(avatar.thumb) : null,
+      avatar: (avatar.thumb && /^https:\/\//i.test(String(avatar.thumb))) ? String(avatar.thumb) : null,
     },
     text: String(raw.content || ""),
     ts: String(raw.createdAt || ""),
