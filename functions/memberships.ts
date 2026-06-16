@@ -1,6 +1,6 @@
-// Route: GET /memberships → Steady-Checkout-Embed.
-// Die Steady-Backend-Checkout-URL zeigt auf diese Seite; das Smart-Layer-Widget
-// rendert die Mitgliedschaftspakete in den #insert_steady_checkout_here-Container.
+// Route: GET /memberships → Steady checkout embed.
+// The Steady backend checkout URL points at this page; the Smart Layers widget
+// renders the membership plans into the #insert_steady_checkout_here container.
 import type { KitContext } from "./_lib/types.ts";
 import { buildPageContext, isConfigured } from "./_lib/settings.ts";
 import { htmlResponse } from "./_lib/http.ts";
@@ -12,5 +12,5 @@ export async function onRequestGet(context: KitContext): Promise<Response> {
   return htmlResponse(renderMemberships(cfg), cacheControl);
 }
 
-// HEAD wie GET behandeln (Crawler/Uptime-Checks); workerd entfernt den Body selbst.
+// Treat HEAD like GET (crawlers/uptime checks); workerd strips the body itself.
 export const onRequestHead = onRequestGet;

@@ -1,10 +1,10 @@
-// Route: GET /posts/:id → Einzelpost (":id" = Feed-GUID).
+// Route: GET /posts/:id → single post (":id" = feed GUID).
 //
-// Volltext: Der öffentliche Feed liefert nur Teaser. Ist das Secret FULLTEXT_FEED_URL
-// gesetzt (authentifizierter Steady-Feed, ~6 jüngste Beiträge mit content:encoded),
-// joinen wir den Volltext per normalisiertem Titel an den Beitrag — die Guids beider
-// Feeds unterscheiden sich, die Titel stimmen überein. Der Mitglieder-Teil wird beim
-// Rendern mit dem offiziellen Steady-Paywall-Element gegated (siehe render.js).
+// Full text: the public feed carries teasers only. If the secret FULLTEXT_FEED_URL
+// is set (authenticated Steady feed, ~6 newest posts with content:encoded), we join
+// the full text onto the post by normalized title — the GUIDs of the two feeds
+// differ, the titles match. The member section is gated at render time with the
+// official Steady paywall element (see render.ts).
 import type { KitContext, FeedItem } from "../_lib/types.ts";
 import { getItems, normTitle } from "../_lib/feed.ts";
 import { buildPageContext, getClaps, isConfigured } from "../_lib/settings.ts";
@@ -26,7 +26,7 @@ export async function onRequestGet(context: KitContext): Promise<Response> {
   if (idx < 0) return htmlResponse(render404(cfg), cacheControl, 404);
   const item = items[idx];
 
-  // Volltext (best effort) + Clap-Zähler parallel holen
+  // Full text (best effort) + clap counter fetched in parallel
   const fulltextUrl = context.env && context.env.FULLTEXT_FEED_URL;
   const loadFull = async () => {
     if (!fulltextUrl) return "";
@@ -40,7 +40,7 @@ export async function onRequestGet(context: KitContext): Promise<Response> {
   };
   const [full, claps] = await Promise.all([loadFull(), getClaps(context.env, id)]);
 
-  // Nachbar-Posts (Feed ist neueste-zuerst): next = neuer, prev = älter
+  // Neighbor posts (feed is newest-first): next = newer, prev = older
   const extras = {
     claps,
     next: idx > 0 ? { guid: items[idx - 1].guid, title: items[idx - 1].title } : null,
@@ -49,5 +49,5 @@ export async function onRequestGet(context: KitContext): Promise<Response> {
   return htmlResponse(renderPost(item, cfg, full, extras), cacheControl);
 }
 
-// HEAD wie GET behandeln (Crawler/Uptime-Checks); workerd entfernt den Body selbst.
+// Treat HEAD like GET (crawlers/uptime checks); workerd strips the body itself.
 export const onRequestHead = onRequestGet;

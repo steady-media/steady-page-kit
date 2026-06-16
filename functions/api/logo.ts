@@ -1,25 +1,25 @@
-// Route: /api/logo — global gespeichertes Logo (Cloudflare KV).
-//   GET    → liefert das Logo-Bild (für ALLE Besucher)
-//   PUT    → speichert ein neues Logo   (admin, Header x-kit-admin)
-//   DELETE → entfernt das Logo          (admin)
-// KV-Keys: "logo:data" (Bytes) + "logo:meta" ({type, aspect, ts}).
+// Route: /api/logo — globally stored logo (Cloudflare KV).
+//   GET    → returns the logo image (for ALL visitors)
+//   PUT    → stores a new logo        (admin, header x-kit-admin)
+//   DELETE → removes the logo         (admin)
+// KV keys: "logo:data" (bytes) + "logo:meta" ({type, aspect, ts}).
 import type { KitContext, LogoMeta } from "../_lib/types.ts";
 import { jsonResponse } from "../_lib/http.ts";
 import { isAuthorized } from "../_lib/auth.ts";
 
-const MAX_BYTES = 1572864; // 1,5 MB
+const MAX_BYTES = 1572864; // 1.5 MB
 
 export async function onRequestGet(context: KitContext): Promise<Response> {
   const kv = context.env && context.env.KIT_KV;
   if (!kv) return new Response("", { status: 404 });
-  // KVAdapter.get liefert unknown — Cast auf LogoMeta, da das der gespeicherte Shape ist
+  // KVAdapter.get returns unknown — cast to LogoMeta, which is the stored shape
   const meta = await kv.get("logo:meta", "json") as LogoMeta | null;
   const data = meta ? await kv.get("logo:data", "arrayBuffer") as ArrayBuffer | null : null;
   if (!meta || !data) return new Response("", { status: 404 });
   return new Response(data, {
     headers: {
       "content-type": meta.type || "image/png",
-      // kurz cachen; die Brand-URL trägt ?v=ts und bricht den Cache bei Logo-Wechsel
+      // cache briefly; the brand URL carries ?v=ts and busts the cache on logo change
       "cache-control": "public, max-age=600",
     },
   });

@@ -1,7 +1,7 @@
-// server/routes.ts — DIE Routen-Tabelle + plattformneutraler Dispatch.
-// Node- und Vercel-Entry rufen handleRequest(); Cloudflare Pages routet per
-// Ordnerstruktur direkt in functions/ (test/routes-consistency.test.js hält
-// beide Welten deckungsgleich).
+// server/routes.ts — THE route table + platform-neutral dispatch.
+// The Node and Vercel entries call handleRequest(); Cloudflare Pages routes via
+// folder structure directly into functions/ (test/routes-consistency.test.js keeps
+// both worlds in lockstep).
 import type { KitContext, KitEnv, PagesHandler } from "../functions/_lib/types.ts";
 
 import * as routeHome from "../functions/index.ts";
@@ -19,8 +19,8 @@ import * as apiReact from "../functions/api/react.ts";
 type RouteModule = Record<string, PagesHandler | undefined>;
 export interface Route { re: RegExp; mod: RouteModule; params?: string[]; src: string }
 
-// Statische Routen-Tabelle — bewusst explizit: Single Source of Truth für
-// „welche URLs gibt es". `src` koppelt jeden Eintrag an seine functions/-Datei.
+// Static route table — deliberately explicit: single source of truth for
+// "which URLs exist". `src` couples each entry to its functions/ file.
 export const ROUTES: Route[] = [
   { re: /^\/$/, mod: routeHome, src: "functions/index.ts" },
   { re: /^\/posts\/([^/]+)$/, mod: routePost, params: ["id"], src: "functions/posts/[id].ts" },
@@ -38,7 +38,7 @@ export const ROUTES: Route[] = [
 export function handlerFor(mod: RouteModule, method: string): PagesHandler | null {
   const name = "onRequest" + method.charAt(0) + method.slice(1).toLowerCase();
   if (mod[name]) return mod[name]!;
-  if (method === "HEAD" && mod.onRequestGet) return mod.onRequestGet; // Body strippt die Plattform
+  if (method === "HEAD" && mod.onRequestGet) return mod.onRequestGet; // the platform strips the body
   return null;
 }
 
@@ -49,13 +49,12 @@ export function allowedMethods(mod: RouteModule): string[] {
   return out;
 }
 
-export const MAX_BODY = 3 * 1024 * 1024; // Logo-Limit ist 1,5 MB — 3 MB Puffer reichen
+export const MAX_BODY = 3 * 1024 * 1024; // logo limit is 1.5 MB — a 3 MB buffer is plenty
 
 /**
- * Request → Response über die ROUTES-Tabelle. `null` = keine Route (Aufrufer
- * macht Static-Serving/404). Übernimmt Trailing-Slash-301, 405+Allow und
- * 413 bei zu großem Body (Content-Length-basiert; der Node-Entry prüft
- * zusätzlich beim Puffern).
+ * Request → Response via the ROUTES table. `null` = no route (the caller does
+ * static serving/404). Handles the trailing-slash 301, 405+Allow and 413 on an
+ * oversized body (Content-Length-based; the Node entry also checks while buffering).
  */
 export async function handleRequest(request: Request, env: KitEnv): Promise<Response | null> {
   const url = new URL(request.url);
@@ -82,7 +81,7 @@ export async function handleRequest(request: Request, env: KitEnv): Promise<Resp
     const params: Record<string, string> = {};
     (route.params || []).forEach((name, i) => {
       let v = m[i + 1]!;
-      try { v = decodeURIComponent(v); } catch { /* roh lassen */ }
+      try { v = decodeURIComponent(v); } catch { /* leave raw */ }
       params[name] = v;
     });
 

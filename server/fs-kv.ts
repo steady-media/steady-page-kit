@@ -1,18 +1,18 @@
-// server/fs-kv.ts — Dateisystem-Shim für die genutzte Teilmenge der Cloudflare-KV-API.
+// server/fs-kv.ts — filesystem shim for the subset of the Cloudflare KV API we use.
 //
-// Die Functions sprechen env.KIT_KV nur mit get/put/delete an (Typen: text, json,
-// arrayBuffer). Auf Node liegt dahinter ein flaches Verzeichnis: ein Key = eine Datei,
-// Dateiname = encodeURIComponent(Key) — das macht ":"-Keys (config:prev, react:<guid>)
-// und Traversal-Versuche ("../x") gleichermaßen harmlos, weil "/" nie im Namen landet.
+// The functions only call env.KIT_KV with get/put/delete (types: text, json,
+// arrayBuffer). On Node a flat directory sits behind it: one key = one file,
+// filename = encodeURIComponent(key) — which makes ":" keys (config:prev, react:<guid>)
+// and traversal attempts ("../x") equally harmless, because "/" never lands in the name.
 //
-// Grenzen (dokumentiert in docs/agent/deploy/*): kein Multi-Replica-Betrieb, und der
-// Host braucht eine persistente Disk, sonst sind Publish/Logo/Claps nach Redeploy weg.
+// Limits (documented in docs/agent/deploy/*): no multi-replica operation, and the
+// host needs a persistent disk, otherwise publish/logo/claps are gone after redeploy.
 
 import { mkdir, readFile, writeFile, rename, unlink } from "node:fs/promises";
 import { join } from "node:path";
 import type { KVAdapter } from "../functions/_lib/types.ts";
 
-/** KV-kompatibles Objekt über einem Datenverzeichnis. */
+/** KV-compatible object over a data directory. */
 export function createFsKv(dir: string): KVAdapter {
   const fileOf = (key: string) => join(dir, encodeURIComponent(String(key)));
 
@@ -22,7 +22,7 @@ export function createFsKv(dir: string): KVAdapter {
       let buf: Buffer;
       try { buf = await readFile(fileOf(key)); } catch { return null; }
       if (type === "arrayBuffer") {
-        // Slice statt buf.buffer: Node-Buffer teilen sich einen Pool — byteOffset beachten.
+        // slice instead of buf.buffer: Node buffers share a pool — mind the byteOffset.
         return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
       }
       const text = buf.toString("utf8");
@@ -38,8 +38,8 @@ export function createFsKv(dir: string): KVAdapter {
         : Buffer.isBuffer(value) ? value
         : ArrayBuffer.isView(value) ? Buffer.from(value.buffer as ArrayBuffer, value.byteOffset, value.byteLength)
         : Buffer.from(value as ArrayBuffer); // ArrayBuffer
-      // Atomar schreiben (tmp + rename): ein abgebrochener Logo-Upload darf keine
-      // halbe Datei hinterlassen.
+      // Atomic write (tmp + rename): an aborted logo upload must not leave a
+      // half-written file behind.
       const target = fileOf(key);
       const tmp = `${target}.tmp-${process.pid}-${Date.now().toString(36)}`;
       await writeFile(tmp, data);
@@ -47,7 +47,7 @@ export function createFsKv(dir: string): KVAdapter {
     },
 
     async delete(key: string): Promise<void> {
-      try { await unlink(fileOf(key)); } catch { /* fehlte schon → ok */ }
+      try { await unlink(fileOf(key)); } catch { /* already missing → ok */ }
     },
   };
 }

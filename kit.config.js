@@ -1,47 +1,47 @@
 // @ts-check
-// kit.config.js — die Einstellungen DEINER Publikation. / YOUR publication's settings.
+// kit.config.js — YOUR publication's settings.
 //
-// Dies ist die EINZIGE Datei, die du als Publisher ausfüllen musst. Alternativ
-// kannst du alle Werte beim Deploy per Env setzen (STEADY_SLUG, SITE_ORIGIN,
-// STEADY_PUBLICATION_ID …) und diese Datei generisch lassen — siehe .env.example.
-// Branding (Name, Navigation, Logo, Farben) lässt sich auch im Anpassen-Panel
-// global speichern („Für alle Besucher speichern").
+// This is the ONLY file you need to fill in as a publisher. Alternatively you can
+// set all values at deploy time via env (STEADY_SLUG, SITE_ORIGIN,
+// STEADY_PUBLICATION_ID …) and leave this file generic — see .env.example.
+// Branding (name, navigation, logo, colors) can also be saved globally in the
+// customizer panel ("Publish for all visitors").
 //
-// Secrets gehören NICHT hierher (Admin-Code, Volltext-Feed-URL) — die liegen in
-// .env (Node) bzw. .dev.vars / Cloudflare-Secrets. Siehe .env.example.
+// Secrets do NOT belong here (admin code, full-text feed URL) — they live in
+// .env (Node) or .dev.vars / Cloudflare secrets. See .env.example.
 
 /** @type {import("./functions/_lib/types.ts").KitConfig} */
 export default {
-  // Anzeigename der Publikation / display name of your publication.
+  // Display name of your publication.
   publication: "",
 
-  // Autor:in (optional; Meta-Daten) / author (optional; used in meta data).
+  // Author (optional; used in meta data).
   author: "",
 
-  // Sprache der Oberfläche: "de" oder "en". / UI language of the site.
+  // UI language of the site: "de" or "en".
   language: "de",
 
-  // Kanonische URL der fertigen Seite, ohne Slash am Ende.
+  // Canonical URL of the finished site, without a trailing slash.
   siteOrigin: "",
 
   steady: {
-    // Dein Steady-Slug — der Teil hinter steady.page/ in deiner Publikations-URL.
+    // Your Steady slug — the part after steady.page/ in your publication URL.
     slug: "",
 
-    // Steady-Publikations-ID (UUID) — lädt das Steady-Widget (Login/Paywall/Checkout).
+    // Steady publication ID (UUID) — loads the Steady widget (login/paywall/checkout).
     publicationId: "",
   },
 
-  // Überschrift, mit der im Steady-Editor der Mitglieder-Teil beginnt.
-  // "" = Sprach-Default („Mitglieder-Bereich" / "Members only").
+  // Heading at which the member section begins in the Steady editor.
+  // "" = language default ("Mitglieder-Bereich" / "Members only").
   memberHeading: "",
 
-  // Navigation: null = Kit-Default (Beiträge / Mitglied werden / Newsletter).
-  // Eigene Labels/Links hier setzen — oder im Anpassen-Panel global speichern.
+  // Navigation: null = kit default (Posts / Become a member / Newsletter).
+  // Set your own labels/links here — or save them globally in the customizer panel.
   nav: null,
 
-  // Feinheiten / tuning
-  perPage: 12,      // Teaser pro Seite / teasers per page
-  maxPills: 8,      // max. Kategorie-Pills / max category pills
-  pinnedGuid: null, // Post-GUID als Aufmacher pinnen / pin a post guid as hero
+  // Tuning
+  perPage: 12,      // teasers per page
+  maxPills: 8,      // max category pills
+  pinnedGuid: null, // pin a post guid as the lead story
 };

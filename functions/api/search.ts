@@ -1,7 +1,7 @@
-// Route: GET /api/search?q=… — feed-basierte Suche.
-// Durchsucht Titel, Teaser und Kategorien aller Feed-Items (normalisiert, alle
-// Suchwörter müssen treffen). Liefert echte Titel + echte Post-URLs — anders als
-// der frühere AutoRAG-Index, dessen Chunks weder Titel noch Links hatten.
+// Route: GET /api/search?q=… — feed-based search.
+// Searches title, teaser and categories of all feed items (normalized; every
+// search word must match). Returns real titles + real post URLs — unlike the
+// earlier AutoRAG index, whose chunks had neither titles nor links.
 import type { FeedItem, KitContext } from "../_lib/types.ts";
 import { getItems, normTitle } from "../_lib/feed.ts";
 import { effectiveFeedUrl } from "../_lib/config.ts";
@@ -29,10 +29,10 @@ export async function onRequestGet(context: KitContext): Promise<Response> {
     const c = normTitle(it.categories.join(" "));
     let score = 0, all = true;
     for (const w of words) {
-      if (t.includes(w)) score += 3;        // Titel-Treffer wiegen am meisten
-      else if (c.includes(w)) score += 2;   // dann Kategorie
-      else if (d.includes(w)) score += 1;   // dann Teasertext
-      else { all = false; break; }          // jedes Suchwort muss irgendwo treffen
+      if (t.includes(w)) score += 3;        // title hits weigh the most
+      else if (c.includes(w)) score += 2;   // then category
+      else if (d.includes(w)) score += 1;   // then teaser text
+      else { all = false; break; }          // every search word must match somewhere
     }
     if (all) scored.push({ score, it });
   }

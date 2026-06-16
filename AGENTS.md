@@ -10,8 +10,8 @@ ein"), follow the runbook in **[docs/agent/SETUP.md](docs/agent/SETUP.md)** step
 For deployment use the matching recipe in **docs/agent/deploy/**. For updating an
 existing installation to a newer kit version, use **[docs/agent/UPDATE.md](docs/agent/UPDATE.md)**.
 
-Always talk to the user in **their** language. Code, comments and commits stay in the
-repository's existing style.
+Always talk to the user in **their** language. Code, comments, docs and commits are in
+**English** (the repository's language).
 
 ## What runs where
 

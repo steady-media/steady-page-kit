@@ -1,22 +1,22 @@
-// _lib/config.ts — zentrale Konstanten des Kits.
+// _lib/config.ts — the kit's central constants.
 //
-// Die Publisher-Identität kommt aus kit.config.js (Repo-Root) — der EINEN Datei,
-// die Publisher anfassen. Hier passiert nur: Validierung, Ableitung der Steady-URLs
-// aus dem Slug und die Template-eigenen Konstanten (Render-Parameter, Versionen).
-// Env-Overrides (FEED_URL, SITE_ORIGIN, …) greifen zur Request-Zeit in
-// buildPageContext (settings.js) und gewinnen gegen alles hier.
+// The publisher identity comes from kit.config.js (repo root) — the ONE file
+// publishers touch. This module only: validates, derives the Steady URLs from the
+// slug, and holds the template's own constants (render params, versions).
+// Env overrides (FEED_URL, SITE_ORIGIN, …) apply at request time in
+// buildPageContext (settings.ts) and win over everything here.
 
 import kit from "../../kit.config.js";
 import { LANGUAGE, t } from "./i18n.ts";
 
-// Sprache wird in i18n.js aus kit.config.js bestimmt; hier nur durchgereicht,
-// damit bestehende Importe (`from "./config.js"`) weiter funktionieren.
+// LANGUAGE is determined from kit.config.js in i18n.ts; re-exported here so
+// modules that import LANGUAGE from config keep working.
 export { LANGUAGE };
 
 /**
- * Steady-Slug aus Nutzereingabe normalisieren — akzeptiert auch komplette URLs
- * („https://steady.page/sebastian/rss", „steadyhq.com/de/xyz/about") und „@slug".
- * Locale-Segmente (de/en/…) am Pfadanfang werden übersprungen.
+ * Normalize a Steady slug from user input — also accepts full URLs
+ * ("https://steady.page/sebastian/rss", "steadyhq.com/de/xyz/about") and "@slug".
+ * Locale segments (de/en/…) at the start of the path are skipped.
  */
 export function normalizeSlug(input: unknown): string {
   let s = String(input || "").trim().replace(/^@/, "");
@@ -26,12 +26,12 @@ export function normalizeSlug(input: unknown): string {
       const u = new URL(/^https?:\/\//i.test(s) ? s : "https://" + s);
       const locales = new Set(["de", "en", "fr", "es", "it"]);
       s = u.pathname.split("/").filter(Boolean).find(seg => !locales.has(seg.toLowerCase())) || "";
-    } catch (e) { /* keine parsebare URL → Eingabe als Slug weiterbehandeln */ }
+    } catch (e) { /* not a parseable URL → keep treating the input as a slug */ }
   }
   return s.toLowerCase().replace(/[^a-z0-9_-]/g, "");
 }
 
-/** Steady-URLs aus Slug + Sprache ableiten; leerer Slug → leere Strings. */
+/** Derive Steady URLs from slug + language; empty slug → empty strings. */
 export function deriveSteady(slug: string, language: string): { feedUrl: string; loginUrl: string; newsletterUrl: string } {
   if (!slug) return { feedUrl: "", loginUrl: "", newsletterUrl: "" };
   return {
@@ -53,47 +53,47 @@ const derived = deriveSteady(STEADY_SLUG, LANGUAGE);
 export const PUBLICATION = String(kit.publication || "").trim() || t("publication.fallback");
 export const AUTHOR = String(kit.author || "").trim();
 
-/** Effektiver Anzeigename: veröffentlichtes Brand (KV/Cookie, cfg.brand) vor kit.config-Default. */
+/** Effective display name: published brand (KV/cookie, cfg.brand) over the kit.config default. */
 export function publicationName(cfg?: { brand?: string | null } | null): string {
   const b = cfg && cfg.brand ? String(cfg.brand).trim() : "";
   return b || PUBLICATION;
 }
 
-// Kanonische Origin dieser Installation (canonical/OG-URLs, Sitemap, robots).
-// Leer = Links bleiben relativ sinnvoll, doctor warnt. env-überschreibbar: SITE_ORIGIN
+// Canonical origin of this installation (canonical/OG URLs, sitemap, robots).
+// Empty = links stay sensibly relative, doctor warns. env-overridable: SITE_ORIGIN
 export const SITE_ORIGIN = String(kit.siteOrigin || "").trim().replace(/\/+$/, "");
 
-// Öffentlicher Steady-RSS-Feed — Single Source of Truth für alle Inhalte.
-// Volltexte liefert der authentifizierte Feed (Secret FULLTEXT_FEED_URL).
-// env-überschreibbar: FEED_URL
+// Public Steady RSS feed — single source of truth for all content.
+// Full text comes from the authenticated feed (secret FULLTEXT_FEED_URL).
+// env-overridable: FEED_URL
 export const FEED_URL = derived.feedUrl;
 
-// Steady-Publikations-ID → lädt den widget_loader (Login/Checkout/Paywall).
-// env-überschreibbar: STEADY_PUBLICATION_ID
+// Steady publication ID → loads the widget_loader (login/checkout/paywall).
+// env-overridable: STEADY_PUBLICATION_ID
 export const STEADY_PUBLICATION_ID = String((kit.steady && kit.steady.publicationId) || "").trim();
 
-// Steady-Login-Fallback-Link (falls das Widget nicht lädt). env-überschreibbar: STEADY_LOGIN_URL
+// Steady login fallback link (in case the widget doesn't load). env-overridable: STEADY_LOGIN_URL
 export const STEADY_LOGIN_URL = derived.loginUrl;
 
-// Newsletter-Anmeldung (Default-Nav-Eintrag, nur wenn ableitbar).
+// Newsletter sign-up (default nav entry, only when derivable).
 export const NEWSLETTER_URL = derived.newsletterUrl;
 
-// Überschrift, mit der im Steady-Editor der Mitglieder-Teil beginnt; davor setzt
-// renderPost das offizielle Steady-Paywall-Element. "" → Sprach-Default.
+// Heading at which the member section begins in the Steady editor; renderPost
+// inserts the official Steady paywall element before it. "" → language default.
 export const MEMBER_HEADING = String(kit.memberHeading || "").trim() || t("member.headingDefault");
 
-export const PER_PAGE = intOr(kit.perPage, 12);    // Teaser pro Seite
-export const MAX_PILLS = intOr(kit.maxPills, 8);   // max. Kategorie-Pills
-export const PINNED_GUID: string | null = kit.pinnedGuid || null; // optional: Post-GUID als Hero
+export const PER_PAGE = intOr(kit.perPage, 12);    // teasers per page
+export const MAX_PILLS = intOr(kit.maxPills, 8);   // max category pills
+export const PINNED_GUID: string | null = kit.pinnedGuid || null; // optional: post GUID as hero
 
-/** true, sobald kit.config.js eine Feed-Quelle ergibt. Env-Overrides zählen
- *  zusätzlich zur Request-Zeit — dafür isConfigured(cfg) in settings.js nutzen. */
+/** true as soon as kit.config.js yields a feed source. Env overrides also count
+ *  at request time — use isConfigured(cfg) in settings.ts for that. */
 export const IS_CONFIGURED = !!FEED_URL;
 
 /**
- * Env-Override aus STEADY_SLUG: leitet Feed-/Login-/Newsletter-URL ab, damit
- * One-Click-Deploys (Railway u. a.) ohne kit.config.js-Edit auskommen — der
- * Publisher gibt nur seinen Slug an. null, wenn kein STEADY_SLUG gesetzt ist.
+ * Env override from STEADY_SLUG: derives feed/login/newsletter URLs so one-click
+ * deploys (Railway et al.) work without editing kit.config.js — the publisher
+ * only supplies their slug. null when no STEADY_SLUG is set.
  */
 export function envSteadyUrls(env: { STEADY_SLUG?: unknown; [k: string]: unknown } | null | undefined): { feedUrl: string; loginUrl: string; newsletterUrl: string } | null {
   const slug = normalizeSlug(env && env.STEADY_SLUG);
@@ -101,8 +101,8 @@ export function envSteadyUrls(env: { STEADY_SLUG?: unknown; [k: string]: unknown
 }
 
 /**
- * Effektive Feed-URL für Routen, die NICHT über buildPageContext laufen
- * (rss, sitemap, search). Präzedenz: FEED_URL-Env > STEADY_SLUG-Env > kit.config.js.
+ * Effective feed URL for routes that do NOT go through buildPageContext
+ * (rss, sitemap, search). Precedence: FEED_URL env > STEADY_SLUG env > kit.config.js.
  */
 export function effectiveFeedUrl(env: { FEED_URL?: unknown; STEADY_SLUG?: unknown; [k: string]: unknown } | null | undefined): string {
   const explicit = String((env && env.FEED_URL) || "").trim();
@@ -111,8 +111,8 @@ export function effectiveFeedUrl(env: { FEED_URL?: unknown; STEADY_SLUG?: unknow
   return bySlug ? bySlug.feedUrl : FEED_URL;
 }
 
-// Editierbare Standard-Navigation (überschreibbar via kitchrome-Cookie/globale Config).
-// l = Label, h = href, x = extern (neuer Tab).
+// Editable default navigation (overridable via kitchrome cookie / global config).
+// l = label, h = href, x = external (new tab).
 export const DEFAULT_NAV: Array<{ l: string; h: string; x?: boolean }> = (Array.isArray(kit.nav) && kit.nav.length)
   ? kit.nav.filter(n => n && n.l && n.h).slice(0, 8)
       .map(n => ({ l: String(n.l).slice(0, 40), h: String(n.h).slice(0, 300), x: !!n.x }))
@@ -122,10 +122,10 @@ export const DEFAULT_NAV: Array<{ l: string; h: string; x?: boolean }> = (Array.
       ...(NEWSLETTER_URL ? [{ l: t("nav.newsletter"), h: NEWSLETTER_URL, x: true }] : []),
     ];
 
-/* — Template-eigene Konstanten (gehören dem Kit, nicht dem Publisher) — */
+/* — Template-owned constants (belong to the kit, not the publisher) — */
 
-// User-Agent für Feed-Requests (identifiziert das Kit gegenüber Steady).
+// User-Agent for feed requests (identifies the kit to Steady).
 export const USER_AGENT = "SteadyPageKit/1.0";
 
-// Cache-Buster für public/assets/kit.css + kit-*.js — bei Asset-Änderungen hochzählen.
-export const ASSET_VERSION = "2026-06-15i";
+// Cache buster for public/assets/kit.css + kit-*.js — bump on asset changes.
+export const ASSET_VERSION = "2026-06-16b";

@@ -11,5 +11,8 @@ data/
 .claude/
 .gstack/
 
-# Golden-Master-Laufergebnisse
+# Golden master run results
 .gm-report/
+
+# Internal planning drafts (gstack/superpowers) — not for the public repo
+docs/superpowers/

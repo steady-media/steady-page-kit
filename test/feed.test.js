@@ -1,4 +1,4 @@
-// test/feed.test.js — Feed-Parsing + Titel-Normalisierung (Join-Schlüssel der Volltexte).
+// test/feed.test.js — feed parsing + title normalization (join key for the full texts).
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parseFeed, parseChannelMeta, normTitle, topCategories } from "../functions/_lib/feed.ts";
@@ -18,7 +18,7 @@ const XML = `<?xml version="1.0"?><rss><channel>
 <item><title>Zweiter</title><category>startup</category><guid>def-456</guid></item>
 </channel></rss>`;
 
-test("parseFeed extrahiert alle Item-Felder", () => {
+test("parseFeed extracts all item fields", () => {
   const items = parseFeed(XML);
   assert.equal(items.length, 2);
   const it = items[0];
@@ -28,23 +28,23 @@ test("parseFeed extrahiert alle Item-Felder", () => {
   assert.equal(it.image, "https://img.example/x.jpg");
   assert.equal(it.guid, "abc-123");
   assert.equal(it.content, "<p>Volltext</p>");
-  assert.equal(items[1].content, ""); // ohne content:encoded → leer
+  assert.equal(items[1].content, ""); // without content:encoded → empty
 });
 
-test("parseChannelMeta liest den Channel-Kopf", () => {
+test("parseChannelMeta reads the channel head", () => {
   const meta = parseChannelMeta(XML);
   assert.equal(meta.title, "Beispiel-Publikation");
   assert.equal(meta.description, "Der Newsletter über Medien.");
 });
 
-test("normTitle normalisiert für den Volltext-Join", () => {
+test("normTitle normalizes for the full-text join", () => {
   assert.equal(normTitle("Du brauchst KEINE eigene App!"), "du brauchst keine eigene app");
-  assert.equal(normTitle("Äpfel &amp; Birnen"), "äpfel birnen"); // Entities → Leerraum
+  assert.equal(normTitle("Äpfel &amp; Birnen"), "äpfel birnen"); // entities → whitespace
   assert.equal(normTitle(""), "");
 });
 
-test("topCategories sortiert nach Häufigkeit", () => {
+test("topCategories sorts by frequency", () => {
   const cats = topCategories(parseFeed(XML));
-  assert.equal(cats[0], "startup"); // 2 Treffer vor 1 Treffer
+  assert.equal(cats[0], "startup"); // 2 hits before 1 hit
   assert.ok(cats.includes("wachsen"));
 });

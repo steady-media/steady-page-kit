@@ -1,4 +1,4 @@
-// test/routes-gaps.test.js — Coverage-Lücken aus dem Eng-Review (2026-06-11).
+// test/routes-gaps.test.js — coverage gaps from the eng review (2026-06-11).
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
@@ -7,7 +7,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { startServer } from "../server/node.ts";
 import { _resetFeedCache } from "../functions/_lib/feed.ts";
-import { MEMBER_HEADING } from "../functions/_lib/config.ts"; // fork-sicher: echte Überschrift
+import { MEMBER_HEADING } from "../functions/_lib/config.ts"; // fork-safe: the real heading
 
 const FEED_XML = `<?xml version="1.0"?><rss><channel>
 <title>Gap-Tests</title><description><![CDATA[x]]></description>
@@ -44,43 +44,43 @@ after(async () => {
   _resetFeedCache();
 });
 
-test("GET /memberships rendert den Checkout-Container", async () => {
+test("GET /memberships renders the checkout container", async () => {
   const res = await fetch(base + "/memberships");
   assert.equal(res.status, 200);
   assert.ok((await res.text()).includes("insert_steady_checkout_here"));
 });
 
-test("GET /robots.txt nutzt SITE_ORIGIN", async () => {
+test("GET /robots.txt uses SITE_ORIGIN", async () => {
   const res = await fetch(base + "/robots.txt");
   assert.equal(res.status, 200);
   assert.equal(await res.text(), "User-agent: *\nAllow: /\n\nSitemap: https://gap.test/sitemap.xml\n");
 });
 
-test("Unbekannter Pfad → 404", async () => {
+test("Unknown path → 404", async () => {
   const res = await fetch(base + "/gibt-es-nicht");
   assert.equal(res.status, 404);
 });
 
-test("Trailing Slash → 301 auf slashlose URL, Query bleibt", async () => {
+test("Trailing slash → 301 to the slash-less URL, query preserved", async () => {
   const res = await fetch(base + "/memberships/?x=1", { redirect: "manual" });
   assert.equal(res.status, 301);
   assert.equal(res.headers.get("location"), "/memberships?x=1");
 });
 
-test("config: PATCH ohne Vorversion → 404; PUT+PATCH = Revert; Doppel-PATCH = Redo; DELETE = Reset", async () => {
+test("config: PATCH without a previous version → 404; PUT+PATCH = revert; double PATCH = redo; DELETE = reset", async () => {
   const H = { "x-kit-admin": "geheim-1234567890", "content-type": "application/json" };
   assert.equal((await fetch(base + "/api/config", { method: "PATCH", headers: H })).status, 404);
   await fetch(base + "/api/config", { method: "PUT", headers: H, body: JSON.stringify({ skin: { v: "1" } }) });
   await fetch(base + "/api/config", { method: "PUT", headers: H, body: JSON.stringify({ skin: { v: "2" } }) });
   assert.equal((await fetch(base + "/api/config", { method: "PATCH", headers: H })).status, 200);
-  assert.equal((await (await fetch(base + "/api/config")).json()).skin.v, "1"); // Revert
+  assert.equal((await (await fetch(base + "/api/config")).json()).skin.v, "1"); // revert
   await fetch(base + "/api/config", { method: "PATCH", headers: H });
-  assert.equal((await (await fetch(base + "/api/config")).json()).skin.v, "2"); // Redo
+  assert.equal((await (await fetch(base + "/api/config")).json()).skin.v, "2"); // redo
   assert.equal((await fetch(base + "/api/config", { method: "DELETE", headers: H })).status, 200);
-  assert.deepEqual(await (await fetch(base + "/api/config")).json(), {});      // Reset
+  assert.deepEqual(await (await fetch(base + "/api/config")).json(), {});      // reset
 });
 
-test("logo: über 1,5 MB → 413 too_large (Handler-Limit)", async () => {
+test("logo: over 1.5 MB → 413 too_large (handler limit)", async () => {
   const res = await fetch(base + "/api/logo", {
     method: "PUT",
     headers: { "x-kit-admin": "geheim-1234567890", "x-kit-type": "image/png" },
@@ -90,16 +90,16 @@ test("logo: über 1,5 MB → 413 too_large (Handler-Limit)", async () => {
   assert.equal((await res.json()).error, "too_large");
 });
 
-test("Paywall-Cut: Volltext enthält steady_paywall vor dem Mitglieder-Teil", async () => {
+test("Paywall cut: full text contains steady_paywall before the member section", async () => {
   const res = await fetch(base + "/posts/guid-gap-001");
   assert.equal(res.status, 200);
   const html = await res.text();
   const cut = html.indexOf('id="steady_paywall"');
-  assert.ok(cut > 0, "Paywall-Element fehlt");
-  assert.ok(html.indexOf("Geheimer Teil") > cut, "Mitglieder-Inhalt steht vor der Paywall");
+  assert.ok(cut > 0, "paywall element missing");
+  assert.ok(html.indexOf("Geheimer Teil") > cut, "member content comes before the paywall");
 });
 
-test("Feed down + kalter Cache: / fällt freundlich zurück, /rss → 503 mit retry-after", async () => {
+test("Feed down + cold cache: / falls back friendly, /rss → 503 with retry-after", async () => {
   _resetFeedCache();
   const deadDir = await mkdtemp(join(tmpdir(), "kitdead-"));
   const dead = await startServer({ port: 0, env: {
@@ -108,7 +108,7 @@ test("Feed down + kalter Cache: / fällt freundlich zurück, /rss → 503 mit re
   const dbase = `http://127.0.0.1:${dead.address().port}`;
   try {
     const landing = await fetch(dbase + "/");
-    assert.equal(landing.status, 200); // renderEmpty — freundlicher Fallback, kein 500
+    assert.equal(landing.status, 200); // renderEmpty — friendly fallback, no 500
     const rss = await fetch(dbase + "/rss");
     assert.equal(rss.status, 503);
     assert.equal(rss.headers.get("retry-after"), "120");

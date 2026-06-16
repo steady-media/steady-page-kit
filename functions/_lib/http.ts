@@ -1,7 +1,7 @@
-// _lib/http.ts — Response-Helfer für die /api/*-Endpunkte.
+// _lib/http.ts — response helpers for the /api/* endpoints.
 
-/** HTML-Antwort mit Cache-Header (siehe buildPageContext) + Security-Baseline.
- *  (public/_headers greift nur für statische Assets, nicht für Function-Antworten.) */
+/** HTML response with cache header (see buildPageContext) + security baseline.
+ *  (public/_headers only applies to static assets, not to function responses.) */
 export function htmlResponse(html: string, cacheControl?: string, status: number = 200): Response {
   return new Response(html, {
     status,
@@ -15,7 +15,7 @@ export function htmlResponse(html: string, cacheControl?: string, status: number
   });
 }
 
-/** JSON-Antwort; API-Antworten sind standardmäßig uncached. */
+/** JSON response; API responses are uncached by default. */
 export function jsonResponse(obj: unknown, status: number = 200, cacheControl: string = "no-store"): Response {
   return new Response(JSON.stringify(obj), {
     status,

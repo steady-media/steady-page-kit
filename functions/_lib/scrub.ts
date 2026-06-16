@@ -1,5 +1,5 @@
-// _lib/scrub.ts — Secret-Redaktion für Logs (AGENTS.md Hard Rule 1 als Code).
-// Beim Ergänzen neuer Secrets (z. B. v2.1 OAuth client_secret): hier eintragen.
+// _lib/scrub.ts — secret redaction for logs (AGENTS.md Hard Rule 1 as code).
+// When adding new secrets (e.g. v2.1 OAuth client_secret): register them here.
 import type { KitEnv } from "./types.ts";
 
 export function scrubSecrets(text: string, env: Pick<KitEnv, "FULLTEXT_FEED_URL">): string {
@@ -10,12 +10,12 @@ export function scrubSecrets(text: string, env: Pick<KitEnv, "FULLTEXT_FEED_URL"
     try {
       const q = new URL(u);
       if (q.search.length > 1) out = out.split(q.search.slice(1)).join("[redacted]");
-    } catch { /* URL unparsebar → der Voll-String-Ersatz oben hat gegriffen */ }
+    } catch { /* URL unparseable → the full-string replacement above already caught it */ }
   }
   return out;
 }
 
-/** Zentraler Fehler-Logger — einzige erlaubte console.error-Stelle für Request-Fehler. */
+/** Central error logger — the only permitted console.error site for request errors. */
 export function logError(err: unknown, env: Pick<KitEnv, "FULLTEXT_FEED_URL">): void {
   const base = err instanceof Error
     ? `${err.message}\n${err.stack ?? ""}${err.cause !== undefined ? `\ncause: ${String(err.cause)}` : ""}`

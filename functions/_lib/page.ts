@@ -1,5 +1,5 @@
-// _lib/page.js — Seitengerüst: <head> (inkl. SEO/OG), Header (Brand + Login + Nav + Suche), Footer.
-// Die Render-Funktionen (render.js) setzen Seiten als head() + header() + Inhalt + footer() zusammen.
+// _lib/page.ts — page scaffold: <head> (incl. SEO/OG), header (brand + login + nav + search), footer.
+// The render functions (render.ts) compose pages as head() + header() + content + footer().
 
 import { PUBLICATION, SITE_ORIGIN, STEADY_PUBLICATION_ID, STEADY_LOGIN_URL, DEFAULT_NAV, ASSET_VERSION, publicationName } from "./config.ts";
 import { LANGUAGE, LOCALE, t, clientStrings } from "./i18n.ts";
@@ -8,25 +8,25 @@ import { ICON_SEARCH, ICON_PANEL } from "./icons.ts";
 import { panelHtml } from "./panel.ts";
 import type { RenderCfg, KitNavItem } from "./types.ts";
 
-// Metadaten für SEO/OG-Tags im Dokumentkopf
+// Metadata for SEO/OG tags in the document head
 type PageMeta = { desc?: string; path?: string; image?: string; type?: string; noindex?: boolean };
 
-// JSON inline ins HTML: "<" escapen, damit kein "</script>" im Datenblob das Tag schließt.
+// JSON inlined into HTML: escape "<" so no "</script>" in the data blob closes the tag.
 const inlineJson = (obj: unknown): string => JSON.stringify(obj).replace(/</g, "\\u003c");
 
 /**
- * Dokumentkopf. Reihenfolge ist bewusst:
- *   1. kit.css            — Design-Tokens + alle Komponenten-Styles
- *   2. window.KIT_GLOBAL  — global veröffentlichter Skin (nur wenn vorhanden)
- *   3. kit-theme.js       — blockierend: wendet KIT_GLOBAL/localStorage VOR dem
- *                           ersten Paint an (kein Theme-Flackern)
- *   4. Steady widget_loader — Smart Layers (Login/Checkout/Paywall)
+ * Document head. The order is deliberate:
+ *   1. kit.css            — design tokens + all component styles
+ *   2. window.KIT_GLOBAL  — globally published skin (only when present)
+ *   3. kit-theme.js       — blocking: applies KIT_GLOBAL/localStorage BEFORE the
+ *                           first paint (no theme flash)
+ *   4. Steady widget_loader — Smart Layers (login/checkout/paywall)
  *
  * @param {string} title
- * @param {object} cfg   Render-Config aus buildPageContext (settings.js)
+ * @param {object} cfg   render config from buildPageContext (settings.ts)
  * @param {{desc?:string, path?:string, image?:string, type?:string, noindex?:boolean}} meta
- *        SEO/Social-Metadaten: desc → description/og/twitter, path → canonical + og:url,
- *        image → og:image/twitter:image (absolute URL), type → og:type (Default website).
+ *        SEO/social metadata: desc → description/og/twitter, path → canonical + og:url,
+ *        image → og:image/twitter:image (absolute URL), type → og:type (default website).
  */
 export function head(title: string, cfg: RenderCfg = {} as RenderCfg, meta: PageMeta = {}): string {
   const v = ASSET_VERSION;
@@ -41,8 +41,8 @@ export function head(title: string, cfg: RenderCfg = {} as RenderCfg, meta: Page
   const tags = [];
   if (meta.desc) tags.push(`<meta name="description" content="${esc(meta.desc)}"/>`);
   if (meta.noindex) tags.push(`<meta name="robots" content="noindex"/>`);
-  // canonical/og:url nur mit bekannter Origin (kit.config.js siteOrigin bzw.
-  // SITE_ORIGIN-Env) — relative Canonicals stiften mehr Verwirrung als Nutzen.
+  // canonical/og:url only with a known origin (kit.config.js siteOrigin or
+  // SITE_ORIGIN env) — relative canonicals cause more confusion than benefit.
   if (meta.path && origin) tags.push(`<link rel="canonical" href="${esc(origin + meta.path)}"/>`);
   tags.push(`<meta property="og:site_name" content="${esc(pub)}"/>`);
   tags.push(`<meta property="og:locale" content="${LOCALE.og}"/>`);
@@ -56,7 +56,7 @@ export function head(title: string, cfg: RenderCfg = {} as RenderCfg, meta: Page
   if (meta.desc) tags.push(`<meta name="twitter:description" content="${esc(meta.desc)}"/>`);
   if (meta.image) tags.push(`<meta name="twitter:image" content="${meta.image}"/>`);
 
-  // Cloudflare Web Analytics — nur wenn ein Beacon-Token gesetzt ist (Secret ANALYTICS_TOKEN)
+  // Cloudflare Web Analytics — only when a beacon token is set (secret ANALYTICS_TOKEN)
   const analytics = cfg.analytics
     ? `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "${esc(cfg.analytics)}"}'></script>`
     : "";
@@ -72,20 +72,20 @@ ${tags.join("\n")}
 <link rel="stylesheet" href="/assets/kit.css?v=${v}"/>
 ${kitGlobal}
 <script src="/assets/kit-theme.js?v=${v}"></script>
-<!-- Sicherheitsnetz: scheitert ein Teaser-/Hero-Bild beim Laden (tote URL, 403),
-     auf die generische Marken-Grafik wechseln statt grauer Fläche. Capture-Phase,
-     da error-Events nicht bubblen; data-fb verhindert Endlosschleifen. -->
+<!-- Safety net: if a teaser/hero image fails to load (dead URL, 403), switch to
+     the generic brand graphic instead of a grey box. Capture phase, since error
+     events don't bubble; data-fb prevents infinite loops. -->
 <script>addEventListener("error",function(e){var t=e.target;if(t&&t.tagName==="IMG"&&!t.dataset.fb&&(/__media/.test(t.className)||(t.closest&&t.closest(".post__hero")))){t.dataset.fb=1;t.src="/assets/teaser-fallback.svg?v=${v}";}},true);</script>
 <script>window.KIT_DEFAULT_BRAND=${inlineJson(pub)};window.KIT_DEFAULT_NAV=${inlineJson(DEFAULT_NAV)};window.KIT_LANG=${inlineJson(LANGUAGE)};window.KIT_LOCALE=${inlineJson(LOCALE.intl)};window.KIT_I18N=${inlineJson(clientStrings())};</script>
-<!-- Steady Smart Layers / Checkout / Paywall — der echte Steady-Layer.
-     Ohne Publikations-ID kein Script-Tag (sonst lädt eine kaputte URL). -->
+<!-- Steady Smart Layers / checkout / paywall — the real Steady layer.
+     Without a publication ID no script tag (otherwise a broken URL loads). -->
 ${steadyId ? `<script type="text/javascript" src="https://steady.page/widget_loader/${esc(steadyId)}"></script>` : ""}
 ${analytics}
 </head><body>
 <a class="skip-link" href="#main">${t("skip")}</a>`;
 }
 
-/** Navigations-Links; aktive Route wird markiert, externe öffnen im neuen Tab. */
+/** Navigation links; the active route is marked, external ones open in a new tab. */
 function navLinksHtml(nav: KitNavItem[], activePath: string): string {
   return nav.map((n: KitNavItem) => {
     const ext = n.x ? ` target="_blank" rel="noopener"` : "";
@@ -95,14 +95,14 @@ function navLinksHtml(nav: KitNavItem[], activePath: string): string {
 }
 
 /**
- * Brand-Block: globales Logo aus KV oder Icon + Wortmarke (zentrierter Link auf /).
- * Wird sowohl im Header als auch im Footer verwendet — Markup byte-identisch.
+ * Brand block: global logo from KV, or icon + wordmark (centered link to /).
+ * Used in both the header and the footer — markup is byte-identical.
  */
 function brandBlock(cfg: RenderCfg, opts: { iconOnly?: boolean } = {}): string {
   const brand = publicationName(cfg);
   const lg = cfg.logo;
-  // opts.iconOnly: nur das Marken-Icon, keine Wortmarke, kein KV-Logo (Footer).
-  //   Der Name bleibt als aria-label am Link erhalten (Screenreader).
+  // opts.iconOnly: only the brand icon, no wordmark, no KV logo (footer).
+  //   The name stays as the link's aria-label (screen readers).
   let brandInner;
   if (opts.iconOnly) {
     brandInner = `<span class="brand__logo" role="img" aria-label="${esc(brand)}"></span>`;
@@ -115,10 +115,10 @@ function brandBlock(cfg: RenderCfg, opts: { iconOnly?: boolean } = {}): string {
 }
 
 /**
- * Header: Brand (globales Logo aus KV oder Icon + Wortmarke), Steady-Login, optional
- * Tab-Navigation und die feed-basierte Suche (eigenes Modal, /api/search).
+ * Header: brand (global logo from KV, or icon + wordmark), Steady login, optional
+ * tab navigation and the feed-based search (its own modal, /api/search).
  * @param {{tabs?: boolean, activePath?: string}} opts
- * @param {object} cfg  Render-Config aus buildPageContext (settings.js)
+ * @param {object} cfg  render config from buildPageContext (settings.ts)
  */
 export function header({ tabs = false, activePath = "" }: { tabs?: boolean; activePath?: string } = {}, cfg: RenderCfg = {} as RenderCfg): string {
   const center = cfg.headerStyle === "zentriert";
@@ -129,15 +129,15 @@ export function header({ tabs = false, activePath = "" }: { tabs?: boolean; acti
 
   const brandHtml = brandBlock(cfg);
 
-  // Echter Steady-Login-Button (Smart Layer) — verhält sich exakt wie auf steady.page
-  // (Login-Status, OAuth-Flow). Der Textlink ist Fallback, falls das Widget nicht lädt.
+  // Real Steady login button (Smart Layer) — behaves exactly like on steady.page
+  // (login state, OAuth flow). The text link is a fallback if the widget doesn't load.
   const login = `<div class="header-actions"><a class="steady-login-button" data-size="small" data-language="${LANGUAGE}"></a><a class="login-link login-link--fb" id="js-login" href="${esc(loginUrl)}">${t("login.fallback")}</a></div>`;
 
   const navBar = tabs
     ? `<nav class="tabs${center ? " tabs--center" : ""}"><div class="container tabs__bar"><div class="tabs__inner">${navLinksHtml(nav, activePath)}</div>${search}</div></nav>`
     : "";
 
-  // Feed-basierte Suche: eigenes <dialog>-Modal, befüllt von kit-panel.js über /api/search.
+  // Feed-based search: its own <dialog> modal, filled by kit-panel.js via /api/search.
   const searchDialog = (tabs && cfg.search)
     ? `<dialog class="kit-search" id="kit-search" aria-label="${t("search.aria")}">
   <div class="kit-search__box">
@@ -148,8 +148,8 @@ export function header({ tabs = false, activePath = "" }: { tabs?: boolean; acti
 </dialog>`
     : "";
 
-  // Mini-Inline-Snippet: zeigt den Fallback-Login-Link, falls das Steady-Widget nach 3 s
-  // keinen Button gerendert hat (Adblocker, Ausfall).
+  // Tiny inline snippet: shows the fallback login link if the Steady widget hasn't
+  // rendered a button after 3 s (ad blocker, outage).
   return `<header class="site-header${center ? " site-header--center" : ""}"><div class="container site-header__inner">
   ${brandHtml}
   ${login}

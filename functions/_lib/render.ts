@@ -1,10 +1,10 @@
-// _lib/render.js — Seiten-Renderer: Feed-Items + Render-cfg → komplettes HTML.
+// _lib/render.ts — page renderer: feed items + render cfg → complete HTML.
 //
-// Komposition der Landing (renderLanding):
-//   1. Kopf      — Portal-Band (Aufmacher + Leisten) ODER einspaltiger Hero/Aufmacher
-//   2. Stream    — Rubriken-Sektionen ODER flache Liste mit Pills + „Mehr laden"
-// Die Top-Section verteilt Teaser DISJUNKT (Hero, Lead-Reihe, Neueste, Meistgelesen),
-// damit kein Beitrag oben doppelt erscheint.
+// Composition of the landing (renderLanding):
+//   1. Head    — portal band (lead story + rails) OR single-column hero/lead story
+//   2. Stream  — section blocks OR a flat list with pills + "load more"
+// The top section distributes teasers DISJOINTLY (hero, lead row, latest, most-read),
+// so no post appears twice at the top.
 
 import { PUBLICATION, PER_PAGE, PINNED_GUID, MEMBER_HEADING, publicationName } from "./config.ts";
 import { t } from "./i18n.ts";
@@ -14,17 +14,17 @@ import { ICON_BACK, ICON_CLAP, ICON_SHARE } from "./icons.ts";
 import { head, header, footer } from "./page.ts";
 import type { FeedItem, RenderCfg } from "./types.ts";
 
-// Offizielles Steady-Paywall-Element: Das Smart-Layer-Widget blendet für Nicht-Mitglieder
-// alles UNTERHALB dieses Elements aus und zeigt die (im Steady-Backend konfigurierte)
-// Paywall; zahlende Mitglieder sehen den Inhalt. Quelle: help.steadyhq.com, JS-Paywall.
+// Official Steady paywall element: for non-members the Smart Layers widget hides
+// everything BELOW this element and shows the paywall (configured in the Steady
+// backend); paying members see the content. Source: help.steadyhq.com, JS paywall.
 const STEADY_PAYWALL_MARKER = `<div id="steady_paywall" style="display: none;"></div>`;
 
-/* ------------------------------------------------------------------ Bausteine */
+/* ------------------------------------------------------------------ building blocks */
 
-// Kategorie-Pill als Link zur Rubrik-Seite
+// Category pill as a link to the section page
 function pill(c: string): string { return `<a class="pill" href="/rubrik/${slugify(c)}">${esc(c)}</a>`; }
 
-// Teaser-Karte (flache Liste, Rubriken, Lead-Reihe)
+// Teaser card (flat list, sections, lead row)
 function card(it: FeedItem): string {
   return `
     <a class="card" href="/posts/${esc(it.guid)}">
@@ -37,7 +37,7 @@ function card(it: FeedItem): string {
     </a>`;
 }
 
-// Aufmacher „klein" = Split-Hero (Text links, Bild rechts)
+// Lead story "klein" = split hero (text left, image right)
 function heroSplit(hero: FeedItem): string {
   return `<section class="hero"><div class="container hero__grid">
   <div class="hero__body">
@@ -51,14 +51,14 @@ function heroSplit(hero: FeedItem): string {
 </div></section>`;
 }
 
-// grobe Lesezeit-Schätzung aus dem Teasertext (der Feed liefert keinen Volltext)
+// rough reading-time estimate from the teaser text (the feed has no full text)
 function readMin(it: FeedItem): number {
   const w = (it.description || "").trim().split(/\s+/).filter(Boolean).length;
   return Math.max(2, Math.round(w / 35));
 }
 
-// Aufmacher „groß" = gestapelt: Headline + Excerpt + Meta-Leiste + Bild.
-// side=true → Bild links neben dem Text (Rubrik-Seiten).
+// Lead story "gross" = stacked: headline + excerpt + meta bar + image.
+// side=true → image to the left of the text (section pages).
 function aufmacherArticle(hero: FeedItem, withImage: boolean, side: boolean = false, titleTag: "h1" | "h2" = "h1"): string {
   const media = withImage ? `<a class="aufmacher__medialink" href="/posts/${esc(hero.guid)}"><img class="aufmacher__media" alt="" src="${teaser(hero.image, 1120, 630)}"/></a>` : "";
   const body = `<div class="aufmacher__body">
@@ -69,7 +69,7 @@ function aufmacherArticle(hero: FeedItem, withImage: boolean, side: boolean = fa
   return `<article class="aufmacher${side ? " aufmacher--side" : ""}">${side ? media + body : body + media}</article>`;
 }
 
-/* — Portal-Leisten (Module der 3-Spalten-Shell) — */
+/* — Portal rails (modules of the 3-column shell) — */
 
 function railLatest(items: FeedItem[]): string {
   return `<div class="rail-module"><h2 class="rail-module__title">${t("rail.latest")}</h2>
@@ -86,8 +86,8 @@ function railTopics(cats: string[]): string {
     <div class="rail-pills">${cats.map(pill).join("")}</div></div>`;
 }
 
-// Portal-Band: Leisten flankieren den Aufmacher (Neueste/Themen links, Meistgelesen rechts).
-// railItems = {latest, popular} — disjunkte Slices aus renderLanding.
+// Portal band: rails flank the lead story (latest/topics left, most-read right).
+// railItems = {latest, popular} — disjoint slices from renderLanding.
 function portalBand(cfg: RenderCfg, centerHtml: string, railItems: { latest: FeedItem[]; popular: FeedItem[] }, cats: string[]): string {
   const railL = [];
   if (cfg.rails.includes("neueste")) railL.push(railLatest(railItems.latest));
@@ -103,16 +103,16 @@ function portalBand(cfg: RenderCfg, centerHtml: string, railItems: { latest: Fee
   </div></section>`;
 }
 
-/* — Rubrik-Stream (Sektions-Teaser) — */
+/* — Section stream (section teasers) — */
 
-// Horizontaler Mini-Teaser (Bild links) für die Feature-Liste
+// Horizontal mini teaser (image left) for the feature list
 function teaserRow(it: FeedItem): string {
   return `<a class="teaser-row" href="/posts/${esc(it.guid)}">
     <img class="teaser-row__media" loading="lazy" alt="" src="${teaser(it.image, 200, 200)}"/>
     <div><h4 class="teaser-row__title">${esc(it.title)}</h4><div class="card__date">${esc(fmtDate(it.pubDate))}</div></div>
   </a>`;
 }
-// Text-Teaser (ohne Bild) für die Kompakt-Sektion
+// Text teaser (no image) for the compact section
 function teaserText(it: FeedItem): string {
   return `<a class="teaser-text" href="/posts/${esc(it.guid)}">
     <h4 class="teaser-text__title">${esc(it.title)}</h4>
@@ -121,8 +121,8 @@ function teaserText(it: FeedItem): string {
   </a>`;
 }
 
-// Stream nach Rubriken — das Layout rotiert je Sektion (Feature / Karten / Kompakt, wie im Figma).
-// leadItems = headerlose Teaser-Reihe direkt unter dem Aufmacher, disjunkt zu den Leisten.
+// Stream by section — the layout rotates per section (feature / cards / compact, as in Figma).
+// leadItems = a header-less teaser row right under the lead story, disjoint from the rails.
 function rubrikStream(rest: FeedItem[], cats: string[], leadItems: FeedItem[], pins: Record<string, string[]>): string {
   if (!cats.length) return `<div class="grid">${rest.slice(0, PER_PAGE).map(card).join("")}</div>`;
   const MODES = ["feature", "cards", "compact"];
@@ -131,8 +131,8 @@ function rubrikStream(rest: FeedItem[], cats: string[], leadItems: FeedItem[], p
     : "";
   return lead + cats.map((cat, i) => {
     const slug = slugify(cat);
-    // Pro Rubrik ein eigener Pin-Bereich (rubrik/<slug>): sortiert diese Sektion und
-    // teilt sich die Pins mit der Rubrik-Seite. data-pin-scope sagt dem Client den Scope.
+    // Each section has its own pin scope (rubrik/<slug>): it orders this section and
+    // shares its pins with the section page. data-pin-scope tells the client the scope.
     const inCat = applyPins(rest.filter(it => it.categories.includes(cat)), pins && pins["rubrik/" + slug]);
     if (!inCat.length) return "";
     const head = `<header class="rubrik__head"><a class="rubrik__chip" href="/rubrik/${slug}">${esc(cat)}</a><a class="rubrik__more" href="/rubrik/${slug}">${esc(t("more.arrow"))}</a></header>`;
@@ -160,8 +160,8 @@ function rubrikStream(rest: FeedItem[], cats: string[], leadItems: FeedItem[], p
 }
 
 /**
- * Gepinnte Beiträge (in Reihenfolge, nur im Feed vorhandene, dedupliziert) nach vorn
- * ziehen; der Rest bleibt in Feed-Reihenfolge. Leere/fehlende Liste = unverändert.
+ * Pull pinned posts (in order, only those present in the feed, deduplicated) to the
+ * front; the rest stays in feed order. Empty/missing list = unchanged.
  */
 export function applyPins(items: FeedItem[], guids?: string[]): FeedItem[] {
   if (!guids || !guids.length) return items;
@@ -177,29 +177,29 @@ export function applyPins(items: FeedItem[], guids?: string[]): FeedItem[] {
   return pinned.concat(items.filter(it => !seen.has(it.guid)));
 }
 
-/* ------------------------------------------------------------------ Seiten */
+/* ------------------------------------------------------------------ pages */
 
-/** Landing (/): Komposition laut cfg — Default ist einspaltig/Split-Hero/Liste. */
+/** Landing (/): composition per cfg — default is single-column / split hero / list. */
 export function renderLanding(items: FeedItem[], page: number = 1, cfg: RenderCfg): string {
   cfg = cfg || { shell: "single", auf: "klein", stream: "liste", rails: [], pins: {} } as unknown as RenderCfg;
   if (!items.length) return renderEmpty(cfg);
 
   const pinList = (cfg.pins && cfg.pins["/"]) || [];
   const items2 = applyPins(items, pinList);
-  // pinsApplied nur, wenn mind. ein Pin wirklich im Feed lag (applyPins gibt sonst
-  // dieselbe Referenz zurück) — sind alle Pins veraltet, greift weiter PINNED_GUID.
+  // pinsApplied only when at least one pin was actually in the feed (otherwise
+  // applyPins returns the same reference) — if all pins are stale, PINNED_GUID still applies.
   const pinsApplied = items2 !== items;
   const heroIdx = pinsApplied ? 0 : (PINNED_GUID ? Math.max(0, items2.findIndex(i => i.guid === PINNED_GUID)) : 0);
   const hero = items2[heroIdx];
   const rest = items2.filter((_, i) => i !== heroIdx);
   const cats = topCategories(items2);
-  // Top-Section-Teaser disjunkt verteilen, damit kein Teaser doppelt erscheint:
-  // Lead-Reihe (unter dem Aufmacher) bekommt die frischesten, dann Neueste/Meistgelesen.
+  // Distribute the top-section teasers disjointly so no teaser appears twice:
+  // the lead row (under the lead story) gets the freshest, then latest/most-read.
   const leadItems    = rest.slice(0, 4);
   const latestItems  = rest.slice(4, 7);
   const popularItems = rest.slice(7, 10);
 
-  // 1) Kopf: Portal-Band (mit Leisten) oder einspaltiger Aufmacher/Hero
+  // 1) Head: portal band (with rails) or single-column lead story/hero
   let top;
   if (cfg.shell === "portal") {
     top = portalBand(cfg, aufmacherArticle(hero, cfg.auf === "gross"), { latest: latestItems, popular: popularItems }, cats);
@@ -209,7 +209,7 @@ export function renderLanding(items: FeedItem[], page: number = 1, cfg: RenderCf
     top = heroSplit(hero);
   }
 
-  // 2) Stream: Rubriken-Sektionen oder flache Liste mit Pills + „Mehr laden"
+  // 2) Stream: section blocks or a flat list with pills + "load more"
   let stream;
   if (cfg.stream === "rubrik") {
     stream = `<div class="container">${rubrikStream(rest, cats, leadItems, cfg.pins)}<div id="memberships"></div></div>`;
@@ -226,7 +226,7 @@ export function renderLanding(items: FeedItem[], page: number = 1, cfg: RenderCf
   <div class="grid">${slice.map(card).join("")}</div>
   ${more}
   <div id="memberships"></div>
-  <!-- #memberships: Andock-Punkt für das echte Steady-Membership-/Checkout-Widget. -->
+  <!-- #memberships: anchor point for the real Steady membership/checkout widget. -->
 </div>`;
   }
 
@@ -239,7 +239,7 @@ export function renderLanding(items: FeedItem[], page: number = 1, cfg: RenderCf
 <main id="main">${top}${stream}</main>` + footer(cfg);
 }
 
-/** Rubrik-Seite (/rubrik/:slug): Aufmacher (erster Beitrag) + Raster + „Mehr laden". */
+/** Section page (/rubrik/:slug): lead story (first post) + grid + "load more". */
 export function renderSection(category: string, items: FeedItem[], allItems: FeedItem[], page: number = 1, cfg: RenderCfg): string {
   cfg = cfg || { shell: "single", auf: "klein", stream: "liste", rails: [], pins: {} } as unknown as RenderCfg;
   const slug = slugify(category);
@@ -276,22 +276,22 @@ export function renderSection(category: string, items: FeedItem[], allItems: Fee
 </div></main>` + footer(cfg);
 }
 
-// String wörtlich in eine RegExp einbetten (die Mitglieder-Überschrift ist
-// Publisher-Input aus kit.config.js — Sonderzeichen dürfen das Muster nicht brechen).
+// Embed a string literally into a RegExp (the member heading is publisher input
+// from kit.config.js — special characters must not break the pattern).
 function escapeRegExp(s: string): string {
   return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /**
- * Volltext-HTML aufbereiten:
- *  1. führendes <h1> (Titel-Echo) und ggf. die doppelte Lede entfernen — beides
- *     zeigen wir bereits im Seitenkopf,
- *  2. Steady-Editor-Tönungen (<mark style="background…">) entfernen — sie markieren
- *     den Mitglieder-Teil nur visuell und kollidieren mit Dark Mode,
- *  3. vor der Mitglieder-Überschrift („<memberHeading> 🔒") das offizielle
- *     Steady-Paywall-Element einsetzen → das Widget übernimmt das Gating.
- * `memberHeading` ist parametrisiert (Default: kit.config.js), damit Tests und
- * abweichende Publikationen unabhängig von der Publisher-Datei bleiben.
+ * Prepare the full-text HTML:
+ *  1. strip the leading <h1> (title echo) and possibly the duplicated lede — we
+ *     already show both in the page header,
+ *  2. remove Steady-editor tints (<mark style="background…">) — they only mark the
+ *     member section visually and clash with dark mode,
+ *  3. before the member heading ("<memberHeading> 🔒") insert the official Steady
+ *     paywall element → the widget takes over the gating.
+ * `memberHeading` is parameterized (default: kit.config.js) so tests and differing
+ * publications stay independent of the publisher file.
  */
 export function prepareFullText(full: string, description: string, memberHeading: string = MEMBER_HEADING): string {
   let out = full.replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>\s*/i, "");
@@ -312,9 +312,9 @@ export function prepareFullText(full: string, description: string, memberHeading
 }
 
 /**
- * Einzelpost (/posts/:id). `full` = Volltext-HTML aus dem authentifizierten Feed
- * (content:encoded), per Titel gejoint — leer = Teaser-Stub mit Steady-Link.
- * extras = {claps, prev, next}: Clap-Zähler (KV) + Nachbar-Posts in Feed-Reihenfolge.
+ * Single post (/posts/:id). `full` = full-text HTML from the authenticated feed
+ * (content:encoded), joined by title — empty = teaser stub with a Steady link.
+ * extras = {claps, prev, next}: clap counter (KV) + neighbor posts in feed order.
  */
 export function renderPost(item: FeedItem, cfg: RenderCfg = {} as RenderCfg, full: string = "", extras: { claps?: number; next?: { guid: string; title: string } | null; prev?: { guid: string; title: string } | null } = {}): string {
   const { claps = 0, prev = null, next = null } = extras;
@@ -327,7 +327,7 @@ export function renderPost(item: FeedItem, cfg: RenderCfg = {} as RenderCfg, ful
     : `<div class="post__body"><p>${esc(t("post.stub"))}</p></div>`;
   const cta = full ? t("post.open") : t("post.readfull");
 
-  // Nachbar-Navigation: next = neuerer, prev = älterer Beitrag (Feed ist neueste zuerst)
+  // Neighbor navigation: next = newer, prev = older post (feed is newest first)
   const navLink = (p: { guid: string; title: string } | null, cls: string, label: string): string => p
     ? `<a class="post-nav__a ${cls}" href="/posts/${esc(p.guid)}"><em>${esc(label)}</em><span>${esc(p.title)}</span></a>`
     : `<span class="post-nav__spacer"></span>`;
@@ -367,21 +367,21 @@ export function renderPost(item: FeedItem, cfg: RenderCfg = {} as RenderCfg, ful
 </article></main>` + footer(cfg);
 }
 
-/** Fallback, wenn der Feed nicht erreichbar ist. */
+/** Fallback when the feed is unreachable. */
 export function renderEmpty(cfg: RenderCfg = {} as RenderCfg): string {
   return head(publicationName(cfg), cfg, { noindex: true }) + header({ tabs: true, activePath: "/" }, cfg) +
     `<main id="main"><div class="container" style="padding:80px 0;color:var(--color-ink-soft)">${esc(t("empty"))}</div></main>` +
     footer(cfg);
 }
 
-/** /memberships: Steady rendert den Checkout in den Container (Backend-Checkout-URL). */
+/** /memberships: Steady renders the checkout into the container (backend checkout URL). */
 export function renderMemberships(cfg: RenderCfg = {} as RenderCfg): string {
   const meta = { desc: t("memberships.desc", { name: publicationName(cfg) }), path: "/memberships" };
   return head(t("memberships.title") + " — " + publicationName(cfg), cfg, meta) + header({ tabs: true, activePath: "/memberships" }, cfg) + `
 <main id="main"><div class="container" style="padding:48px 0 72px">
   <h1 style="font-family:var(--font-head);font-size:34px;font-weight:var(--weight-heading);text-align:center;letter-spacing:-.01em;margin:0 0 10px">${esc(t("memberships.title"))}</h1>
   <p style="text-align:center;color:var(--color-ink-soft);font-size:18px;margin:0 0 40px">${esc(t("memberships.sub"))}</p>
-  <!-- Steady rendert den Checkout in diesen Container (Backend Checkout-URL = /memberships) -->
+  <!-- Steady renders the checkout into this container (backend checkout URL = /memberships) -->
   <div id="insert_steady_checkout_here" style="display:none;"></div>
 </div></main>` + footer(cfg);
 }
@@ -394,9 +394,9 @@ export function render404(cfg: RenderCfg = {} as RenderCfg): string {
 }
 
 /**
- * Onboarding-Seite für unkonfigurierte Installationen (kit.config.js ohne Slug,
- * kein FEED_URL-Env-Override). Bewusst self-contained — kein head()/header()/Feed,
- * damit sie auch dann rendert, wenn sonst noch gar nichts stimmt.
+ * Onboarding page for unconfigured installations (kit.config.js without a slug,
+ * no FEED_URL env override). Deliberately self-contained — no head()/header()/feed,
+ * so it renders even when nothing else is set up yet.
  */
 export function renderOnboarding(): string {
   return `<!DOCTYPE html><html lang="de"><head>
