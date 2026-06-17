@@ -80,53 +80,17 @@ var _w = /** @type {any} */ (window);
   }
 
   /* ---------------------------------------------------------------- Fonts */
-  // Search comboboxes over curated favorites + the full Bunny catalog (lazy).
+  // Free combination: two dropdowns (heading + body), each showing only the fonts
+  // that suit that role and previewing every option in its own typeface + weight.
+  // Curated combinations live in the collapsed "Suggestions" gallery.
   _w.KIT_BUNNY = _w.KIT_BUNNY || {};
   _w.KIT_BUNNY_LIST = _w.KIT_BUNNY_LIST || [];
-  var bunnyState = 0; // 0 = not loaded, 1 = loading, 2 = done
-  /** @type {Array<() => void>} */
-  var bunnyCallbacks = [];
 
   /** @param {string} s */
   function titleCase(s) {
     var p = String(s || "").split("-");
     for (var i = 0; i < p.length; i++) p[i] = p[i].charAt(0).toUpperCase() + p[i].slice(1);
     return p.join(" ");
-  }
-  /** @param {string} category */
-  function genericOf(category) {
-    if (category === "serif") return "serif";
-    if (category === "monospace") return "monospace";
-    if (category === "handwriting") return "cursive";
-    return "sans-serif";
-  }
-  // filter to sensible weights (300–800); empty list → first available
-  /** @param {number[]} arr */
-  function weightsOf(arr) {
-    if (!arr || !arr.length) return "400,700";
-    var keep = /** @type {number[]} */ ([]), want = [300, 400, 500, 600, 700, 800];
-    for (var i = 0; i < arr.length; i++) if (want.indexOf(arr[i]) >= 0) keep.push(arr[i]);
-    if (!keep.length) keep = [arr[0]];
-    return keep.join(",");
-  }
-  /** @param {(() => void)|null} [cb] */
-  function loadBunny(cb) {
-    if (bunnyState === 2) { cb && cb(); return; }
-    if (cb) bunnyCallbacks.push(cb);
-    if (bunnyState === 1) return;
-    bunnyState = 1;
-    function done() { for (var z = 0; z < bunnyCallbacks.length; z++) bunnyCallbacks[z](); bunnyCallbacks = []; }
-    fetch("https://fonts.bunny.net/list").then(function (r) { return r.json(); }).then(function (j) {
-      var keys = Object.keys(j);
-      for (var i = 0; i < keys.length; i++) {
-        var k = keys[i], f = j[k];
-        _w.KIT_BUNNY[k] = { s: k, n: f.familyName || titleCase(k), g: genericOf(f.category), w: weightsOf(f.weights), c: f.category || "" };
-        _w.KIT_BUNNY_LIST.push(_w.KIT_BUNNY[k]);
-      }
-      _w.KIT_BUNNY_LIST.sort(function (a, b) { var x = a.n.toLowerCase(), y = b.n.toLowerCase(); return x < y ? -1 : x > y ? 1 : 0; });
-      bunnyState = 2;
-      done();
-    }).catch(function () { bunnyState = 0; done(); });
   }
   // Search pool: favorites first, then the rest of the catalog (max 60 hits)
   function fontPool() {
@@ -138,12 +102,31 @@ var _w = /** @type {any} */ (window);
     for (var j = 0; j < _w.KIT_BUNNY_LIST.length; j++) if (!seen[_w.KIT_BUNNY_LIST[j].s]) out.push(_w.KIT_BUNNY_LIST[j]);
     return out;
   }
-  /** @param {string} q */
-  function fontMatch(q) {
+  // Role of a font (which dropdown it may appear in), from Fontshare's category +
+  // a small research-based override list. Display/Script faces are heading-only;
+  // quiet reading faces are body-first; versatile text faces do both.
+  /** @type {Record<string,number>} */
+  var HEADLINE_ONLY = { technor: 1, excon: 1, quilon: 1, "rx-100": 1, gambarino: 1, zodiak: 1, bonny: 1, hoover: 1, paquito: 1 };
+  /** @type {Record<string,number>} */
+  var BODY_ONLY = { synonym: 1, author: 1, recia: 1 };
+  /** @param {KitFont} f @returns {string} "head" | "body" | "both" */
+  function fontRole(f) {
+    if (BODY_ONLY[f.s]) return "body";
+    if (HEADLINE_ONLY[f.s] || f.c === "Display" || f.c === "Script") return "head";
+    return "both"; // Sans, Serif, Slab, Mono workhorses
+  }
+  /** @param {KitFont} f @param {string} role */
+  function roleOk(f, role) {
+    var r = fontRole(f);
+    return role === "head" ? r !== "body" : r !== "head";
+  }
+  /** @param {string} q @param {string} role */
+  function fontMatch(q, role) {
     q = (q || "").toLowerCase();
     var pool = fontPool(), res = /** @type {KitFont[]} */ ([]);
     for (var i = 0; i < pool.length && res.length < 60; i++) {
       var f = pool[i];
+      if (!roleOk(f, role)) continue;
       if (!q || f.n.toLowerCase().indexOf(q) >= 0 || f.s.indexOf(q) >= 0) res.push(f);
     }
     return res;
@@ -158,7 +141,8 @@ var _w = /** @type {any} */ (window);
     return titleCase(v);
   }
 
-  var pairSel = /** @type {HTMLSelectElement|null} */ (document.getElementById("pair-picker"));
+  var pairsEl = document.getElementById("cz-pairs");
+  function clearPairSel() { if (pairsEl) pairsEl.querySelectorAll(".cz-pair").forEach(function (c) { c.classList.remove("on"); }); }
 
   /**
    * @param {string} role
@@ -171,16 +155,26 @@ var _w = /** @type {any} */ (window);
     if (!inp || !pop) return;
     var _inp = inp, _pop = pop; // non-null aliases for closures
     _inp.value = curName(role);
+    /** @type {IntersectionObserver|null} */
+    var io = null;
+    // Preview weight matches how the font will actually render in this role
+    // (headings use --weight-heading ≈ 700, body uses --weight-body ≈ 400).
+    var previewWeight = role === "head" ? "700" : "400";
     /** @param {string} q */
     function render(q) {
-      var res = fontMatch(q);
+      var res = fontMatch(q, role);
       _pop.innerHTML = "";
+      if (io) io.disconnect();
+      var map = (typeof Map === "function") ? new Map() : null;
       for (var i = 0; i < res.length; i++) {
         (function (f) {
           var b = document.createElement("button");
           b.type = "button";
           b.className = "cz-font-opt";
+          // Each option previews itself in its own typeface.
           var nm = document.createElement("span"); nm.textContent = f.n;
+          nm.style.fontFamily = '"' + f.n + '", ' + (f.g || "sans-serif");
+          nm.style.fontWeight = previewWeight;
           var cats = /** @type {Record<string,string>|undefined} */ (/** @type {any} */ (I18N).cats);
           var ct = document.createElement("em"); ct.textContent = (cats && cats[f.c]) || f.c || f.g || "";
           b.appendChild(nm); b.appendChild(ct);
@@ -190,18 +184,32 @@ var _w = /** @type {any} */ (window);
             _w.kitApplyFont(role, f, true);
             _inp.value = f.n;
             _pop.classList.remove("open");
-            if (pairSel) pairSel.value = "";
+            clearPairSel();
             clearLook();
           });
           _pop.appendChild(b);
+          if (map) map.set(b, f);
         })(res[i]);
       }
       _pop.classList.toggle("open", res.length > 0);
+      // Lazy-load the preview webfont only as an option scrolls into the popup.
+      if (map && typeof IntersectionObserver === "function" && _w.kitFontCss) {
+        var _map = map; // non-null alias for the closure
+        io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) {
+            if (!en.isIntersecting) return;
+            var f = _map.get(en.target);
+            if (f && _w.kitFontCss) { _w.kitFontCss(f); if (io) io.unobserve(en.target); }
+          });
+        }, { root: _pop });
+        _pop.querySelectorAll(".cz-font-opt").forEach(function (b) { if (io) io.observe(b); });
+      } else if (_w.kitFontCss) {
+        for (var k = 0; k < res.length; k++) _w.kitFontCss(res[k]);
+      }
     }
     _inp.addEventListener("focus", function () {
       _inp.select();
       render("");
-      loadBunny(function () { if (document.activeElement === _inp) render(_inp.value && _inp.value !== curName(role) ? _inp.value : ""); });
     });
     _inp.addEventListener("input", function () { render(_inp.value); });
     _inp.addEventListener("blur", function () { setTimeout(function () { _pop.classList.remove("open"); }, 170); });
@@ -209,36 +217,70 @@ var _w = /** @type {any} */ (window);
   setupFontBox("head", "cz-fh-in", "cz-fh-pop");
   setupFontBox("body", "cz-fb-in", "cz-fb-pop");
 
-  // Font pairs (presets)
-  if (pairSel && _w.KIT_PAIRS) {
-    var _pairSel = pairSel; // non-null alias
+  // Font pairs — gallery of curated combinations (one tap = heading + body)
+  /** @param {string} slug @returns {KitFont} */
+  function fontBySlug(slug) {
+    for (var i = 0; i < _w.KIT_FONTS.length; i++) if (_w.KIT_FONTS[i].s === slug) return _w.KIT_FONTS[i];
+    return { s: slug, n: titleCase(slug), g: "sans-serif", w: "400,500,700", c: "" };
+  }
+  if (pairsEl && _w.KIT_PAIRS) {
+    var _pairsEl = pairsEl; // non-null alias
+    var pairNames = /** @type {string[]|undefined} */ (/** @type {any} */ (I18N).pairs);
+    /** @type {Array<{h:KitFont,b:KitFont}>} */
+    var pairFonts = [];
     for (var pi = 0; pi < _w.KIT_PAIRS.length; pi++) {
-      var pp = _w.KIT_PAIRS[pi];
-      var po = document.createElement("option");
-      var pairs = /** @type {Record<number,string>|undefined} */ (/** @type {any} */ (I18N).pairs);
-      po.value = String(pi); po.textContent = (pairs && pairs[pi]) || pp.n;
-      _pairSel.appendChild(po);
+      (function (idx) {
+        var pr = _w.KIT_PAIRS[idx];
+        var hf = fontBySlug(pr.h), bf = fontBySlug(pr.b);
+        pairFonts.push({ h: hf, b: bf });
+        var card = document.createElement("button");
+        card.type = "button"; card.className = "cz-pair";
+        card.setAttribute("data-pi", String(idx));
+        card.title = (pairNames && pairNames[idx]) || pr.n;
+        var hs = document.createElement("span"); hs.className = "cz-pair-h";
+        hs.textContent = hf.n; hs.style.fontFamily = '"' + hf.n + '", ' + (hf.g || "sans-serif"); hs.style.fontWeight = "700";
+        var bs = document.createElement("span"); bs.className = "cz-pair-b";
+        bs.textContent = bf.n; bs.style.fontFamily = '"' + bf.n + '", ' + (bf.g || "sans-serif"); bs.style.fontWeight = "400";
+        card.appendChild(hs); card.appendChild(bs);
+        card.addEventListener("click", function () {
+          _w.kitApplyFont("head", hf, true);
+          _w.kitApplyFont("body", bf, true);
+          var fh = /** @type {HTMLInputElement|null} */ (document.getElementById("cz-fh-in")); if (fh) fh.value = curName("head");
+          var fb = /** @type {HTMLInputElement|null} */ (document.getElementById("cz-fb-in")); if (fb) fb.value = curName("body");
+          clearPairSel(); card.classList.add("on");
+          clearLook();
+        });
+        _pairsEl.appendChild(card);
+      })(pi);
     }
-    _pairSel.addEventListener("change", function () {
-      var pr = _w.KIT_PAIRS[parseInt(_pairSel.value, 10)];
-      if (!pr) return;
-      _w.kitApplyFont("head", pr.h, true);
-      _w.kitApplyFont("body", pr.b, true);
-      var fh = /** @type {HTMLInputElement|null} */ (document.getElementById("cz-fh-in")); if (fh) fh.value = curName("head");
-      var fb = /** @type {HTMLInputElement|null} */ (document.getElementById("cz-fb-in")); if (fb) fb.value = curName("body");
-      clearLook();
-    });
+    // Preview fonts load only when the gallery is actually visible (panel open + section expanded).
+    /** @param {Element} el */
+    function previewPair(el) {
+      var i = parseInt(el.getAttribute("data-pi") || "-1", 10);
+      if (i < 0 || !_w.kitFontCss) return;
+      _w.kitFontCss(pairFonts[i].h); _w.kitFontCss(pairFonts[i].b);
+    }
+    var cards = _pairsEl.querySelectorAll(".cz-pair");
+    if (typeof IntersectionObserver === "function") {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) { if (en.isIntersecting) { previewPair(en.target); io.unobserve(en.target); } });
+      });
+      cards.forEach(function (c) { io.observe(c); });
+    } else {
+      cards.forEach(previewPair);
+    }
   }
 
-  // "fine-tuning" expand/collapse
-  var moreBtn = document.getElementById("cz-type-more"), moreBody = document.getElementById("cz-type-adv");
-  if (moreBtn && moreBody) {
-    var _moreBtn = moreBtn, _moreBody = moreBody; // non-null aliases
-    _moreBtn.addEventListener("click", function () {
-      var open = _moreBody.classList.toggle("open");
-      _moreBtn.setAttribute("aria-expanded", open ? "true" : "false");
+  // Collapsible disclosures: "Suggestions" + "Fine-tuning"
+  [["cz-pairs-more", "cz-pairs-adv"], ["cz-type-more", "cz-type-adv"]].forEach(function (pair) {
+    var btn = document.getElementById(pair[0]), body = document.getElementById(pair[1]);
+    if (!btn || !body) return;
+    var _btn = btn, _body = body;
+    _btn.addEventListener("click", function () {
+      var open = _body.classList.toggle("open");
+      _btn.setAttribute("aria-expanded", open ? "true" : "false");
     });
-  }
+  });
 
   /* ---------------------------------------------------------------- Colors + contrast guard */
   /** @type {Record<string,string>} */
@@ -639,7 +681,7 @@ var _w = /** @type {any} */ (window);
   function syncAll() {
     var fh = /** @type {HTMLInputElement|null} */ (document.getElementById("cz-fh-in")); if (fh) fh.value = curName("head");
     var fb = /** @type {HTMLInputElement|null} */ (document.getElementById("cz-fb-in")); if (fb) fb.value = curName("body");
-    if (pairSel) pairSel.value = "";
+    clearPairSel();
     document.querySelectorAll(".cz-seg").forEach(markSeg);
     markPal(); markLook(); syncColors();
   }

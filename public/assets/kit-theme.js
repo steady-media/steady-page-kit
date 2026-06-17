@@ -37,6 +37,8 @@
  * @property {KitLook[]} KIT_LOOKS
  * @property {Record<string, KitFont>} KIT_BUNNY
  * @property {KitFont[]} KIT_BUNNY_LIST
+ * @property {(slug: string) => KitFont} kitFont
+ * @property {(f: KitFont) => void} kitFontCss
  * @property {Record<string, unknown>|undefined} KIT_GLOBAL
  * @property {Record<string, unknown>|undefined} KIT_I18N
  * @property {string|undefined} KIT_LOCALE
@@ -60,79 +62,107 @@
 /** @type {Window & typeof globalThis & KitWindowExtensions} */
 var _w = /** @type {any} */ (window);
 
-/* — Curated font selection (Bunny slugs). n=name, s=slug, c=category,
-     g=generic family (default sans-serif), w=available weights — */
+/* — Font catalog: ALL Fontshare originals (ITF Free Font License); Google/OFL
+     fonts are excluded. n=name, s=slug, c=category (label), g=generic fallback
+     (default sans-serif). Weights default to 400/500/700 in loadFontCss() —
+     Fontshare returns only the weights a family actually ships. Loaded via
+     api.fontshare.com (not Google) → GDPR-friendly; swap loadFontCss() for
+     self-hosted @font-face when you want zero third-party requests. — */
 _w.KIT_FONTS = [
-  { n: "Inter", s: "inter", c: "Grotesk", w: "400,500,600,700,900" },
-  { n: "Archivo", s: "archivo", c: "Grotesk" },
-  { n: "Archivo Narrow", s: "archivo-narrow", c: "Grotesk" },
-  { n: "Archivo Black", s: "archivo-black", c: "Grotesk", w: "400,700,900" },
-  { n: "Schibsted Grotesk", s: "schibsted-grotesk", c: "Grotesk" },
-  { n: "Bricolage Grotesque", s: "bricolage-grotesque", c: "Grotesk" },
-  { n: "Libre Franklin", s: "libre-franklin", c: "Grotesk" },
-  { n: "Space Grotesk", s: "space-grotesk", c: "Grotesk" },
-  { n: "Work Sans", s: "work-sans", c: "Grotesk" },
-  { n: "Familjen Grotesk", s: "familjen-grotesk", c: "Grotesk" },
-  { n: "Hanken Grotesk", s: "hanken-grotesk", c: "Grotesk" },
-  { n: "Source Sans 3", s: "source-sans-3", c: "Humanistisch" },
-  { n: "Fira Sans", s: "fira-sans", c: "Humanistisch" },
-  { n: "Public Sans", s: "public-sans", c: "Humanistisch" },
-  { n: "Mulish", s: "mulish", c: "Humanistisch" },
-  { n: "Montserrat", s: "montserrat", c: "Geometrisch" },
-  { n: "Poppins", s: "poppins", c: "Geometrisch" },
-  { n: "Sora", s: "sora", c: "Geometrisch" },
-  { n: "Lexend", s: "lexend", c: "Geometrisch" },
-  { n: "Oswald", s: "oswald", c: "Condensed" },
-  { n: "Barlow", s: "barlow", c: "Condensed" },
-  { n: "Barlow Condensed", s: "barlow-condensed", c: "Condensed" },
-  { n: "Barlow Semi Condensed", s: "barlow-semi-condensed", c: "Condensed" },
-  { n: "Saira", s: "saira", c: "Condensed" },
-  { n: "Saira Condensed", s: "saira-condensed", c: "Condensed" },
-  { n: "Saira Semi Condensed", s: "saira-semi-condensed", c: "Condensed" },
-  { n: "Geist", s: "geist", c: "Neuer" },
-  { n: "Geist Mono", s: "geist-mono", g: "monospace", c: "Neuer" },
-  { n: "Instrument Sans", s: "instrument-sans", c: "Neuer" },
-  { n: "Onest", s: "onest", c: "Neuer" },
-  { n: "Figtree", s: "figtree", c: "Neuer" },
-  { n: "Albert Sans", s: "albert-sans", c: "Neuer" },
-  { n: "Playfair Display", s: "playfair-display", g: "serif", c: "Serif Display" },
-  { n: "Fraunces", s: "fraunces", g: "serif", c: "Serif Display" },
-  { n: "DM Serif Display", s: "dm-serif-display", g: "serif", c: "Serif Display", w: "400" },
-  { n: "Cormorant Garamond", s: "cormorant-garamond", g: "serif", c: "Serif Display" },
-  { n: "Instrument Serif", s: "instrument-serif", g: "serif", c: "Serif Display", w: "400" },
-  { n: "Lora", s: "lora", g: "serif", c: "Serif Text" },
-  { n: "Source Serif 4", s: "source-serif-4", g: "serif", c: "Serif Text" },
-  { n: "Newsreader", s: "newsreader", g: "serif", c: "Serif Text" },
-  { n: "Spectral", s: "spectral", g: "serif", c: "Serif Text" },
-  { n: "Libre Baskerville", s: "libre-baskerville", g: "serif", c: "Serif Text", w: "400,700" },
-  { n: "Crimson Pro", s: "crimson-pro", g: "serif", c: "Serif Text" },
-  { n: "Merriweather", s: "merriweather", g: "serif", c: "Serif Text", w: "400,700,900" },
-  { n: "Literata", s: "literata", g: "serif", c: "Serif Text" },
-  { n: "Bitter", s: "bitter", g: "serif", c: "Serif Text" },
-  { n: "PT Serif", s: "pt-serif", g: "serif", c: "Serif Text", w: "400,700" },
+  // — Sans —
+  { n: "Switzer", s: "switzer", c: "Sans" },
+  { n: "General Sans", s: "general-sans", c: "Sans" },
+  { n: "Satoshi", s: "satoshi", c: "Sans" },
+  { n: "Supreme", s: "supreme", c: "Sans" },
+  { n: "Synonym", s: "synonym", c: "Sans" },
+  { n: "Author", s: "author", c: "Sans" },
+  { n: "Clash Grotesk", s: "clash-grotesk", c: "Sans" },
+  { n: "Cabinet Grotesk", s: "cabinet-grotesk", c: "Sans" },
+  { n: "Chillax", s: "chillax", c: "Sans" },
+  { n: "Technor", s: "technor", c: "Sans" },
+  { n: "Alpino", s: "alpino", c: "Sans" },
+  { n: "Amulya", s: "amulya", c: "Sans" },
+  { n: "Excon", s: "excon", c: "Sans" },
+  { n: "Pally", s: "pally", c: "Sans" },
+  { n: "Quilon", s: "quilon", c: "Sans" },
+  { n: "Plein", s: "plein", c: "Sans" },
+  { n: "RX100", s: "rx-100", c: "Sans" },
+  { n: "Bespoke Sans", s: "bespoke-sans", c: "Sans" },
+  { n: "Pilcrow Rounded", s: "pilcrow-rounded", c: "Sans" },
+  { n: "Pramukh Rounded", s: "pramukh-rounded", c: "Sans" },
+  // — Serif —
+  { n: "Sentient", s: "sentient", g: "serif", c: "Serif" },
+  { n: "Gambetta", s: "gambetta", g: "serif", c: "Serif" },
+  { n: "Gambarino", s: "gambarino", g: "serif", c: "Serif" },
+  { n: "Rowan", s: "rowan", g: "serif", c: "Serif" },
+  { n: "Zodiak", s: "zodiak", g: "serif", c: "Serif" },
+  { n: "Erode", s: "erode", g: "serif", c: "Serif" },
+  { n: "Recia", s: "recia", g: "serif", c: "Serif" },
+  { n: "Neco", s: "neco", g: "serif", c: "Serif" },
+  { n: "Bonny", s: "bonny", g: "serif", c: "Serif" },
+  { n: "Bespoke Serif", s: "bespoke-serif", g: "serif", c: "Serif" },
+  { n: "Ranade", s: "ranade", g: "serif", c: "Serif" },
+  // — Slab —
+  { n: "Bespoke Slab", s: "bespoke-slab", g: "serif", c: "Slab" },
+  { n: "Hoover", s: "hoover", g: "serif", c: "Slab" },
+  { n: "Paquito", s: "paquito", g: "serif", c: "Slab" },
+  { n: "Trench Slab", s: "trench-slab", g: "serif", c: "Slab" },
+  // — Display —
+  { n: "Clash Display", s: "clash-display", c: "Display" },
+  { n: "Tanker", s: "tanker", c: "Display" },
+  { n: "Expose", s: "expose", c: "Display" },
+  { n: "New Title", s: "new-title", c: "Display" },
+  { n: "Panchang", s: "panchang", c: "Display" },
+  { n: "Bespoke Stencil", s: "bespoke-stencil", c: "Display" },
+  { n: "Kihim", s: "kihim", c: "Display" },
+  { n: "Striper", s: "striper", c: "Display" },
+  { n: "Boxing", s: "boxing", c: "Display" },
+  { n: "Kohinoor Zerone", s: "kohinoor-zerone", c: "Display" },
+  { n: "Array", s: "array", c: "Display" },
+  { n: "Kola", s: "kola", c: "Display" },
+  { n: "Nippo", s: "nippo", c: "Display" },
+  { n: "Styro", s: "styro", c: "Display" },
+  { n: "Segment", s: "segment", c: "Display" },
+  { n: "Zina", s: "zina", c: "Display" },
+  { n: "Boska", s: "boska", g: "serif", c: "Display" },
+  { n: "Melodrama", s: "melodrama", g: "serif", c: "Display" },
+  { n: "Stardom", s: "stardom", g: "serif", c: "Display" },
+  { n: "Chubbo", s: "chubbo", g: "serif", c: "Display" },
+  { n: "Aktura", s: "aktura", g: "serif", c: "Display" },
+  { n: "Bevellier", s: "bevellier", g: "serif", c: "Display" },
+  // — Script & handwriting —
+  { n: "Comico", s: "comico", g: "cursive", c: "Script" },
+  { n: "Britney", s: "britney", g: "cursive", c: "Script" },
+  { n: "Pencerio", s: "pencerio", g: "cursive", c: "Script" },
+  { n: "Telma", s: "telma", g: "cursive", c: "Script" },
+  { n: "Rosaline", s: "rosaline", g: "cursive", c: "Script" },
+  { n: "Sharpie", s: "sharpie", g: "cursive", c: "Script" },
+  // — Mono —
+  { n: "Tabular", s: "tabular", g: "monospace", c: "Mono" },
 ];
-_w.KIT_FONT_CATS = ["Grotesk", "Humanistisch", "Geometrisch", "Condensed", "Neuer", "Serif Display", "Serif Text"];
+_w.KIT_FONT_CATS = ["Sans", "Serif", "Slab", "Display", "Script", "Mono"];
 
-/* — Vetted font pairs: h = heading slug, b = body slug — */
+/* — Curated font pairs (from the publisher's Fontshare shortlist):
+     h = heading slug, b = body slug. Names are localized via KIT_I18N.pairs. — */
 _w.KIT_PAIRS = [
-  { n: "Nordic editorial", h: "schibsted-grotesk", b: "source-sans-3" },
-  { n: "Newspaper classic", h: "libre-franklin", b: "source-sans-3" },
-  { n: "Headline workshop", h: "archivo", b: "inter" },
-  { n: "Display with character", h: "bricolage-grotesque", b: "inter" },
-  { n: "Geometric & clean", h: "space-grotesk", b: "work-sans" },
-  { n: "Masthead / condensed", h: "oswald", b: "public-sans" },
-  { n: "Tech editorial", h: "geist", b: "inter" },
-  { n: "One family", h: "archivo-black", b: "archivo" },
-  { n: "Warm & readable", h: "familjen-grotesk", b: "mulish" },
-  { n: "High-contrast magazine", h: "playfair-display", b: "source-serif-4" },
-  { n: "Serif meets grotesque", h: "fraunces", b: "inter" },
-  { n: "Book / longform", h: "cormorant-garamond", b: "crimson-pro" },
-  { n: "News longform", h: "libre-franklin", b: "newsreader" },
-  { n: "Instrument duo", h: "instrument-serif", b: "instrument-sans" },
-  { n: "Classic newsroom", h: "dm-serif-display", b: "lora" },
+  { n: "Bold & clean", h: "chubbo", b: "supreme" },
+  { n: "Heavy & readable", h: "tanker", b: "erode" },
+  { n: "One family", h: "general-sans", b: "general-sans" },
+  { n: "Swiss calm", h: "switzer", b: "switzer" },
+  { n: "Display & serif", h: "tanker", b: "bespoke-serif" },
+  { n: "Sans meets serif", h: "general-sans", b: "gambetta" },
+  { n: "Grotesque editorial", h: "plein", b: "switzer" },
+  { n: "Modern & literary", h: "satoshi", b: "erode" },
+  { n: "Contrast", h: "boska", b: "switzer" },
+  { n: "Masthead", h: "expose", b: "author" },
+  { n: "Poster", h: "boxing", b: "chillax" },
+  { n: "Condensed", h: "stardom", b: "switzer" },
+  { n: "Soft & round", h: "pramukh-rounded", b: "pilcrow-rounded" },
+  { n: "Tall & elegant", h: "zodiak", b: "sentient" },
+  { n: "Magazine", h: "cabinet-grotesk", b: "ranade" },
 ];
-_w.KIT_DEFAULT_HEAD = "inter";
-_w.KIT_DEFAULT_BODY = "inter";
+_w.KIT_DEFAULT_HEAD = "switzer";
+_w.KIT_DEFAULT_BODY = "switzer";
 
 /* — Color schemes (set ALL color tokens consistently) — */
 _w.KIT_PALETTES = [
@@ -152,31 +182,31 @@ _w.KIT_BASES = {
 /* — Looks: one click = a vetted overall style (fonts + colors + layout + cards,
      optionally struct → server reload for the page structure) — */
 _w.KIT_LOOKS = [
-  { n: "Steady", d: "Clear & journalistic", head: "inter", body: "inter", base: "light", palette: 0,
+  { n: "Steady", d: "Clear & journalistic", head: "switzer", body: "switzer", base: "light", palette: 0,
     type: { size: "standard", lead: "normal", track: "normal", case: "normal", align: "links" },
     layout: { corner: "eckig", dens: "komfortabel", hero: "split", width: "standard" },
     card: { style: "classic", surface: "flat", image: "farbe", aspect: "16:9" } },
-  { n: "Magazine", d: "Serifs & contrast", head: "playfair-display", body: "source-serif-4", base: "light",
+  { n: "Magazine", d: "Serifs & contrast", head: "boska", body: "gambetta", base: "light",
     type: { size: "gross", lead: "normal", track: "eng", case: "normal", align: "links" },
     layout: { corner: "eckig", dens: "komfortabel", hero: "split", width: "standard" },
     card: { style: "classic", surface: "flat", image: "farbe", aspect: "4:3" } },
-  { n: "Minimal", d: "Calm, lots of whitespace", head: "inter", body: "inter", base: "light", palette: 4,
+  { n: "Minimal", d: "Calm, lots of whitespace", head: "synonym", body: "synonym", base: "light", palette: 4,
     type: { size: "standard", lead: "luftig", track: "normal", case: "normal", align: "links" },
     layout: { corner: "eckig", dens: "grosszuegig", hero: "split", width: "schmal" },
     card: { style: "text", surface: "flat", image: "farbe", aspect: "16:9" } },
-  { n: "Bold", d: "Loud & uppercase", head: "archivo-black", body: "archivo", base: "light", palette: 0,
+  { n: "Bold", d: "Loud & uppercase", head: "tanker", body: "supreme", base: "light", palette: 0,
     type: { size: "gross", lead: "normal", track: "eng", case: "gross", align: "links" },
     layout: { corner: "eckig", dens: "komfortabel", hero: "split", width: "standard" },
     card: { style: "overlay", surface: "flat", image: "farbe", aspect: "16:9" } },
-  { n: "Classic", d: "Elegant & centered", head: "fraunces", body: "lora", base: "light", palette: 3,
+  { n: "Classic", d: "Elegant & centered", head: "zodiak", body: "erode", base: "light", palette: 3,
     type: { size: "standard", lead: "normal", track: "normal", case: "normal", align: "zentriert" },
     layout: { corner: "rund", dens: "komfortabel", hero: "center", width: "standard" },
     card: { style: "classic", surface: "soft", image: "graustufen", aspect: "4:3" } },
-  { n: "Night", d: "Dark mode", head: "inter", body: "inter", base: "dark", palette: 1,
+  { n: "Night", d: "Dark mode", head: "satoshi", body: "satoshi", base: "dark", palette: 1,
     type: { size: "standard", lead: "normal", track: "normal", case: "normal", align: "links" },
     layout: { corner: "rund", dens: "komfortabel", hero: "split", width: "standard" },
     card: { style: "classic", surface: "outline", image: "farbe", aspect: "16:9" } },
-  { n: "Magazine portal", d: "3 columns, sectioned", head: "inter", body: "inter", base: "light",
+  { n: "Magazine portal", d: "3 columns, sectioned", head: "general-sans", body: "gambetta", base: "light",
     type: { size: "standard", lead: "normal", track: "normal", case: "normal", align: "links" },
     layout: { corner: "eckig", dens: "komfortabel", hero: "split", width: "breit", cols: "4", nav: "figma" },
     card: { style: "classic", surface: "flat", image: "farbe", aspect: "4:3" },
@@ -186,7 +216,7 @@ _w.KIT_LOOKS = [
 
 (function () {
   var D = document.documentElement;
-  var loadedFonts = { inter: 1 }; // Inter already ships as a <link> in the <head>
+  var loadedFonts = { switzer: 1 }; // the default font already ships as a <link> in the <head>
 
   /* — Color helpers (WCAG) — */
   /** @param {string} h */
@@ -233,7 +263,7 @@ _w.KIT_LOOKS = [
   /** @param {string} store @param {string} k @param {unknown} v */
   function setObj(store, k, v) { var o = jget(store); o[k] = v; jset(store, o); }
 
-  /* — Fonts: slug | descriptor | JSON string → resolve to descriptor {s,n,g,w} + load Bunny CSS — */
+  /* — Fonts: slug | descriptor | JSON string → resolve to descriptor {s,n,g,w} + load Fontshare CSS — */
   /** @param {string} s */
   function titleCase(s) {
     var p = String(s || "").split("-");
@@ -260,10 +290,14 @@ _w.KIT_LOOKS = [
     if (/** @type {Record<string,unknown>} */ (loadedFonts)[f.s]) return;
     var l = document.createElement("link");
     l.rel = "stylesheet";
-    l.href = "https://fonts.bunny.net/css?family=" + f.s + ":" + (f.w || "400,500,600,700") + "&display=swap";
+    l.href = "https://api.fontshare.com/v2/css?f[]=" + f.s + "@" + (f.w || "400,500,700") + "&display=swap";
     document.head.appendChild(l);
     /** @type {Record<string,unknown>} */ (loadedFonts)[f.s] = 1;
   }
+  // Expose for the panel: resolve a slug to a descriptor + load its CSS without applying it
+  // (used by the pairings gallery to preview both fonts of a combination).
+  _w.kitFont = bySlug;
+  _w.kitFontCss = loadFontCss;
 
   /* — Public setters — */
 
