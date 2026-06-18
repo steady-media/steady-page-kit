@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en" class="cz-on">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Steady Newsletter Kit</title>
+  <link rel="stylesheet" href="/assets/kit.css">
+  <link rel="stylesheet" href="/assets/nl.css">
+  <style>
+    /* Steady self-hosted faces so the font picker can preview them */
+    @font-face { font-family: Calluna; src: url(https://assets.steadyhq.com/fonts/calluna/Calluna-Regular-webfont.woff2) format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: Calluna; src: url(https://assets.steadyhq.com/fonts/calluna/Calluna-Bold-webfont.woff2) format('woff2'); font-weight: 700; font-display: swap; }
+    @font-face { font-family: 'Circular Std'; src: url(https://assets.steadyhq.com/fonts/circular-std-extended/book.woff) format('woff'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Circular Std'; src: url(https://assets.steadyhq.com/fonts/circular-std-extended/bold.woff) format('woff'); font-weight: 700; font-display: swap; }
+  </style>
+</head>
+<body data-view="designed" data-device="mobile" data-dark="false">
+  <main class="nl-stage">
+    <div class="nl-toolbar">
+      <div class="nl-tb-left">
+        <button data-view-btn="compare" data-i18n="compare">Compare</button>
+        <button data-view-btn="designed" class="on" data-i18n="designed">Designed</button>
+        <button data-view-btn="fallback" data-i18n="mostInboxes">Most inboxes</button>
+      </div>
+      <div class="nl-tb-right">
+        <div class="nl-seg" id="device-seg">
+          <button data-device-btn="desktop" data-i18n="desktop">Desktop</button>
+          <button data-device-btn="mobile" class="on" data-i18n="mobile">Mobile</button>
+        </div>
+        <button id="dark-toggle" class="nl-tog" data-i18n="dark">Dark inbox</button>
+        <div class="nl-seg" id="lang-seg">
+          <button data-lang-btn="en" class="on">EN</button>
+          <button data-lang-btn="de">DE</button>
+        </div>
+      </div>
+    </div>
+    <div class="nl-previews" id="nl-previews"></div>
+  </main>
+
+  <aside class="cz" id="cz-panel" aria-label="Newsletter style">
+    <div class="cz-head">
+      <span data-i18n="title">Newsletter style</span>
+      <div><button class="cz-reset" id="nl-reset" data-i18n="reset">Reset</button></div>
+    </div>
+    <div class="cz-body" id="nl-controls"></div>
+  </aside>
+
+  <script src="/assets/nl-catalog.js"></script>
+  <script src="/assets/nl-compiler.js"></script>
+  <script src="/assets/nl-app.js"></script>
+</body>
+</html>

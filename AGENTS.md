@@ -117,3 +117,23 @@ Always talk to the user in **their** language. Code, comments, docs and commits 
 - **Login:** the real `<steady-login-button>` web component; an inline snippet shows
   a fallback link after 3 s if the widget doesn't render (ad blockers).
 - **Claps** are eventually consistent (KV) — an applause signal, not a metric.
+
+## Newsletter customizer (`/newsletter.html`)
+
+A second customizer in the same project: it restyles the Steady **post/newsletter e-mail**
+(the MJML `post_email` from the main app), reusing this kit's `.cz` panel from `kit.css` so
+both surfaces share one panel interface. Open it at **`/newsletter.html`** (the Node server
+serves `public/` statically; CF Pages / Vercel serve `public/` directly).
+
+- Client-only, no routing/functions: `public/assets/nl-catalog.js` (fonts/tokens/looks/de+en),
+  `nl-compiler.js` (token → inlined, Outlook-safe e-mail HTML), `nl-app.js` (panel + preview),
+  `nl.css` (the email-client chrome), `nl-fixture.html` (a faithful copy of the real `post_email`).
+- The preview wraps the e-mail in a stylized desktop mail-client window + a phone, with a
+  "designed vs most-inboxes" comparison (webfonts are stripped in the fallback pane; the kit's
+  font picker + catalog drive the type).
+- `nl-*` assets are deliberately outside `tsconfig.browser.json` and the `asset-hash` list, so
+  they don't touch `npm run check` / the asset-version test. After editing an `nl-*` asset,
+  hard-refresh — the kit serves `/assets` with a 7-day cache.
+- The only kit change for this is the `.html` MIME type in `server/node.ts` (so static HTML
+  pages serve as `text/html`). Background + roadmap live in the standalone `steady-newsletter-kit`
+  repo (`PLAN.md`, `docs/PATH_TO_PRODUCTION.md`, `docs/COMPETITIVE_RESEARCH.md`).

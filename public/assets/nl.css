@@ -1,0 +1,95 @@
+/* nl.css — newsletter customizer page. The .cz panel is styled by kit.css;
+ * this file adds the stage, the email-client chrome (desktop + phone) and a few extras.
+ * Loaded AFTER kit.css so the body overrides win. */
+body { background: #f4f3f6; color: #291e38; font: 400 14px/1.4 Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.nl-stage { min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ---- toolbar ---- */
+.nl-toolbar { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 12px 18px; background: #fff; border-bottom: 1px solid #e7e7e7; flex-wrap: wrap; }
+.nl-tb-left, .nl-tb-right { display: flex; align-items: center; gap: 6px; }
+.nl-toolbar button { font: 600 12px/1 inherit; padding: 8px 12px; border: 1px solid #e7e7e7; border-radius: 0; background: #fff; color: #291e38; cursor: pointer; }
+.nl-toolbar button:hover { background: #f7f7f7; }
+.nl-tb-left button.on { background: #291e38; color: #fff; border-color: #291e38; }
+.nl-seg { display: flex; }
+.nl-seg button { border-left: 0; }
+.nl-seg button:first-child { border-left: 1px solid #e7e7e7; }
+.nl-seg button.on, .nl-tog.on { background: #291e38; color: #fff; border-color: #291e38; }
+
+/* ---- preview stage ---- */
+.nl-previews { flex: 1; display: flex; gap: 32px; padding: 26px; overflow: auto; align-items: flex-start; justify-content: center; }
+body[data-device=desktop] .nl-previews { justify-content: flex-start; }
+.nl-station { display: flex; flex-direction: column; flex: 0 0 auto; }
+.nl-caption { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #291e38; margin-bottom: 12px; }
+.nl-caption em { font-style: normal; font-weight: 400; color: #8b8794; font-size: 12px; }
+.dot { width: 9px; height: 9px; border-radius: 99px; flex: none; }
+.dot.ok { background: #27ae60; }
+.dot.warn { background: #e67e22; }
+body[data-view=designed] .p-fallback, body[data-view=fallback] .p-designed { display: none; }
+.nl-screen { overflow-y: auto; background: #fff; }
+.nl-frame { display: block; border: 0; }
+
+/* ---- desktop mail-client window ---- */
+.mailwin { width: 980px; height: calc(100vh - 152px); min-height: 520px; display: flex; flex-direction: column;
+  background: #fff; border: 1px solid #dedce6; border-radius: 12px; box-shadow: 0 18px 50px rgba(20, 15, 30, .14); overflow: hidden; }
+.mailwin-bar { height: 42px; flex: none; display: flex; align-items: center; gap: 10px; padding: 0 14px; background: #f3f2f6; border-bottom: 1px solid #e7e5ec; }
+.mailwin-bar .dots { display: flex; gap: 7px; }
+.mailwin-bar .dots i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+.mailwin-bar .dots i:nth-child(1) { background: #ff5f57; }
+.mailwin-bar .dots i:nth-child(2) { background: #febc2e; }
+.mailwin-bar .dots i:nth-child(3) { background: #28c840; }
+.mw-title { margin: 0 auto; font-size: 12px; color: #8b8794; padding-right: 30px; }
+.mailwin-body { flex: 1; display: flex; min-height: 0; }
+.mailwin-side { width: 160px; flex: none; background: #faf9fc; border-right: 1px solid #ecebf1; padding: 12px 10px; display: flex; flex-direction: column; gap: 14px; }
+.side-new { font-size: 12px; font-weight: 600; color: #fff; background: #291e38; border-radius: 6px; padding: 8px 10px; text-align: center; }
+.side-folders { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.side-folders li { font-size: 13px; color: #5a5667; padding: 7px 10px; border-radius: 6px; }
+.side-folders li.on { background: #ecebf1; color: #291e38; font-weight: 600; }
+.side-acct { margin-top: auto; display: flex; align-items: center; gap: 8px; font-size: 11px; color: #8b8794; }
+.av { width: 26px; height: 26px; border-radius: 50%; background: #291e38; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none; }
+.av.big { width: 40px; height: 40px; font-size: 17px; }
+.mailwin-list { width: 210px; flex: none; border-right: 1px solid #ecebf1; overflow-y: auto; }
+.list-search { font-size: 12px; color: #9a95a6; background: #f3f2f6; margin: 10px; padding: 7px 10px; border-radius: 6px; }
+.list-row { padding: 11px 14px; border-bottom: 1px solid #f1f0f5; }
+.list-row.on { background: #eef3fb; box-shadow: inset 3px 0 0 #291e38; }
+.lr-top { display: flex; justify-content: space-between; font-size: 13px; }
+.lr-top b { color: #291e38; }
+.lr-top span { color: #9a95a6; font-size: 11px; }
+.lr-sub { font-size: 12px; color: #3a3744; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lr-snip { font-size: 11px; color: #9a95a6; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mailwin-read { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.read-head { flex: none; display: flex; gap: 14px; padding: 18px 22px; border-bottom: 1px solid #ecebf1; }
+.rh-meta { min-width: 0; }
+.rh-from { font-size: 13px; color: #5a5667; }
+.rh-from b { color: #291e38; }
+.rh-sub { font-size: 17px; font-weight: 600; color: #291e38; margin: 3px 0; }
+.rh-to { font-size: 12px; color: #9a95a6; }
+.mailwin-read .nl-screen { flex: 1; }
+.mailwin .nl-frame { width: 600px; }
+
+/* ---- phone ---- */
+.phone { width: 399px; flex: none; padding: 12px; background: #15131b; border-radius: 46px; box-shadow: 0 18px 50px rgba(20, 15, 30, .22); }
+.phone-inner { height: calc(100vh - 178px); min-height: 480px; background: #fff; border-radius: 34px; overflow: hidden; display: flex; flex-direction: column; }
+.phone-status { flex: none; height: 34px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; position: relative; font-size: 12px; font-weight: 600; color: #291e38; }
+.ps-notch { position: absolute; left: 50%; top: 6px; transform: translateX(-50%); width: 118px; height: 22px; background: #15131b; border-radius: 0 0 16px 16px; }
+.ps-ico { font-size: 11px; letter-spacing: 2px; }
+.phone-apphead { flex: none; display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; border-bottom: 1px solid #ecebf1; font-size: 14px; }
+.ah-l { color: #137ec0; font-weight: 500; }
+.ah-r { color: #137ec0; letter-spacing: 4px; }
+.phone-msghead { flex: none; display: flex; gap: 10px; padding: 12px 16px; border-bottom: 1px solid #ecebf1; align-items: flex-start; }
+.pmh-meta { min-width: 0; flex: 1; }
+.pmh-from { display: flex; justify-content: space-between; font-size: 14px; }
+.pmh-from b { color: #291e38; }
+.pmh-from span { color: #9a95a6; font-size: 12px; }
+.pmh-sub { font-size: 13px; color: #5a5667; margin-top: 2px; }
+.phone .nl-screen { flex: 1; }
+.phone .nl-frame { width: 375px; }
+
+/* ---- dark inbox surround (the email keeps its own light background) ---- */
+body[data-dark=true] .nl-previews { background: #15131b; }
+body[data-dark=true] .nl-caption { color: #cfcbd8; }
+body[data-dark=true] .nl-caption em { color: #8a8598; }
+
+/* ---- panel hint colours (cz-hint is muted; warn = amber) ---- */
+.nl-warn { color: #c0651f !important; }
+.nl-ok { color: #757776 !important; }
