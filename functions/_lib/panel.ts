@@ -85,8 +85,7 @@ export function panelHtml(): string {
       <p class="cz-subhead">${esc(t("panel.layout.hero"))}</p>
       <label class="cz-lbl">${esc(t("panel.layout.herostyle"))}</label><div class="cz-seg" data-fn="layout" data-kind="hero"><button data-v="split">${esc(t("panel.v.geteilt"))}</button><button data-v="center">${esc(t("panel.v.zentriert"))}</button></div>
       <label class="cz-lbl">${esc(t("panel.layout.align"))}</label><div class="cz-seg" data-fn="type" data-kind="align"><button data-v="links">${esc(t("panel.v.links"))}</button><button data-v="zentriert">${esc(t("panel.v.zentriert"))}</button></div>
-    </div></section>
-    <section class="cz-sec"><button class="cz-sh" data-acc>${t("panel.sec.cards")}<span class="cz-cv">▾</span></button><div class="cz-sb">
+      <p class="cz-subhead">${esc(t("panel.sec.cards"))}</p>
       <label class="cz-lbl">${esc(t("panel.cards.style"))}</label><div class="cz-seg cz-seg--wrap" data-fn="card" data-kind="style"><button data-v="classic">${esc(t("panel.v.klassisch"))}</button><button data-v="side">${esc(t("panel.v.bildlinks"))}</button><button data-v="text">${esc(t("panel.v.nurtext"))}</button><button data-v="overlay">${esc(t("panel.v.overlay"))}</button><button data-v="list">${esc(t("panel.v.cardliste"))}</button></div>
       <label class="cz-lbl">${esc(t("panel.cards.aspect"))}</label><div class="cz-seg" data-fn="card" data-kind="aspect"><button data-v="16:9">16:9</button><button data-v="4:3">4:3</button><button data-v="1:1">1:1</button></div>
       <label class="cz-lbl">${esc(t("panel.cards.surface"))}</label><div class="cz-seg" data-fn="card" data-kind="surface"><button data-v="flat">${esc(t("panel.v.flach"))}</button><button data-v="soft">${esc(t("panel.v.schatten"))}</button><button data-v="outline">${esc(t("panel.v.umrandet"))}</button></div>

@@ -54,19 +54,24 @@ var _w = /** @type {any} */ (window);
     if (e.key === "Escape" && D.classList.contains("cz-on")) { setOpen(false); if (openBtn) openBtn.focus(); }
   });
 
-  // Remember open sections as an index list (kitAcc2), restore them on load
+  // Remember which sections are open, keyed by their TITLE (stable across panel
+  // structure changes — an index list breaks the moment a section is added/removed,
+  // which is what made a closed section pop back open). Restore on load.
+  /** @param {Element} s */
+  function secKey(s) { var h = s.querySelector(".cz-sh"); return h ? (h.textContent || "").replace("▾", "").trim() : ""; }
   function saveAccordion() {
-    /** @type {number[]} */
+    /** @type {string[]} */
     var open = [];
-    document.querySelectorAll(".cz-sec").forEach(function (s, i) { if (s.classList.contains("cz-open")) open.push(i); });
-    try { localStorage.setItem("kitAcc2", JSON.stringify(open)); } catch (e) {}
+    document.querySelectorAll(".cz-sec").forEach(function (s) { if (s.classList.contains("cz-open")) open.push(secKey(s)); });
+    try { localStorage.setItem("kitAcc3", JSON.stringify(open)); } catch (e) {}
   }
   (function restoreAccordion() {
-    /** @type {number[]|null} */
+    /** @type {string[]|null} */
     var a = null;
-    try { a = JSON.parse(localStorage.getItem("kitAcc2") || "null"); } catch (e) {}
+    try { a = JSON.parse(localStorage.getItem("kitAcc3") || "null"); } catch (e) {}
     if (a && typeof a.length === "number") {
-      document.querySelectorAll(".cz-sec").forEach(function (s, i) { s.classList.toggle("cz-open", a !== null && a.indexOf(i) >= 0); });
+      var saved = a;
+      document.querySelectorAll(".cz-sec").forEach(function (s) { s.classList.toggle("cz-open", saved.indexOf(secKey(s)) >= 0); });
     }
   })();
   document.querySelectorAll(".cz-sh[data-acc]").forEach(function (h) {
