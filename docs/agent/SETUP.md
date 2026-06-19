@@ -52,17 +52,20 @@ Ask (in the user's language, conversationally — not as a form):
 
 With `<slug>` from the interview:
 
-1. **Verify the feed**: `curl -sS -A "SteadyPageKit-Setup" "https://steady.page/<slug>/rss" | head -c 2000`
+1. **Verify the feed**: `curl -sSL -A "SteadyPageKit-Setup" "https://steady.page/<slug>/rss" | head -c 2000`
    - Expect HTTP 200 and `<rss`. Extract `<title>` (channel title → default site name)
      and `<description>`.
    - If it fails: the slug is wrong — show the user what you tried, ask again.
 2. **Find the publication id (UUID)**:
-   `curl -sS -A "SteadyPageKit-Setup" "https://steady.page/<slug>" | grep -o 'widget_loader/[0-9a-f-]\{36\}' | head -1`
-   - The UUID after `widget_loader/` is `steady.publicationId`.
-   - **Fallback** if the regex finds nothing (Steady markup may change): ask the user
-     to open their own steady.page site in a browser, view page source, search for
-     `widget_loader` and paste the line. Without the id the site still works, but
-     login/paywall/checkout are disabled — say so.
+   `curl -sSL -A "SteadyPageKit-Setup" "https://steady.page/<slug>" | grep -oE 'production/(publication|newsletter)/[0-9a-f-]{36}' | grep -oE '[0-9a-f-]{36}' | head -1`
+   - That UUID is `steady.publicationId`. **`-L` is required**: `steady.page/<slug>` now
+     302-redirects to a locale path (e.g. `/en/<slug>`), and the id appears in the
+     publication asset URLs (`assets.steadyhq.com/production/publication/<uuid>`). The old
+     `widget_loader/<uuid>` markup no longer exists.
+   - **Fallback** if nothing matches (Steady markup may change again): ask the user to open
+     their steady.page site in a browser, view source, search for
+     `steadyhq.com/production/publication/` and paste the UUID. Without the id the site still
+     works, but login/paywall/checkout are disabled — say so.
 3. **Member heading** (paywall marker): ask the user what heading starts the
    members-only part in their Steady posts (default: „Mitglieder-Bereich" for de,
    "Members only" for en). It must match the heading text in the editor exactly.
