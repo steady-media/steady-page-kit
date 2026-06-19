@@ -67,8 +67,9 @@ export function head(title: string, cfg: RenderCfg = {} as RenderCfg, meta: Page
 ${tags.join("\n")}
 <link rel="icon" href="/assets/favicon.png"/>
 <link rel="alternate" type="application/rss+xml" title="${esc(pub)}" href="/rss"/>
-<link rel="preconnect" href="https://fonts.bunny.net" crossorigin/>
-<link id="kit-font-css" href="https://fonts.bunny.net/css?family=inter:400,500,600,700,900&display=swap" rel="stylesheet"/>
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin/>
+<link rel="preconnect" href="https://cdn.fontshare.com" crossorigin/>
+<link id="kit-font-css" href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/assets/kit.css?v=${v}"/>
 ${kitGlobal}
 <script src="/assets/kit-theme.js?v=${v}"></script>
@@ -169,5 +170,6 @@ export function footer(cfg: RenderCfg = {} as RenderCfg): string {
 </div></footer><button class="cz-fab" id="cz-open" aria-label="${t("fab")}" title="${t("fab")}">${ICON_PANEL}</button>
 ${panelHtml()}
 <script src="/assets/kit-panel.js?v=${ASSET_VERSION}"></script>
+<script defer src="/assets/kit-engage.js?v=${ASSET_VERSION}"></script>
 </body></html>`;
 }

@@ -26,6 +26,7 @@ const OFFLINE = process.argv.includes("--offline");
 let blockers = 0;
 const ok = /** @param {string} m */ m => console.log("  ✅ " + m);
 const warn = /** @param {string} m */ m => console.log("  ⚠️  " + m);
+const note = /** @param {string} m */ m => console.log("  ℹ️  " + m);
 const fail = /** @param {string} m */ m => { console.log("  ❌ " + m); blockers++; };
 
 /** Print the summary and exit the process. */
@@ -70,7 +71,8 @@ if (major > 22 || (major === 22 && minor >= 18)) ok(`Node ${process.versions.nod
 else { fail(`Node ${process.versions.node} — too old; v2 needs >= 22.18 (recommended: Node 24 LTS)`); finish(); }
 
 const { STEADY_SLUG, FEED_URL, SITE_ORIGIN, STEADY_PUBLICATION_ID,
-        MEMBER_HEADING, IS_CONFIGURED, LANGUAGE, USER_AGENT } =
+        MEMBER_HEADING, IS_CONFIGURED, LANGUAGE, USER_AGENT,
+        effectiveEngagement } =
   await import("../functions/_lib/config.ts");
 
 // Collect secrets from both local sources (Node path + Cloudflare path).
@@ -111,6 +113,13 @@ else if (adminCode.length < 12) warn("KIT_ADMIN_CODE is shorter than 12 characte
 else ok("KIT_ADMIN_CODE set");
 const fulltext = (process.env.FULLTEXT_FEED_URL || "").trim();
 if (!fulltext) warn("FULLTEXT_FEED_URL missing → posts show teaser + Steady link instead of full text (optional)");
+
+// Engagement check: only relevant when engagement.mode=steady-app
+const eng = effectiveEngagement(process.env);
+if (eng.mode === "steady-app") {
+  if (!eng.org || !eng.channelId) warn("engagement.mode=steady-app but org/channelId are missing → engagement proxy will respond with 400");
+  if (!(process.env.TCHOP_TOKEN || "").trim()) note("no TCHOP_TOKEN set → engagement shows the app CTA only (no feed proxy)");
+}
 
 /* — 4. Cloudflare configuration (only relevant for deploy:cf) — */
 console.log("\nCloudflare (wrangler.toml — only relevant for Cloudflare deploys)");

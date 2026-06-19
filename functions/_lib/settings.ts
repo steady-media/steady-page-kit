@@ -9,7 +9,7 @@
 // the cookie; the skin (fonts/colors/cards) is applied by the CLIENT (public/assets/kit-theme.js).
 
 import type { GlobalConfig, KitContext, KitEnv, LogoMeta, RenderCfg, StructCfg } from "./types.ts";
-import { FEED_URL, envSteadyUrls } from "./config.ts";
+import { FEED_URL, envSteadyUrls, effectiveEngagement } from "./config.ts";
 
 type NavEntry = { l?: unknown; h?: unknown; x?: unknown };
 
@@ -145,6 +145,7 @@ export async function buildPageContext(context: KitContext): Promise<{ cfg: Rend
   cfg.steadyId  = env.STEADY_PUBLICATION_ID || null;
   cfg.loginUrl  = env.STEADY_LOGIN_URL || (envSteady && envSteady.loginUrl) || null;
   cfg.analytics = env.ANALYTICS_TOKEN || "";       // Cloudflare Web Analytics beacon token
+  cfg.engagement = effectiveEngagement(env);
   const hasPersonalCfg = /(?:^|;\s*)kit(?:struct|chrome|pins)=/.test(cookie);
   return { cfg: cfg as RenderCfg, cacheControl: hasPersonalCfg ? "no-store" : "public, max-age=300" };
 }

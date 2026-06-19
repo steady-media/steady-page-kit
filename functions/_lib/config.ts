@@ -8,6 +8,7 @@
 
 import kit from "../../kit.config.js";
 import { LANGUAGE, t } from "./i18n.ts";
+import type { EngagementCfg, EngagementMode } from "./types.ts";
 
 // LANGUAGE is determined from kit.config.js in i18n.ts; re-exported here so
 // modules that import LANGUAGE from config keep working.
@@ -86,6 +87,40 @@ export const PER_PAGE = intOr(kit.perPage, 12);    // teasers per page
 export const MAX_PILLS = intOr(kit.maxPills, 8);   // max category pills
 export const PINNED_GUID: string | null = kit.pinnedGuid || null; // optional: post GUID as hero
 
+const ENGAGEMENT_MODES: EngagementMode[] = ["none", "claps", "steady-app"];
+
+function asMode(v: unknown, def: EngagementMode): EngagementMode {
+  const s = String(v || "").trim();
+  return (ENGAGEMENT_MODES as string[]).includes(s) ? (s as EngagementMode) : def;
+}
+
+// kit.config.js defaults (env wins at request time, see effectiveEngagement)
+const kitEng = (kit.engagement || {}) as Partial<EngagementCfg>;
+const ENGAGEMENT_MODE: EngagementMode = asMode(kitEng.mode, "claps");
+const TCHOP_ORG: string = String(kitEng.org || "").trim();
+const TCHOP_CHANNEL_ID: number | null = kitEng.channelId ? Number(kitEng.channelId) : null;
+const TCHOP_APP_URL: string = String(kitEng.appUrl || "").trim().replace(/\/+$/, "");
+
+/**
+ * Effective engagement config: env overrides > kit.config.js. The secret token
+ * (TCHOP_TOKEN) does NOT belong here — it is only read in the proxy route.
+ */
+export function effectiveEngagement(env: { [k: string]: unknown } | null | undefined): EngagementCfg {
+  const e = env || {};
+  return {
+    mode: asMode(e.ENGAGEMENT_MODE, ENGAGEMENT_MODE),
+    org: String(e.TCHOP_ORG || TCHOP_ORG).trim(),
+    channelId: e.TCHOP_CHANNEL_ID ? Number(e.TCHOP_CHANNEL_ID) : TCHOP_CHANNEL_ID,
+    appUrl: String(e.TCHOP_APP_URL || TCHOP_APP_URL).trim().replace(/\/+$/, ""),
+  };
+}
+
+/** Per-card deep link (opens the app, web fallback). Format verified 2026-06-16. */
+export function cardDeepLink(org: string, channelId: number, storyId: number, cardId: number): string {
+  const safeOrg = String(org).replace(/[^a-z0-9-]/gi, ""); // subdomain — allowed characters only
+  return `https://${safeOrg}.tchop.io/apps/posts/${channelId}/${storyId}/${cardId}`;
+}
+
 /** true as soon as kit.config.js yields a feed source. Env overrides also count
  *  at request time — use isConfigured(cfg) in settings.ts for that. */
 export const IS_CONFIGURED = !!FEED_URL;
@@ -128,4 +163,4 @@ export const DEFAULT_NAV: Array<{ l: string; h: string; x?: boolean }> = (Array.
 export const USER_AGENT = "SteadyPageKit/1.0";
 
 // Cache buster for public/assets/kit.css + kit-*.js — bump on asset changes.
-export const ASSET_VERSION = "2026-06-16b";
+export const ASSET_VERSION = "2026-06-17e";

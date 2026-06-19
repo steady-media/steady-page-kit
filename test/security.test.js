@@ -38,3 +38,24 @@ test("logError never logs the full-text token (message, stack, cause)", () => {
   assert.ok(all.includes("[steady-page-kit]"));
   assert.ok(!all.includes("SUPERSECRET123"));
 });
+
+test("scrubSecrets removes TCHOP_TOKEN from arbitrary text", () => {
+  const env = { TCHOP_TOKEN: "tchop-bearer-DEADBEEF42" };
+  const dirty = `tchop request failed with Authorization: Bearer ${env.TCHOP_TOKEN}`;
+  const clean = scrubSecrets(dirty, env);
+  assert.ok(!clean.includes("tchop-bearer-DEADBEEF42"));
+  assert.ok(clean.includes("[redacted]"));
+});
+
+test("logError never logs TCHOP_TOKEN (message, stack, cause)", () => {
+  const env = { TCHOP_TOKEN: "tchop-bearer-DEADBEEF42" };
+  const lines = [];
+  const orig = console.error;
+  console.error = (...a) => lines.push(a.join(" "));
+  try {
+    logError(new Error(`tchop fetch failed: Bearer ${env.TCHOP_TOKEN}`, { cause: env.TCHOP_TOKEN }), env);
+  } finally { console.error = orig; }
+  const all = lines.join("\n");
+  assert.ok(all.includes("[steady-page-kit]"));
+  assert.ok(!all.includes("tchop-bearer-DEADBEEF42"));
+});

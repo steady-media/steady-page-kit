@@ -15,6 +15,7 @@ import * as apiConfig from "../functions/api/config.ts";
 import * as apiLogo from "../functions/api/logo.ts";
 import * as apiSearch from "../functions/api/search.ts";
 import * as apiReact from "../functions/api/react.ts";
+import * as apiEngagement from "../functions/api/engagement.ts";
 
 type RouteModule = Record<string, PagesHandler | undefined>;
 export interface Route { re: RegExp; mod: RouteModule; params?: string[]; src: string }
@@ -33,6 +34,7 @@ export const ROUTES: Route[] = [
   { re: /^\/api\/logo$/, mod: apiLogo, src: "functions/api/logo.ts" },
   { re: /^\/api\/search$/, mod: apiSearch, src: "functions/api/search.ts" },
   { re: /^\/api\/react$/, mod: apiReact, src: "functions/api/react.ts" },
+  { re: /^\/api\/engagement$/, mod: apiEngagement, src: "functions/api/engagement.ts" },
 ];
 
 export function handlerFor(mod: RouteModule, method: string): PagesHandler | null {

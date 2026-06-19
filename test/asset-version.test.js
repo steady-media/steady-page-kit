@@ -5,7 +5,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { ASSET_VERSION } from "../functions/_lib/config.ts";
 
-const ASSETS = ["public/assets/kit.css", "public/assets/kit-theme.js", "public/assets/kit-panel.js"];
+const ASSETS = ["public/assets/kit.css", "public/assets/kit-theme.js", "public/assets/kit-panel.js", "public/assets/kit-engage.js"];
 
 test("ASSET_VERSION matches the asset hash (otherwise: npm run bump-assets)", () => {
   const h = createHash("sha256");

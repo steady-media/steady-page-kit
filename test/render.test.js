@@ -136,3 +136,34 @@ test(
     assert.ok(!html.includes('rel="canonical"'));
   }
 );
+
+// --- engagement mode tests ---
+
+const ENGAGE_ITEM = {
+  guid: "g1", title: "T", description: "d", link: "https://steady.page/p/posts/u1",
+  categories: ["News"], image: "", pubDate: "2026-01-01", content: "",
+};
+const baseCfg = {
+  brand: "", logo: null, skin: null, pins: {},
+  engagement: { mode: "claps", org: "", channelId: null, appUrl: "" },
+};
+
+test("claps mode renders the clap button", () => {
+  const html = renderPost(ENGAGE_ITEM, { ...baseCfg, engagement: { ...baseCfg.engagement, mode: "claps" } }, "", { claps: 5 });
+  assert.match(html, /id="js-clap"/);
+  assert.doesNotMatch(html, /post__engage/);
+});
+
+test("steady-app mode renders the engagement container with the key, no clap button", () => {
+  const html = renderPost(ENGAGE_ITEM, { ...baseCfg, engagement: { mode: "steady-app", org: "steady", channelId: 290638, appUrl: "https://x/webapp" } });
+  assert.match(html, /class="post__engage"/);
+  assert.match(html, /data-engage-key="https:\/\/steady\.page\/p\/posts\/u1"/);
+  assert.match(html, /data-engage-app="https:\/\/x\/webapp"/);
+  assert.doesNotMatch(html, /id="js-clap"/);
+});
+
+test("none mode renders neither clap nor engagement container", () => {
+  const html = renderPost(ENGAGE_ITEM, { ...baseCfg, engagement: { ...baseCfg.engagement, mode: "none" } });
+  assert.doesNotMatch(html, /id="js-clap"/);
+  assert.doesNotMatch(html, /post__engage/);
+});

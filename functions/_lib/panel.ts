@@ -52,9 +52,13 @@ export function panelHtml(): string {
       <p class="cz-warn" id="cz-warn">${esc(t("panel.contrast.warn"))}</p>
     </div></section>
     <section class="cz-sec"><button class="cz-sh" data-acc>${t("panel.sec.fonts")}<span class="cz-cv">▾</span></button><div class="cz-sb">
-      <label class="cz-lbl">${esc(t("panel.fonts.pair"))}</label><select id="pair-picker" class="cz-sel"><option value="">${esc(t("panel.fonts.pair.empty"))}</option></select>
+      <p class="cz-hint">${esc(t("panel.fonts.hint"))}</p>
       <label class="cz-lbl">${esc(t("panel.fonts.head"))}</label><div class="cz-font"><input class="cz-font-in" id="cz-fh-in" type="text" placeholder="${esc(t("panel.fonts.search"))}" autocomplete="off" spellcheck="false"><div class="cz-font-pop" id="cz-fh-pop"></div></div>
       <label class="cz-lbl">${esc(t("panel.fonts.body"))}</label><div class="cz-font"><input class="cz-font-in" id="cz-fb-in" type="text" placeholder="${esc(t("panel.fonts.search"))}" autocomplete="off" spellcheck="false"><div class="cz-font-pop" id="cz-fb-pop"></div></div>
+      <button class="cz-more" id="cz-pairs-more" type="button" aria-expanded="false">${esc(t("panel.fonts.suggest"))}<span class="cz-cv">▾</span></button>
+      <div class="cz-more-body" id="cz-pairs-adv">
+        <div class="cz-pairs" id="cz-pairs"></div>
+      </div>
       <label class="cz-lbl">${esc(t("panel.fonts.size"))}</label><div class="cz-seg" data-fn="type" data-kind="size"><button data-v="klein">${esc(t("panel.v.klein"))}</button><button data-v="standard">${esc(t("panel.v.standard"))}</button><button data-v="gross">${esc(t("panel.v.gross"))}</button></div>
       <button class="cz-more" id="cz-type-more" type="button" aria-expanded="false">${esc(t("panel.fonts.fine"))}<span class="cz-cv">▾</span></button>
       <div class="cz-more-body" id="cz-type-adv">

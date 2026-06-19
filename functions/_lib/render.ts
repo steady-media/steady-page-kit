@@ -19,6 +19,15 @@ import type { FeedItem, RenderCfg } from "./types.ts";
 // backend); paying members see the content. Source: help.steadyhq.com, JS paywall.
 const STEADY_PAYWALL_MARKER = `<div id="steady_paywall" style="display: none;"></div>`;
 
+// steady-app only: marks the list page so kit-engage.js lazy-loads comment counts for
+// teasers, and carries the localized count templates ({n} is substituted client-side).
+function mainEngageAttrs(cfg: RenderCfg): string {
+  if (!cfg.engagement || cfg.engagement.mode !== "steady-app") return "";
+  return ` data-engage="1"` +
+    ` data-l-comments="${esc(t("engage.comments.other", { n: "{n}" }))}"` +
+    ` data-l-comments-one="${esc(t("engage.comments.one", { n: "{n}" }))}"`;
+}
+
 /* ------------------------------------------------------------------ building blocks */
 
 // Category pill as a link to the section page
@@ -27,7 +36,7 @@ function pill(c: string): string { return `<a class="pill" href="/rubrik/${slugi
 // Teaser card (flat list, sections, lead row)
 function card(it: FeedItem): string {
   return `
-    <a class="card" href="/posts/${esc(it.guid)}">
+    <a class="card" href="/posts/${esc(it.guid)}" data-engage-key="${esc(it.link)}">
       <img class="card__media" loading="lazy" alt="" src="${teaser(it.image, 800, 450)}"/>
       <div class="card__body">
         <h3 class="card__title">${esc(it.title)}</h3>
@@ -107,14 +116,14 @@ function portalBand(cfg: RenderCfg, centerHtml: string, railItems: { latest: Fee
 
 // Horizontal mini teaser (image left) for the feature list
 function teaserRow(it: FeedItem): string {
-  return `<a class="teaser-row" href="/posts/${esc(it.guid)}">
+  return `<a class="teaser-row" href="/posts/${esc(it.guid)}" data-engage-key="${esc(it.link)}">
     <img class="teaser-row__media" loading="lazy" alt="" src="${teaser(it.image, 200, 200)}"/>
     <div><h4 class="teaser-row__title">${esc(it.title)}</h4><div class="card__date">${esc(fmtDate(it.pubDate))}</div></div>
   </a>`;
 }
 // Text teaser (no image) for the compact section
 function teaserText(it: FeedItem): string {
-  return `<a class="teaser-text" href="/posts/${esc(it.guid)}">
+  return `<a class="teaser-text" href="/posts/${esc(it.guid)}" data-engage-key="${esc(it.link)}">
     <h4 class="teaser-text__title">${esc(it.title)}</h4>
     ${it.description ? `<p class="teaser-text__excerpt">${esc(it.description)}</p>` : ""}
     <div class="card__date">${esc(fmtDate(it.pubDate))}</div>
@@ -236,7 +245,7 @@ export function renderLanding(items: FeedItem[], page: number = 1, cfg: RenderCf
     image: hero.image ? teaser(hero.image, 1200, 630) : "",
   };
   return head(publicationName(cfg), cfg, meta) + header({ tabs: true, activePath: "/" }, cfg) + `
-<main id="main">${top}${stream}</main>` + footer(cfg);
+<main id="main"${mainEngageAttrs(cfg)}>${top}${stream}</main>` + footer(cfg);
 }
 
 /** Section page (/rubrik/:slug): lead story (first post) + grid + "load more". */
@@ -269,7 +278,7 @@ export function renderSection(category: string, items: FeedItem[], allItems: Fee
     image: (featured && featured.image) ? teaser(featured.image, 1200, 630) : "",
   };
   return head(display + " — " + publicationName(cfg), cfg, meta) + header({ tabs: true, activePath: "/rubrik/" + slug }, cfg) + `
-<main id="main">${aufmacher}<div class="container section-body">
+<main id="main"${mainEngageAttrs(cfg)}>${aufmacher}<div class="container section-body">
   <div class="grid">${slice.map(card).join("")}</div>
   ${more}
   <div id="memberships"></div>
@@ -338,6 +347,30 @@ export function renderPost(item: FeedItem, cfg: RenderCfg = {} as RenderCfg, ful
   </nav>`
     : "";
 
+  // Engagement mode determines the post footer content (clap, app container, or nothing)
+  const mode = (cfg.engagement && cfg.engagement.mode) || "claps";
+  const shareBtn =
+    `<button class="post__share" id="js-share" type="button" data-title="${esc(item.title)}">${ICON_SHARE}<span id="js-share-t">${esc(t("post.share"))}</span></button>`;
+  let foot: string;
+  if (mode === "steady-app") {
+    const app = cfg.engagement.appUrl || "";
+    const engageBox =
+      `<div class="post__engage" data-engage-key="${esc(item.link)}" data-engage-app="${esc(app)}"` +
+      ` data-l-cta="${esc(t("engage.cta"))}" data-l-empty="${esc(t("engage.cta.empty"))}"` +
+      ` data-l-comments="${esc(t("engage.comments.other", { n: "{n}" }))}" data-l-comments-one="${esc(t("engage.comments.one", { n: "{n}" }))}"` +
+      ` data-l-reactions="${esc(t("engage.reactions", { n: "{n}" }))}"` +
+      ` data-l-hi="${esc(t("engage.highlighted"))}" data-l-err="${esc(t("engage.loaderr"))}"></div>`;
+    // Share sits in its own bar ABOVE the thread — not centered beside a long comment column.
+    foot = `<div class="post__col post__foot"><div class="post__engage-bar">${shareBtn}</div>${engageBox}</div>`;
+  } else if (mode === "none") {
+    // Share button only, no clap button
+    foot = `<div class="post__col post__foot"><div class="post__react">${shareBtn}</div></div>`;
+  } else {
+    // Default mode: clap button + share button
+    const clapBtn = `<button class="post__clap" id="js-clap" type="button" data-guid="${esc(item.guid)}" aria-label="${esc(t("post.clap.aria"))}">${ICON_CLAP}<span id="js-clap-n">${claps}</span></button>`;
+    foot = `<div class="post__col post__foot"><div class="post__react">${clapBtn}${shareBtn}</div></div>`;
+  }
+
   const meta = {
     desc: item.description || "",
     path: "/posts/" + item.guid,
@@ -357,12 +390,7 @@ export function renderPost(item: FeedItem, cfg: RenderCfg = {} as RenderCfg, ful
     ${bodyInner}
     <p class="post__readon"><a class="btn btn--primary" href="${esc(item.link)}">${cta}</a></p>
   </div>
-  <div class="post__col post__foot">
-    <div class="post__react">
-      <button class="post__clap" id="js-clap" type="button" data-guid="${esc(item.guid)}" aria-label="${esc(t("post.clap.aria"))}">${ICON_CLAP}<span id="js-clap-n">${claps}</span></button>
-      <button class="post__share" id="js-share" type="button" data-title="${esc(item.title)}">${ICON_SHARE}<span id="js-share-t">${esc(t("post.share"))}</span></button>
-    </div>
-  </div>
+  ${foot}
   ${postNav}
 </article></main>` + footer(cfg);
 }
