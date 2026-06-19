@@ -77,7 +77,7 @@ ${kitGlobal}
      the generic brand graphic instead of a grey box. Capture phase, since error
      events don't bubble; data-fb prevents infinite loops. -->
 <script>addEventListener("error",function(e){var t=e.target;if(t&&t.tagName==="IMG"&&!t.dataset.fb&&(/__media/.test(t.className)||(t.closest&&t.closest(".post__hero")))){t.dataset.fb=1;t.src="/assets/teaser-fallback.svg?v=${v}";}},true);</script>
-<script>window.KIT_DEFAULT_BRAND=${inlineJson(pub)};window.KIT_DEFAULT_NAV=${inlineJson(DEFAULT_NAV)};window.KIT_LANG=${inlineJson(LANGUAGE)};window.KIT_LOCALE=${inlineJson(LOCALE.intl)};window.KIT_I18N=${inlineJson(clientStrings())};</script>
+<script>window.KIT_DEFAULT_BRAND=${inlineJson(pub)};window.KIT_DEFAULT_NAV=${inlineJson(DEFAULT_NAV)};window.KIT_LANG=${inlineJson(LANGUAGE)};window.KIT_LOCALE=${inlineJson(LOCALE.intl)};window.KIT_I18N=${inlineJson(clientStrings("en"))};</script>
 <!-- Steady Smart Layers / checkout / paywall — the real Steady layer.
      Without a publication ID no script tag (otherwise a broken URL loads). -->
 ${steadyId ? `<script type="text/javascript" src="https://steady.page/widget_loader/${esc(steadyId)}"></script>` : ""}

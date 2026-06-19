@@ -8,8 +8,12 @@
 // (cookies/localStorage/KV) and stay verbatim — they remain the original German enum values.
 
 import { PUBLICATION } from "./config.ts";
-import { t } from "./i18n.ts";
+import { makeT } from "./i18n.ts";
 import { esc } from "./util.ts";
+
+// The customizer panel always renders in English, even on a `de` site — only the
+// public-facing site keeps its language; this admin panel is decoupled from it.
+const t = makeT("en");
 
 export function panelHtml(): string {
   return `<aside class="cz" id="cz-panel" aria-label="${esc(t("panel.title"))}">
@@ -33,8 +37,7 @@ export function panelHtml(): string {
       <label class="cz-lbl">${esc(t("panel.nav.label"))}</label><div class="cz-nav" id="cz-nav"></div>
       <button class="cz-nav-add" id="cz-nav-add" type="button">${esc(t("panel.nav.add"))}</button>
       <button class="cz-apply" id="cz-chrome-apply" type="button">${esc(t("panel.apply"))}</button>
-    </div></section>
-    <section class="cz-sec"><button class="cz-sh" data-acc>${t("panel.sec.footer")}<span class="cz-cv">▾</span></button><div class="cz-sb">
+      <p class="cz-subhead">${esc(t("panel.sec.footer"))}</p>
       <label class="cz-lbl">${esc(t("panel.foot.label"))}</label><div class="cz-nav" id="cz-foot"></div>
       <button class="cz-nav-add" id="cz-foot-add" type="button">${esc(t("panel.foot.add"))}</button>
       <button class="cz-apply" id="cz-foot-apply" type="button">${esc(t("panel.apply"))}</button>

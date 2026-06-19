@@ -338,7 +338,7 @@ html.cz-on .cz{transform:none;}
 .cz-reset:hover{background:#F7F7F7;}
 .cz-x{width:28px;height:28px;border:1px solid #E7E7E7;border-radius:0;background:#fff;color:#757776;cursor:pointer;font-size:16px;line-height:1;transition:color .2s;}
 .cz-x:hover{color:#291E38;}
-.cz-body{overflow-y:auto;flex:1;}
+.cz-body{overflow-y:auto;flex:1;padding-bottom:56px;}
 /* "Publish for all visitors" at the top as an action bar (Steady sideview__actions:
    surface #F7F7F7 + hairline) — the late Steady bottom layer can't cover it */
 .cz-pubbar{flex:none;padding:15px 20px;border-bottom:1px solid #E7E7E7;background:#F7F7F7;}
