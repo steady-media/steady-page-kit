@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Blueprint — styleable-element skin (preview)</title>
+<!-- Uses the kit's REAL markup + this skin, so the preview == what applies to live data. -->
+<link rel="stylesheet" href="./skin.css"/>
+<style>
+/* preview-only: flat gray stand-ins for feed images. Nothing here ships. */
+img{background:#E9E9EE;}
+</style>
+</head>
+<body>
+
+<!-- ===== header (page.ts header) ===== -->
+<header class="site-header"><div class="container site-header__inner">
+  <a class="brand" href="/" aria-label="Publication"><span class="brand__logo" style="background-image:none"></span><span class="brand__name">PUBLICATION</span></a>
+  <div class="header-actions"><a class="login-link" href="#">Log in</a><a class="btn btn--primary" href="#">Subscribe</a></div>
+</div></header>
+<nav class="tabs"><div class="container tabs__bar">
+  <div class="tabs__inner"><a class="tab tab--active" href="#">Latest</a><a class="tab" href="#">Politics</a><a class="tab" href="#">Culture</a><a class="tab" href="#">Science</a></div>
+  <span class="tabs__search" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg></span>
+</div></nav>
+
+<main id="main">
+<!-- ===== split hero (render.ts heroSplit) ===== -->
+<section class="hero"><div class="container hero__grid">
+  <div class="hero__body">
+    <h1 class="hero__title"><a href="#">Lead story headline — the largest type on the page</a></h1>
+    <p class="hero__excerpt">The lead story excerpt sits here: one or two lines pulled from the feed item's description.</p>
+    <div class="hero__date">14 June 2026</div>
+  </div>
+  <a class="hero__medialink" href="#"><img class="hero__media" alt=""/></a>
+</div></section>
+
+<!-- ===== pills (render.ts pill) ===== -->
+<div class="container"><div class="pills">
+  <a class="pill" href="#">Politics</a><a class="pill" href="#">Culture</a><a class="pill" href="#">Science</a><a class="pill" href="#">Essays</a><a class="pill" href="#">Climate</a>
+</div></div>
+
+<div class="container">
+<!-- ===== section · feature (render.ts rubrikStream mode=feature) ===== -->
+<section class="rubrik rubrik--feature">
+  <header class="rubrik__head"><a class="rubrik__chip" href="#">Politics</a><a class="rubrik__more" href="#">More →</a></header>
+  <div class="rubrik__feature">
+    <a class="feat-main" href="#"><img class="feat-main__media" alt=""/><h3 class="feat-main__title">The lead article of this section</h3><p class="feat-main__excerpt">A longer excerpt for the section's main story, two lines of feed description.</p><div class="card__date">3 days ago</div></a>
+    <div class="feat-list">
+      <a class="teaser-row" href="#"><img class="teaser-row__media" alt=""/><div><h4 class="teaser-row__title">Secondary story in the list</h4><div class="card__date">Analysis</div></div></a>
+      <a class="teaser-row" href="#"><img class="teaser-row__media" alt=""/><div><h4 class="teaser-row__title">Another list item headline</h4><div class="card__date">Profile</div></div></a>
+      <a class="teaser-row" href="#"><img class="teaser-row__media" alt=""/><div><h4 class="teaser-row__title">A third teaser in the rail</h4><div class="card__date">Explainer</div></div></a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== section · cards (render.ts rubrikStream mode=cards) ===== -->
+<section class="rubrik rubrik--cards">
+  <header class="rubrik__head"><a class="rubrik__chip" href="#">Culture</a><a class="rubrik__more" href="#">More →</a></header>
+  <div class="grid rubrik__grid">
+    <a class="card" href="#"><img class="card__media" alt=""/><div class="card__body"><h3 class="card__title">A card title from the feed</h3><p class="card__excerpt">Card excerpt, one line.</p><div class="card__date">Yesterday</div></div></a>
+    <a class="card" href="#"><img class="card__media" alt=""/><div class="card__body"><h3 class="card__title">Second card headline</h3><p class="card__excerpt">Card excerpt, one line.</p><div class="card__date">2 days ago</div></div></a>
+    <a class="card" href="#"><img class="card__media" alt=""/><div class="card__body"><h3 class="card__title">Third card headline</h3><p class="card__excerpt">Card excerpt, one line.</p><div class="card__date">4 days ago</div></div></a>
+  </div>
+</section>
+
+<!-- ===== section · compact (render.ts rubrikStream mode=compact) ===== -->
+<section class="rubrik rubrik--compact">
+  <header class="rubrik__head"><a class="rubrik__chip" href="#">Science</a><a class="rubrik__more" href="#">More →</a></header>
+  <div class="rubrik__compact">
+    <a class="teaser-text" href="#"><h4 class="teaser-text__title">A text-only teaser, no image</h4><p class="teaser-text__excerpt">Excerpt line for the compact layout.</p><div class="card__date">Report</div></a>
+    <a class="teaser-text" href="#"><h4 class="teaser-text__title">Second compact teaser</h4><p class="teaser-text__excerpt">Excerpt line for the compact layout.</p><div class="card__date">Feature</div></a>
+    <a class="teaser-text" href="#"><h4 class="teaser-text__title">Third compact teaser</h4><p class="teaser-text__excerpt">Excerpt line for the compact layout.</p><div class="card__date">Essay</div></a>
+  </div>
+</section>
+
+<!-- ===== stream controls (render.ts load-more + #memberships) ===== -->
+<div class="loadmore-wrap"><button class="load-more">Load more</button></div>
+<div id="memberships"></div>
+</div>
+</main>
+
+<!-- ===== footer (page.ts footer, panel removed) ===== -->
+<footer class="site-footer"><div class="container site-footer__inner">
+  <a class="brand" href="/" aria-label="Publication"><span class="brand__logo" style="background-image:none"></span></a>
+  <nav class="site-footer__links"><a class="footer-link" href="#">About</a><a class="footer-link" href="#">Membership</a><a class="footer-link" href="#">Imprint</a><a class="footer-link" href="#">Privacy</a></nav>
+</div></footer>
+
+</body>
+</html>
